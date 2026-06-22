@@ -1,0 +1,3842 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>培训师积分管理</title>
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --panel: #fff;
+      --ink: #1f2a24;
+      --muted: #66736b;
+      --line: #cfdbd2;
+      --head: #f26f3d;
+      --head-deep: #d84f25;
+      --green: #4f9c43;
+      --green-soft: #e8f4e1;
+      --blue: #2f80c2;
+      --blue-soft: #e8f0f8;
+      --amber: #c77b0e;
+      --amber-soft: #fff3d7;
+      --teal: #21877e;
+      --teal-soft: #e3f1ef;
+      --rose: #b65050;
+      --rose-soft: #fbe8e5;
+      --purple: #7161a8;
+      --cream: #fff8ec;
+      --focus: #1769aa;
+      --shadow: 0 16px 46px rgba(101, 70, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 6%, rgba(242, 111, 61, 0.16), transparent 260px),
+        linear-gradient(180deg, rgba(242, 111, 61, 0.11), rgba(247, 244, 238, 0) 270px),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 20px;
+      color: #fff;
+      background: linear-gradient(90deg, #c84d2a, #f27d43);
+      box-shadow: 0 8px 24px rgba(139, 66, 30, 0.24);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 280px;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 12px;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px;
+      gap: 16px;
+      min-height: 132px;
+      margin-bottom: 14px;
+      padding: 18px 20px;
+      overflow: hidden;
+      border: 1px solid rgba(221, 142, 89, 0.28);
+      border-radius: 8px;
+      background:
+        linear-gradient(110deg, #fffaf1 0%, #fff 56%, #fdf0de 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #7c3f1d;
+      background: #fff1dd;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hero-art {
+      align-self: end;
+      justify-self: end;
+      width: 148px;
+      max-height: 128px;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 22px rgba(112, 75, 48, 0.16));
+    }
+
+    .board-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-top: 12px;
+      padding: 4px;
+      border: 1px solid rgba(221, 142, 89, 0.34);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .board-switch button {
+      min-height: 30px;
+      padding: 0 13px;
+      border-radius: 6px;
+      color: #7c3f1d;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .board-switch button.active {
+      color: #fff;
+      background: linear-gradient(90deg, #c84d2a, #f27d43);
+      box-shadow: 0 6px 14px rgba(200, 77, 42, 0.18);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .icon-btn,
+    .text-btn,
+    .small-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 7px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .icon-btn,
+    .text-btn {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      text-decoration: none;
+    }
+
+    .icon-btn {
+      width: 36px;
+      padding: 0;
+    }
+
+    .text-btn {
+      gap: 7px;
+      padding: 0 12px;
+      font-weight: 650;
+    }
+
+    .icon-btn:hover,
+    .text-btn:hover,
+    .small-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .danger-btn {
+      background: rgba(151, 38, 38, 0.34);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .readonly-only {
+      display: none;
+    }
+
+    body.readonly .edit-only {
+      display: none !important;
+    }
+
+    body.readonly .readonly-only {
+      display: inline-flex;
+    }
+
+    body.readonly input,
+    body.readonly select,
+    body.readonly textarea {
+      pointer-events: none;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      appearance: none;
+    }
+
+    .main {
+      width: min(100%, 1680px);
+      margin: 0 auto;
+      padding: 18px 20px 30px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric,
+    .panel,
+    .filters,
+    .rules,
+    .notes {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      min-height: 84px;
+      padding: 14px;
+      background: linear-gradient(180deg, #fff, #fffaf4);
+    }
+
+    .metric b {
+      display: block;
+      font-size: 25px;
+      line-height: 1.08;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .risk-panel,
+    .trash-panel {
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .risk-body,
+    .trash-body {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+
+    .risk-list,
+    .trash-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .risk-item,
+    .trash-item {
+      display: grid;
+      grid-template-columns: 82px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid #e1e8e3;
+      border-radius: 8px;
+      background: #fffdf8;
+    }
+
+    .risk-item strong,
+    .trash-item strong {
+      font-size: 13px;
+    }
+
+    .risk-item span,
+    .trash-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+
+    .panel-head strong {
+      font-size: 15px;
+    }
+
+    .panel-head small {
+      color: var(--muted);
+    }
+
+    .chart-body {
+      padding: 12px;
+    }
+
+    .rank-list,
+    .stack-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .rank-row,
+    .stack-row {
+      display: grid;
+      grid-template-columns: 126px 1fr 58px;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .rank-name,
+    .stack-name {
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track,
+    .stack-track {
+      overflow: hidden;
+      height: 15px;
+      border-radius: 6px;
+      background: #eef2ef;
+    }
+
+    .bar {
+      height: 100%;
+      min-width: 2px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--head), var(--blue));
+    }
+
+    .stack-track {
+      display: flex;
+    }
+
+    .seg-training { background: var(--head); }
+    .seg-quality { background: var(--blue); }
+    .seg-course { background: var(--amber); }
+    .seg-work { background: var(--teal); }
+    .seg-self { background: var(--rose); }
+
+    .bar-value {
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 4px;
+      border-radius: 3px;
+      vertical-align: -1px;
+    }
+
+    .empty-chart {
+      padding: 28px 8px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px;
+    }
+
+    .trainer-form {
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid rgba(242, 111, 61, 0.24);
+      border-radius: 8px;
+      background: linear-gradient(110deg, #fff, #fff7ed);
+      box-shadow: var(--shadow);
+    }
+
+    .trainer-form-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .trainer-form-head strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .trainer-form-head small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+    }
+
+    .trainer-form-head img {
+      width: 82px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 16px rgba(112, 75, 48, 0.12));
+    }
+
+    .trainer-form-grid {
+      display: grid;
+      grid-template-columns: 90px repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .trainer-form-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 32px;
+      border: 1px solid #c9d5cc;
+      border-radius: 6px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    input,
+    select {
+      padding: 5px 7px;
+    }
+
+    textarea {
+      min-height: 52px;
+      resize: vertical;
+      padding: 7px;
+      line-height: 1.35;
+    }
+
+    input[type="number"] {
+      text-align: right;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    .workbench {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .table-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+
+    .table-meta strong {
+      font-size: 15px;
+    }
+
+    .table-meta small {
+      color: var(--muted);
+    }
+
+    .scroll-shell {
+      overflow: auto;
+      max-height: calc(100vh - 360px);
+    }
+
+    table {
+      width: 1980px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 7px;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      height: 38px;
+      color: #111;
+      background: #e4f0dc;
+      font-size: 12px;
+      line-height: 1.35;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    th.sticky-col,
+    td.sticky-col {
+      position: sticky;
+      z-index: 7;
+      background: #fff;
+      box-shadow: 1px 0 0 var(--line);
+    }
+
+    th.sticky-col {
+      z-index: 12;
+      background: #fff1dd;
+    }
+
+    tbody tr:nth-child(even) td.sticky-col {
+      background: #fffdfa;
+    }
+
+    tbody tr.trainer-row:hover td.sticky-col {
+      background: #fff6e9;
+    }
+
+    .col-seq { left: 0; width: 54px; }
+    .col-name { left: 54px; width: 116px; }
+    .col-dept { left: 170px; width: 102px; }
+    .col-subject { left: 272px; width: 126px; }
+    .col-level { left: 398px; width: 76px; }
+    .col-appointed { left: 474px; width: 112px; }
+    .col-action { left: 586px; width: 122px; }
+
+    tbody tr:nth-child(even) td {
+      background: #fcfdfb;
+    }
+
+    tbody tr.trainer-row:hover td {
+      background: #fffdf2;
+    }
+
+    .rank-cell {
+      width: 58px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .seq-cell {
+      text-align: center;
+      font-weight: 800;
+      color: #7c3f1d;
+    }
+
+    .expander {
+      display: inline-grid;
+      width: 27px;
+      height: 27px;
+      margin-right: 6px;
+      place-items: center;
+      border: 1px solid #c9d5cc;
+      border-radius: 6px;
+      color: var(--ink);
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .trainer-name {
+      font-weight: 800;
+    }
+
+    .front-action {
+      display: inline-flex;
+      min-height: 30px;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid rgba(242, 111, 61, 0.34);
+      border-radius: 7px;
+      color: #9d3f20;
+      background: #fff4e8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .front-action:hover {
+      background: #ffe8d4;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .score {
+      text-align: right;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total-score {
+      color: #0b5e32;
+      font-size: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      color: #2c4a31;
+      background: var(--green-soft);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill.warn {
+      color: #8a4b10;
+      background: var(--amber-soft);
+    }
+
+    .pill.bad {
+      color: #8a2929;
+      background: var(--rose-soft);
+    }
+
+    .small-btn {
+      gap: 5px;
+      min-height: 30px;
+      padding: 0 9px;
+      border: 1px solid #c9d5cc;
+      color: #243228;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .small-btn:hover {
+      background: #edf5e9;
+    }
+
+    .details-row td {
+      padding: 0;
+      background: #f8fbf7 !important;
+    }
+
+    .details-panel {
+      padding: 12px;
+    }
+
+    .details-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .details-head strong {
+      font-size: 13px;
+    }
+
+    .detail-card {
+      margin-bottom: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .detail-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fff8ee;
+    }
+
+    .detail-card-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      color: #7c3f1d;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .detail-front-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .detail-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 132px 132px 1.4fr 120px 1fr;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .business-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(118px, 1fr));
+      gap: 8px;
+      padding: 10px;
+      background: #fbfcfb;
+    }
+
+    .business-grid .field {
+      padding: 8px;
+      border: 1px solid #cfe0ed;
+      border-radius: 8px;
+      background: #f1f7fc;
+    }
+
+    .business-grid input,
+    .business-grid select {
+      border-color: #b6d2e8;
+      background: #fff;
+    }
+
+    .fixed-field {
+      min-height: 32px;
+      padding: 6px 8px;
+      border: 1px solid #d8e1da;
+      border-radius: 6px;
+      color: var(--ink);
+      background: #f7faf6;
+      font-weight: 700;
+    }
+
+    .calc-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+      padding: 9px 10px;
+      border-top: 1px solid var(--line);
+      background: #f8faf7;
+    }
+
+    .audit-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 10px 10px;
+      color: var(--muted);
+      background: #f8faf7;
+      font-size: 12px;
+    }
+
+    .audit-strip span {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid #d8e1da;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .calc {
+      min-height: 36px;
+      padding: 5px 7px;
+      border: 1px solid #cde3cf;
+      border-radius: 6px;
+      background: #f0f8ee;
+    }
+
+    .calc.total-calc {
+      border-color: rgba(67, 138, 36, 0.45);
+      color: #0b5e32;
+      background: #e4f5dd;
+    }
+
+    .calc span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .calc b {
+      display: block;
+      margin-top: 2px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .roster-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .roster-chip {
+      display: inline-flex;
+      min-height: 22px;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0 7px;
+      color: #4d5e53;
+      background: #eef4ef;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tiny-btn {
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid #c9d5cc;
+      border-radius: 6px;
+      color: #243228;
+      background: #fff;
+    }
+
+    .tiny-btn:hover {
+      background: #edf5e9;
+    }
+
+    .empty {
+      padding: 36px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-visual {
+      display: grid;
+      max-width: 360px;
+      margin: 0 auto;
+      justify-items: center;
+      gap: 10px;
+    }
+
+    .empty-visual img {
+      width: 92px;
+      height: 92px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 16px rgba(112, 75, 48, 0.12));
+    }
+
+    .drawer {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .compact-drawer {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .rules,
+    .notes {
+      padding: 10px 12px;
+    }
+
+    .rules h2,
+    .notes h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .rules-grid dt {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .rules-grid dd {
+      margin: 2px 0 0;
+    }
+
+    .notes textarea {
+      min-height: 68px;
+    }
+
+    .notes-visual {
+      display: grid;
+      grid-template-columns: 1fr 68px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .notes-visual img {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 16px rgba(112, 75, 48, 0.12));
+    }
+
+    body.operations-board table {
+      width: 1860px;
+    }
+
+    body.operations-board .col-subject {
+      display: none;
+    }
+
+    body.operations-board .col-level {
+      left: 272px;
+    }
+
+    body.operations-board .col-appointed {
+      left: 348px;
+    }
+
+    body.operations-board .col-action {
+      left: 460px;
+    }
+
+    .sr-file {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      max-width: min(460px, calc(100vw - 36px));
+      padding: 10px 12px;
+      border: 1px solid rgba(67, 138, 36, 0.28);
+      border-radius: 8px;
+      color: #17351d;
+      background: #f6fff2;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .summary-grid,
+      .dashboard,
+      .drawer {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .main {
+        padding: 12px;
+      }
+
+      .detail-grid,
+      .business-grid,
+      .calc-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-art {
+        display: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .topbar,
+      .filters,
+      .dashboard,
+      .drawer,
+      .row-actions,
+      .toast {
+        display: none !important;
+      }
+
+      .main {
+        width: 100%;
+        padding: 0;
+      }
+
+      .workbench {
+        border: 0;
+        box-shadow: none;
+      }
+
+      .scroll-shell {
+        overflow: visible;
+        max-height: none;
+      }
+
+      table {
+        width: 100%;
+        font-size: 9px;
+      }
+
+      th,
+      td {
+        padding: 3px;
+      }
+
+      .details-row {
+        display: table-row !important;
+      }
+
+      input,
+      select,
+      textarea {
+        border: 0;
+        padding: 0;
+        min-height: 0;
+        background: transparent;
+        appearance: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 1-2-2Z"></path><path d="M8 8h6"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>
+        </div>
+        <div>
+          <h1>新东方福州学校校级教学培训师积分明细</h1>
+          <p>按培训师汇总，展开查看不同实施日期的明细</p>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="工具栏">
+        <a class="text-btn" href="trainer-invite.html" title="打开培训师展示与邀约">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg>
+          展示邀约
+        </a>
+        <button class="text-btn edit-only" id="addDetailBtn" title="新增明细">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          新增明细
+        </button>
+        <button class="text-btn edit-only" id="toggleTrainerFormBtn" title="新增培训师">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
+          新增培训师
+        </button>
+        <button class="text-btn edit-only" id="undoDeleteBtn" title="撤销最近删除" hidden>
+          <svg viewBox="0 0 24 24"><path d="M3 7v6h6"></path><path d="M21 17a8 8 0 0 0-13.7-5.7L3 15"></path></svg>
+          恢复
+        </button>
+        <button class="text-btn edit-only" id="toggleTrashBtn" title="打开回收站">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+          回收站
+        </button>
+        <span class="text-btn readonly-only" title="当前为只读分享页">
+          <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          只读查看
+        </span>
+        <button class="icon-btn" id="exportGroupedBtn" title="导出 Excel 可打开的分组明细 CSV">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+        </button>
+        <button class="icon-btn" id="exportExcelBtn" title="导出 Excel 可打开的原表格式 CSV">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M4 10h16"></path><path d="M10 4v16"></path></svg>
+        </button>
+        <button class="icon-btn" id="exportJsonBtn" title="导出 JSON 备份">
+          <svg viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M9 15h6"></path></svg>
+        </button>
+        <button class="icon-btn edit-only" id="exportReadonlyBtn" title="导出积分看板分享预览">
+          <svg viewBox="0 0 24 24"><path d="M12 3v4"></path><path d="M12 17v4"></path><path d="M5.6 5.6 8.4 8.4"></path><path d="m15.6 15.6 2.8 2.8"></path><path d="M3 12h4"></path><path d="M17 12h4"></path><path d="m5.6 18.4 2.8-2.8"></path><path d="m15.6 8.4 2.8-2.8"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+        <button class="icon-btn edit-only" id="importBtn" title="导入 JSON 备份">
+          <svg viewBox="0 0 24 24"><path d="M12 21V9"></path><path d="m17 14-5-5-5 5"></path><path d="M5 3h14"></path></svg>
+        </button>
+        <button class="icon-btn" id="printBtn" title="打印">
+          <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+        </button>
+        <button class="icon-btn danger-btn edit-only" id="clearBtn" title="清空全部数据">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>
+        </button>
+      </div>
+      <input class="sr-file" id="fileInput" type="file" accept="application/json,.json">
+    </header>
+
+    <main class="main">
+      <section class="hero" aria-label="页面说明">
+        <div>
+          <h2 id="heroTitle">培训师积分看板</h2>
+          <p id="heroSubtitle">固定展示培训师基础信息，横向滚动时也能快速对应姓名；按实施日期维护明细，汇总排名和模块贡献实时更新。</p>
+          <div class="board-switch" id="boardSwitch" aria-label="看板切换">
+            <button type="button" data-board="teaching">教学培训师</button>
+            <button type="button" data-board="operations">运营培训师</button>
+          </div>
+          <div class="hero-badges">
+            <span class="hero-badge">考核周期：2026.06.01 - 2027.05.31</span>
+            <span class="hero-badge" id="heroTrainerBadge">9 位培训师</span>
+            <span class="hero-badge readonly-only">公开只读模式</span>
+          </div>
+        </div>
+        <img class="hero-art" id="heroArt" src="assets/hero-frame.png" alt="">
+      </section>
+
+      <section class="summary-grid" aria-label="积分概览">
+        <div class="metric"><b id="trainerCount">0</b><span>培训师人数</span></div>
+        <div class="metric"><b id="detailCount">0</b><span>明细条数</span></div>
+        <div class="metric"><b id="topTrainer">-</b><span>当前最高积分培训师</span></div>
+        <div class="metric"><b id="topScore">0</b><span>最高总积分</span></div>
+        <div class="metric"><b id="cycleLabel">2026.06-2027.05</b><span>统一考核周期</span></div>
+      </section>
+
+      <section class="dashboard" aria-label="可视化">
+        <div class="panel">
+          <div class="panel-head">
+            <strong>总积分 Top 排名</strong>
+            <small>按筛选结果实时更新</small>
+          </div>
+          <div class="chart-body" id="rankChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <strong>模块贡献</strong>
+            <small id="stackSubtitle">培训 / 质检 / 课程 / 师训 / 绩效</small>
+          </div>
+          <div class="chart-body" id="stackChart"></div>
+        </div>
+      </section>
+
+      <section class="risk-panel" aria-label="季度风险预警">
+        <div class="panel-head">
+          <strong>季度风险预警</strong>
+          <small>当前及之前季度，自动提示 0 积分培训师</small>
+        </div>
+        <div class="risk-body" id="riskBody"></div>
+      </section>
+
+      <section class="filters" aria-label="筛选">
+        <div class="field">
+          <label for="deptFilter">部门</label>
+          <select id="deptFilter"></select>
+        </div>
+        <div class="field">
+          <label for="nameFilter">姓名关键词</label>
+          <input id="nameFilter" type="search" placeholder="输入姓名或事项">
+        </div>
+        <div class="field">
+          <label for="startDateFilter">开始日期</label>
+          <input id="startDateFilter" type="date">
+        </div>
+        <div class="field">
+          <label for="endDateFilter">结束日期</label>
+          <input id="endDateFilter" type="date">
+        </div>
+        <div class="field">
+          <label for="statusFilter">确认状态</label>
+          <select id="statusFilter">
+            <option value="">全部</option>
+            <option value="未确认">未确认</option>
+            <option value="已确认">已确认</option>
+            <option value="待补充">待补充</option>
+            <option value="有异议">有异议</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="small-btn" id="resetFilterBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+            重置筛选
+          </button>
+        </div>
+      </section>
+
+      <section class="trainer-form edit-only" id="trainerForm" hidden aria-label="新增培训师">
+        <div class="trainer-form-head">
+          <div>
+            <strong>新增培训师</strong>
+            <small>新增后会进入主表，可继续在该培训师下录入明细。</small>
+          </div>
+          <img src="assets/hero-wave.png" alt="">
+        </div>
+        <div class="trainer-form-grid">
+          <div class="field"><label for="newTrainerSeq">序号</label><input id="newTrainerSeq" type="number" min="1" step="1"></div>
+          <div class="field"><label for="newTrainerName">姓名</label><input id="newTrainerName" type="text" placeholder="请输入姓名"></div>
+          <div class="field"><label for="newTrainerDept">部门</label><input id="newTrainerDept" type="text" placeholder="例如：高中部"></div>
+          <div class="field" id="newTrainerSubjectField"><label for="newTrainerSubject">所属科目</label><input id="newTrainerSubject" type="text" placeholder="例如：物理"></div>
+          <div class="field"><label for="newTrainerLevel">级别</label><input id="newTrainerLevel" type="text" value="初级"></div>
+          <div class="field"><label for="newTrainerAppointed">任用日期</label><input id="newTrainerAppointed" type="date"></div>
+        </div>
+        <div class="trainer-form-actions">
+          <button class="small-btn" id="saveTrainerBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+            保存培训师
+          </button>
+          <button class="small-btn" id="cancelTrainerBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            取消
+          </button>
+        </div>
+      </section>
+
+      <section class="trash-panel edit-only" id="trashPanel" hidden aria-label="回收站">
+        <div class="panel-head">
+          <strong>回收站</strong>
+          <small>删除的明细会先放在这里，可恢复。</small>
+        </div>
+        <div class="trash-body" id="trashBody"></div>
+      </section>
+
+      <section class="workbench" aria-label="培训师分组积分表">
+        <div class="table-meta">
+          <div>
+            <strong>培训师汇总与明细</strong>
+            <small id="saveStatus">等待录入</small>
+          </div>
+          <small id="formulaText">总积分 = 培训×30% + 质检评审×30% + 课程开发×20% + 师训工作×15% + 个人教学考核×5%</small>
+        </div>
+        <div class="scroll-shell">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col col-seq">序号</th>
+                <th class="sticky-col col-name">姓名</th>
+                <th class="sticky-col col-dept">部门</th>
+                <th class="sticky-col col-subject" id="subjectHeader">所属科目</th>
+                <th class="sticky-col col-level">级别</th>
+                <th class="sticky-col col-appointed">任用日期</th>
+                <th class="sticky-col col-action">新增明细</th>
+                <th style="width:70px;">排名</th>
+                <th style="width:100px;">培训师时长</th>
+                <th style="width:178px;">考核周期</th>
+                <th style="width:95px;" id="totalHeader">总积分</th>
+                <th style="width:86px;" id="scoreHead1">培训分</th>
+                <th style="width:86px;" id="scoreHead2">质检分</th>
+                <th style="width:86px;" id="scoreHead3">课程分</th>
+                <th style="width:86px;" id="scoreHead4">师训分</th>
+                <th style="width:86px;" id="scoreHead5">考核分</th>
+                <th style="width:84px;">明细数</th>
+                <th style="width:170px;">日期范围</th>
+                <th style="width:112px;">确认状态</th>
+              </tr>
+            </thead>
+            <tbody id="groupsBody"></tbody>
+          </table>
+          <div class="empty" id="emptyState" hidden>暂无数据，点击右上角“新增明细”开始录入。</div>
+        </div>
+      </section>
+
+      <section class="drawer compact-drawer">
+        <div class="rules">
+          <h2 id="rulesTitle">评分规则</h2>
+          <dl class="rules-grid" id="rulesGrid">
+          </dl>
+        </div>
+        <div class="notes">
+          <div class="notes-visual">
+            <div>
+              <h2>整体备注</h2>
+              <p class="muted">这里适合记录统计口径、复核说明和公示备注。</p>
+            </div>
+            <img src="assets/hero-graduate.png" alt="">
+          </div>
+          <textarea id="globalNotes" placeholder="例如：统计周期、数据来源、复核人、特殊说明等。"></textarea>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "trainer-score-manager-v2";
+    const LEGACY_KEY = "trainer-score-manager-v1";
+    const PUBLISHED_STATE = null;
+    const isReadonlyMode = (() => {
+      const loc = window.location || { search: "", hash: "", hostname: "" };
+      return loc.search.includes("readonly=1") || loc.hash.includes("readonly") || loc.hostname.endsWith("github.io");
+    })();
+    const ASSESSMENT_PERIOD = {
+      start: "2026-06-01",
+      end: "2027-05-31",
+      label: "2026-06-01 至 2027-05-31"
+    };
+    const INITIAL_TRAINERS = [
+      { id: "t01", seq: 1, name: "陈芳", dept: "素养智学部", subject: "口才", level: "初级", appointedAt: "2023-12-21" },
+      { id: "t02", seq: 2, name: "高磊", dept: "高中部", subject: "物理", level: "初级", appointedAt: "2023-12-21" },
+      { id: "t03", seq: 3, name: "方显威", dept: "素养智学部", subject: "分级阅读", level: "初级", appointedAt: "2017-01-01" },
+      { id: "t04", seq: 4, name: "丁璇", dept: "素养智学部", subject: "分级阅读", level: "初级", appointedAt: "2023-12-21" },
+      { id: "t05", seq: 5, name: "陈晨", dept: "高中部", subject: "英语", level: "初级", appointedAt: "2021-07-02" },
+      { id: "t06", seq: 6, name: "黄鑫", dept: "智慧学习部", subject: "数学", level: "初级", appointedAt: "2023-12-21" },
+      { id: "t07", seq: 7, name: "张孔政", dept: "高中部", subject: "数学", level: "初级", appointedAt: "2019-01-09" },
+      { id: "t08", seq: 8, name: "沈千云", dept: "素养智学部", subject: "脑力与思维", level: "初级", appointedAt: "2023-12-21" },
+      { id: "t09", seq: 9, name: "苗鹏", dept: "素养智学部", subject: "脑力与思维", level: "初级", appointedAt: "2021-07-02" }
+    ];
+    const today = () => new Date().toISOString().slice(0, 10);
+    const nowStamp = () => {
+      const date = new Date();
+      const pad = value => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    };
+
+    const typeOptions = ["培训", "质检评审", "课程开发", "师训文章", "培训师带教", "集团竞聘", "绩效考核", "综合"];
+    const confirmOptions = ["未确认", "已确认", "待补充", "有异议"];
+    const performanceOptions = ["A+", "A", "B+", "其他"];
+    const competitionOptions = ["", "报名成功", "复试入选", "竞聘成功（条线）", "竞聘成功（集团）"];
+    const competitionScores = { "": 0, "报名成功": 1, "复试入选": 2, "竞聘成功（条线）": 2, "竞聘成功（集团）": 4 };
+
+    const createId = () => {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+      return String(Date.now() + Math.random());
+    };
+
+    const defaultDetail = (seed = {}) => {
+      const stamp = seed.createdAt || seed.updatedAt || nowStamp();
+      return {
+        id: createId(),
+        trainerId: "",
+        createdAt: stamp,
+        updatedAt: seed.updatedAt || stamp,
+        date: today(),
+        type: "培训",
+        dept: "",
+        name: "",
+        level: "",
+        description: "",
+        offlineHours: 0,
+        volunteerHours: 0,
+        trainingSatisfaction: "",
+        qualityHours: 0,
+        qualityReport: false,
+        reviewHours: 0,
+        reviewReport: false,
+        demandFeedback: "",
+        shortCourses: 0,
+        longCourses: 0,
+        articles: 0,
+        mentoringHours: 0,
+        competitionStatus: "",
+        performance: "其他",
+        confirmed: "未确认",
+        remark: "",
+        ...seed
+      };
+    };
+
+    let state = {
+      version: 2,
+      updatedAt: "",
+      notes: "",
+      trainers: INITIAL_TRAINERS.map(trainer => ({ ...trainer })),
+      details: []
+    };
+
+    const ui = {
+      expanded: new Set(),
+      filters: {
+        dept: "",
+        keyword: "",
+        startDate: "",
+        endDate: "",
+        status: ""
+      }
+    };
+
+    const groupsBody = document.getElementById("groupsBody");
+    const emptyState = document.getElementById("emptyState");
+    const saveStatus = document.getElementById("saveStatus");
+    const toast = document.getElementById("toast");
+    const fileInput = document.getElementById("fileInput");
+    const globalNotes = document.getElementById("globalNotes");
+    const rankChart = document.getElementById("rankChart");
+    const stackChart = document.getElementById("stackChart");
+    const trainerForm = document.getElementById("trainerForm");
+
+    function numberValue(value) {
+      const num = Number(value);
+      return Number.isFinite(num) && num > 0 ? num : 0;
+    }
+
+    function format(num) {
+      const rounded = Math.round((num + Number.EPSILON) * 100) / 100;
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+    }
+
+    function satisfactionScore(value) {
+      const score = Number(value);
+      if (!Number.isFinite(score)) return 0;
+      if (score >= 4.8) return 2;
+      if (score >= 4.5) return 1.5;
+      if (score >= 4.0) return 1;
+      return 0;
+    }
+
+    function performanceScore(value) {
+      return { "A+": 3, "A": 2, "B+": 1, "其他": 0 }[value] || 0;
+    }
+
+    function calculateDetail(detail) {
+      const trainingHours = numberValue(detail.offlineHours) * 2 + numberValue(detail.volunteerHours);
+      const trainingSatisfaction = satisfactionScore(detail.trainingSatisfaction);
+      const training = trainingHours + trainingSatisfaction;
+      const qualityCheck = detail.qualityReport ? numberValue(detail.qualityHours) * 0.5 : 0;
+      const review = detail.reviewReport ? numberValue(detail.reviewHours) * 0.5 : 0;
+      const demand = satisfactionScore(detail.demandFeedback);
+      const quality = qualityCheck + review + demand;
+      const course = numberValue(detail.shortCourses) * 2 + numberValue(detail.longCourses) * 3;
+      const articleScore = numberValue(detail.articles);
+      const mentoring = numberValue(detail.mentoringHours) * 0.5;
+      const competition = competitionScores[detail.competitionStatus || ""] || 0;
+      const work = articleScore + mentoring + competition;
+      const self = performanceScore(detail.performance);
+      const total = training * 0.3 + quality * 0.3 + course * 0.2 + work * 0.15 + self * 0.05;
+      const warnings = [];
+      if (numberValue(detail.qualityHours) > 0 && !detail.qualityReport) warnings.push("督课质检需补报告");
+      if (numberValue(detail.reviewHours) > 0 && !detail.reviewReport) warnings.push("评委评分需补报告");
+      if (detail.confirmed !== "已确认") warnings.push("回函未确认");
+      return {
+        trainingHours,
+        trainingSatisfaction,
+        training,
+        qualityCheck,
+        review,
+        demand,
+        quality,
+        course,
+        articleScore,
+        mentoring,
+        competition,
+        work,
+        self,
+        total,
+        warnings
+      };
+    }
+
+    function weightedParts(score) {
+      return {
+        training: score.training * 0.3,
+        quality: score.quality * 0.3,
+        course: score.course * 0.2,
+        work: score.work * 0.15,
+        self: score.self * 0.05
+      };
+    }
+
+    function normalizeTrainer(trainer, index = 0) {
+      const fixedSubject = trainer.name === "高磊" && trainer.dept === "高中部" ? "物理" : trainer.subject || "";
+      return {
+        id: trainer.id || `custom-${index + 1}-${createId()}`,
+        seq: trainer.seq || index + 1,
+        name: trainer.name || "",
+        dept: trainer.dept || "",
+        subject: fixedSubject,
+        level: trainer.level || "",
+        appointedAt: trainer.appointedAt || ""
+      };
+    }
+
+    function trainerIdentity(trainer) {
+      return `${(trainer.dept || "").trim()}||${(trainer.name || "").trim()}`;
+    }
+
+    function getTrainerById(id) {
+      return state.trainers.find(trainer => trainer.id === id);
+    }
+
+    function findTrainerForDetail(detail) {
+      if (detail.trainerId) {
+        const byId = getTrainerById(detail.trainerId);
+        if (byId) return byId;
+      }
+      const identity = `${(detail.dept || "").trim()}||${(detail.name || "").trim()}`;
+      return state.trainers.find(trainer => trainerIdentity(trainer) === identity);
+    }
+
+    function detailTrainer(detail) {
+      const trainer = findTrainerForDetail(detail);
+      if (trainer) return trainer;
+      return {
+        id: "",
+        dept: detail.dept || "未填写部门",
+        subject: "",
+        name: detail.name || "未填写姓名",
+        level: detail.level || "",
+        appointedAt: ""
+      };
+    }
+
+    function tenureText(appointedAt) {
+      if (!appointedAt) return "-";
+      const start = new Date(`${appointedAt}T00:00:00`);
+      const end = new Date(`${today()}T00:00:00`);
+      if (Number.isNaN(start.getTime()) || end < start) return "-";
+      let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+      if (end.getDate() < start.getDate()) months -= 1;
+      const years = Math.floor(Math.max(months, 0) / 12);
+      const rest = Math.max(months, 0) % 12;
+      if (years && rest) return `${years}年${rest}个月`;
+      if (years) return `${years}年`;
+      return `${rest}个月`;
+    }
+
+    function trainerKey(detail) {
+      const trainer = detailTrainer(detail);
+      return trainer.id || `${(trainer.dept || "未填写部门").trim()}||${(trainer.name || "未填写姓名").trim()}`;
+    }
+
+    function sortByDateDesc(a, b) {
+      return String(b.date || "").localeCompare(String(a.date || ""));
+    }
+
+    function dateInRange(detail) {
+      if (ui.filters.startDate && (!detail.date || detail.date < ui.filters.startDate)) return false;
+      if (ui.filters.endDate && (!detail.date || detail.date > ui.filters.endDate)) return false;
+      return true;
+    }
+
+    function detailMatchesFilters(detail) {
+      const keyword = ui.filters.keyword.trim().toLowerCase();
+      const trainer = detailTrainer(detail);
+      if (ui.filters.dept && trainer.dept !== ui.filters.dept) return false;
+      if (ui.filters.status && detail.confirmed !== ui.filters.status) return false;
+      if (!dateInRange(detail)) return false;
+      if (keyword) {
+        const haystack = [trainer.name, trainer.dept, trainer.subject, detail.description, detail.remark, detail.type].join(" ").toLowerCase();
+        if (!haystack.includes(keyword)) return false;
+      }
+      return true;
+    }
+
+    function trainerMatchesFilters(trainer, matchedDetails) {
+      const keyword = ui.filters.keyword.trim().toLowerCase();
+      if (ui.filters.dept && trainer.dept !== ui.filters.dept) return false;
+      if (ui.filters.status && !matchedDetails.length) return false;
+      if ((ui.filters.startDate || ui.filters.endDate) && !matchedDetails.length) return false;
+      if (keyword) {
+        const trainerText = [trainer.name, trainer.dept, trainer.subject, trainer.level].join(" ").toLowerCase();
+        const detailHit = matchedDetails.some(detail => [detail.description, detail.remark, detail.type].join(" ").toLowerCase().includes(keyword));
+        if (!trainerText.includes(keyword) && !detailHit) return false;
+      }
+      return true;
+    }
+
+    function getFilteredDetails() {
+      return state.details.filter(detailMatchesFilters);
+    }
+
+    function aggregateGroups(details = getFilteredDetails()) {
+      const map = new Map();
+      state.trainers.forEach(trainer => {
+        map.set(trainer.id, {
+          key: trainer.id,
+          trainerId: trainer.id,
+          seq: trainer.seq || 0,
+          dept: trainer.dept || "未填写部门",
+          subject: trainer.subject || "",
+          name: trainer.name || "未填写姓名",
+          level: trainer.level || "",
+          appointedAt: trainer.appointedAt || "",
+          details: [],
+          training: 0,
+          quality: 0,
+          course: 0,
+          work: 0,
+          self: 0,
+          total: 0,
+          warnings: 0
+        });
+      });
+      details.forEach(detail => {
+        const trainer = detailTrainer(detail);
+        const key = trainer.id || trainerKey(detail);
+        if (!map.has(key)) {
+          map.set(key, {
+            key,
+            trainerId: trainer.id || "",
+            seq: trainer.seq || 0,
+            dept: trainer.dept || "未填写部门",
+            subject: trainer.subject || "",
+            name: trainer.name || "未填写姓名",
+            level: trainer.level || "",
+            appointedAt: trainer.appointedAt || "",
+            details: [],
+            training: 0,
+            quality: 0,
+            course: 0,
+            work: 0,
+            self: 0,
+            total: 0,
+            warnings: 0
+          });
+        }
+        const group = map.get(key);
+        const score = calculateDetail(detail);
+        group.details.push(detail);
+        group.training += score.training;
+        group.quality += score.quality;
+        group.course += score.course;
+        group.work += score.work;
+        group.self += score.self;
+        group.total += score.total;
+        group.warnings += score.warnings.length;
+      });
+      return Array.from(map.values())
+        .map(group => {
+          group.details.sort(sortByDateDesc);
+          const dates = group.details.map(item => item.date).filter(Boolean).sort();
+          group.dateRange = dates.length ? `${dates[0]} 至 ${dates[dates.length - 1]}` : "暂无明细";
+          group.confirmed = group.details.length === 0
+            ? "暂无明细"
+            : group.details.every(item => item.confirmed === "已确认")
+            ? "已确认"
+            : group.details.some(item => item.confirmed === "有异议")
+              ? "有异议"
+              : group.details.some(item => item.confirmed === "待补充")
+                ? "待补充"
+                : "未确认";
+          return group;
+        })
+        .filter(group => trainerMatchesFilters(group, group.details))
+        .sort((a, b) => b.total - a.total || (a.seq || 9999) - (b.seq || 9999) || a.name.localeCompare(b.name, "zh-CN"));
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function icon(name) {
+      const icons = {
+        plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>',
+        copy: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>',
+        trash: '<svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>',
+        down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>',
+        right: '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>'
+      };
+      return icons[name] || "";
+    }
+
+    function inputControl(detail, key, type = "text", options = {}) {
+      const value = detail[key] ?? "";
+      const common = `data-id="${detail.id}" data-key="${key}"`;
+      if (type === "select") {
+        const choices = options.choices || [];
+        return `<select ${common}>${choices.map(item => `<option value="${escapeHtml(item)}" ${value === item ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}</select>`;
+      }
+      if (type === "checkbox") {
+        return `<input type="checkbox" ${common} ${value ? "checked" : ""}>`;
+      }
+      if (type === "textarea") {
+        return `<textarea ${common} rows="2">${escapeHtml(value)}</textarea>`;
+      }
+      const step = options.step || "1";
+      const min = options.min ?? "0";
+      const max = options.max ? ` max="${options.max}"` : "";
+      const numberAttrs = type === "number" ? ` min="${min}" step="${step}"${max}` : "";
+      return `<input type="${type}" ${common} value="${escapeHtml(value)}"${numberAttrs}>`;
+    }
+
+    function fieldHtml(label, control) {
+      return `<div class="field"><label>${label}</label>${control}</div>`;
+    }
+
+    function typeFields(detail) {
+      const all = detail.type === "综合";
+      const parts = [];
+      if (all || detail.type === "培训") {
+        parts.push(fieldHtml("线下/录播/直播小时", inputControl(detail, "offlineHours", "number", { step: "0.5" })));
+        parts.push(fieldHtml("支教志愿者小时", inputControl(detail, "volunteerHours", "number", { step: "0.5" })));
+        parts.push(fieldHtml("培训满意度", inputControl(detail, "trainingSatisfaction", "number", { step: "0.1", max: "5" })));
+      }
+      if (all || detail.type === "质检评审") {
+        parts.push(fieldHtml("督课质检小时", inputControl(detail, "qualityHours", "number", { step: "0.5" })));
+        parts.push(fieldHtml("督课报告", inputControl(detail, "qualityReport", "checkbox")));
+        parts.push(fieldHtml("评委评分小时", inputControl(detail, "reviewHours", "number", { step: "0.5" })));
+        parts.push(fieldHtml("评委报告", inputControl(detail, "reviewReport", "checkbox")));
+        parts.push(fieldHtml("需求方反馈", inputControl(detail, "demandFeedback", "number", { step: "0.1", max: "5" })));
+      }
+      if (all || detail.type === "课程开发") {
+        parts.push(fieldHtml("2小时内课程门数", inputControl(detail, "shortCourses", "number")));
+        parts.push(fieldHtml("2小时以上课程门数", inputControl(detail, "longCourses", "number")));
+      }
+      if (all || detail.type === "师训文章") {
+        parts.push(fieldHtml("原创师训文章篇数", inputControl(detail, "articles", "number")));
+      }
+      if (all || detail.type === "培训师带教") {
+        parts.push(fieldHtml("带教小时", inputControl(detail, "mentoringHours", "number", { step: "0.5" })));
+      }
+      if (all || detail.type === "集团竞聘") {
+        parts.push(fieldHtml("集团竞聘情况", inputControl(detail, "competitionStatus", "select", { choices: competitionOptions })));
+      }
+      if (all || detail.type === "绩效考核") {
+        parts.push(fieldHtml("年度绩效", inputControl(detail, "performance", "select", { choices: performanceOptions })));
+      }
+      return parts.join("");
+    }
+
+    function detailCard(detail) {
+      const trainer = detailTrainer(detail);
+      const score = calculateDetail(detail);
+      return `
+        <div class="detail-card" data-detail-card="${detail.id}">
+          <div class="detail-grid">
+            ${fieldHtml("实施日期", inputControl(detail, "date", "date"))}
+            ${fieldHtml("事项类型", inputControl(detail, "type", "select", { choices: typeOptions }))}
+            ${fieldHtml("事项说明", inputControl(detail, "description"))}
+            ${fieldHtml("回复确认", inputControl(detail, "confirmed", "select", { choices: confirmOptions }))}
+            ${fieldHtml("备注", inputControl(detail, "remark"))}
+          </div>
+          <div class="business-grid">${typeFields(detail)}</div>
+          <div class="calc-strip">
+            <div class="calc"><span>培训分</span><b>${format(score.training)}</b></div>
+            <div class="calc"><span>质检分</span><b>${format(score.quality)}</b></div>
+            <div class="calc"><span>课程分</span><b>${format(score.course)}</b></div>
+            <div class="calc"><span>师训分</span><b>${format(score.work)}</b></div>
+            <div class="calc"><span>考核分</span><b>${format(score.self)}</b></div>
+            <div class="calc total-calc"><span>权重总分</span><b>${format(score.total)}</b></div>
+            <div class="row-actions">
+              <button class="tiny-btn edit-only" data-action="duplicate-detail" data-id="${detail.id}" title="复制明细">${icon("copy")}</button>
+              <button class="tiny-btn edit-only" data-action="delete-detail" data-id="${detail.id}" title="删除明细">${icon("trash")}</button>
+            </div>
+          </div>
+          <div class="audit-strip">
+            <span>录入时间：${escapeHtml(detail.createdAt || "-")}</span>
+            <span>最近修改：${escapeHtml(detail.updatedAt || "-")}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function statusPill(status) {
+      const cls = status === "已确认" || status === "暂无明细" ? "" : status === "有异议" ? "bad" : "warn";
+      return `<span class="pill ${cls}">${status}</span>`;
+    }
+
+    function render() {
+      renderDepartmentFilter();
+      const groups = aggregateGroups();
+      const rankedGroups = groups.filter(group => group.details.length > 0 && group.total > 0);
+      const rankMap = new Map(rankedGroups.map((group, index) => [group.key, index + 1]));
+      groupsBody.innerHTML = "";
+      emptyState.hidden = groups.length > 0;
+
+      groups.forEach((group, index) => {
+        const expanded = ui.expanded.has(group.key);
+        const rank = rankMap.get(group.key);
+        const tr = document.createElement("tr");
+        tr.className = "trainer-row";
+        tr.innerHTML = `
+          <td class="sticky-col col-seq seq-cell">${escapeHtml(group.seq || index + 1)}</td>
+          <td class="sticky-col col-name">
+            <button class="expander" data-action="toggle-group" data-key="${escapeHtml(group.key)}" title="${expanded ? "收起明细" : "展开明细"}">${icon(expanded ? "down" : "right")}</button>
+            <span class="trainer-name">${escapeHtml(group.name)}</span>
+          </td>
+          <td class="sticky-col col-dept">${escapeHtml(group.dept)}</td>
+          <td class="sticky-col col-subject">${escapeHtml(group.subject || "-")}</td>
+          <td class="sticky-col col-level">${escapeHtml(group.level || "-")}</td>
+          <td class="sticky-col col-appointed">${escapeHtml(group.appointedAt || "-")}</td>
+          <td class="sticky-col col-action">
+            <button class="front-action edit-only" data-action="add-under-trainer" data-key="${escapeHtml(group.key)}" data-trainer-id="${escapeHtml(group.trainerId || "")}">${icon("plus")}新增</button>
+          </td>
+          <td class="rank-cell">${rank || "-"}</td>
+          <td>${escapeHtml(tenureText(group.appointedAt))}</td>
+          <td><span class="muted">${ASSESSMENT_PERIOD.label}</span></td>
+          <td class="score total-score">${format(group.total)}</td>
+          <td class="score">${format(group.training)}</td>
+          <td class="score">${format(group.quality)}</td>
+          <td class="score">${format(group.course)}</td>
+          <td class="score">${format(group.work)}</td>
+          <td class="score">${format(group.self)}</td>
+          <td class="score">${group.details.length}</td>
+          <td><span class="muted">${escapeHtml(group.dateRange)}</span></td>
+          <td>${statusPill(group.confirmed)}</td>
+        `;
+        groupsBody.appendChild(tr);
+
+        if (expanded) {
+          const detailRow = document.createElement("tr");
+          detailRow.className = "details-row";
+          detailRow.innerHTML = `
+            <td colspan="19">
+              <div class="details-panel">
+                <div class="details-head">
+                  <strong>${escapeHtml(group.dept)} / ${escapeHtml(group.name)} 的明细</strong>
+                  <span class="muted">按实施日期倒序排列</span>
+                </div>
+                ${group.details.length ? group.details.map(detailCard).join("") : '<div class="empty"><div class="empty-visual"><img src="assets/hero-graduate.png" alt=""><span>暂无明细，点击本行“新增明细”开始录入。</span></div></div>'}
+              </div>
+            </td>
+          `;
+          groupsBody.appendChild(detailRow);
+        }
+      });
+
+      renderSummary(groups);
+      renderCharts(groups);
+    }
+
+    function renderDepartmentFilter() {
+      const select = document.getElementById("deptFilter");
+      const departments = Array.from(new Set(state.trainers.map(item => item.dept).filter(Boolean))).sort((a, b) => a.localeCompare(b, "zh-CN"));
+      const current = ui.filters.dept;
+      select.innerHTML = `<option value="">全部部门</option>${departments.map(dept => `<option value="${escapeHtml(dept)}" ${dept === current ? "selected" : ""}>${escapeHtml(dept)}</option>`).join("")}`;
+    }
+
+    function renderSummary(groups) {
+      const filteredDetails = getFilteredDetails();
+      const scoringGroups = groups.filter(group => group.details.length > 0 && group.total > 0);
+      const top = scoringGroups[0];
+      const warnings = filteredDetails.reduce((sum, detail) => sum + calculateDetail(detail).warnings.length, 0);
+      document.getElementById("trainerCount").textContent = groups.length;
+      document.getElementById("detailCount").textContent = filteredDetails.length;
+      document.getElementById("topTrainer").textContent = top ? `${top.name}` : "-";
+      document.getElementById("topScore").textContent = top ? format(top.total) : "0";
+      document.getElementById("cycleLabel").textContent = "2026.06-2027.05";
+      saveStatus.textContent = state.updatedAt ? `已自动保存：${state.updatedAt}` : "等待录入";
+    }
+
+    function renderCharts(groups) {
+      const topGroups = groups.filter(group => group.details.length > 0 && group.total > 0).slice(0, 8);
+      if (!topGroups.length) {
+        rankChart.innerHTML = '<div class="empty-chart">暂无积分数据</div>';
+        stackChart.innerHTML = '<div class="empty-chart">有明细后自动生成模块贡献</div>';
+        return;
+      }
+      const maxTotal = Math.max(...topGroups.map(group => group.total), 1);
+      rankChart.innerHTML = `
+        <div class="rank-list">
+          ${topGroups.map((group, index) => `
+            <div class="rank-row">
+              <div class="rank-name">#${index + 1} ${escapeHtml(group.name)}</div>
+              <div class="bar-track"><div class="bar" style="width:${Math.max(2, group.total / maxTotal * 100)}%"></div></div>
+              <div class="bar-value">${format(group.total)}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      stackChart.innerHTML = `
+        <div class="stack-list">
+          ${topGroups.map(group => {
+            const weighted = weightedParts(group);
+            const total = Math.max(group.total, 0.01);
+            return `
+              <div class="stack-row">
+                <div class="stack-name">${escapeHtml(group.name)}</div>
+                <div class="stack-track" title="培训 ${format(weighted.training)} / 质检 ${format(weighted.quality)} / 课程 ${format(weighted.course)} / 师训 ${format(weighted.work)} / 绩效 ${format(weighted.self)}">
+                  <div class="seg-training" style="width:${weighted.training / total * 100}%"></div>
+                  <div class="seg-quality" style="width:${weighted.quality / total * 100}%"></div>
+                  <div class="seg-course" style="width:${weighted.course / total * 100}%"></div>
+                  <div class="seg-work" style="width:${weighted.work / total * 100}%"></div>
+                  <div class="seg-self" style="width:${weighted.self / total * 100}%"></div>
+                </div>
+                <div class="bar-value">${format(group.total)}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+        <div class="legend">
+          <span><i class="seg-training"></i>培训</span>
+          <span><i class="seg-quality"></i>质检</span>
+          <span><i class="seg-course"></i>课程</span>
+          <span><i class="seg-work"></i>师训</span>
+          <span><i class="seg-self"></i>绩效</span>
+        </div>
+      `;
+    }
+
+    function save() {
+      if (isReadonlyMode) {
+        renderSummary(aggregateGroups());
+        return;
+      }
+      state.updatedAt = new Date().toLocaleString("zh-CN", { hour12: false });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        showToast("浏览器限制了本地保存，请使用 JSON 备份保留数据。");
+      }
+      renderSummary(aggregateGroups());
+    }
+
+    function legacyToDetail(row) {
+      const trainer = state.trainers.find(item => trainerIdentity(item) === `${(row.dept || "").trim()}||${(row.name || "").trim()}`);
+      const stamp = nowStamp();
+      return defaultDetail({
+        trainerId: trainer ? trainer.id : "",
+        createdAt: stamp,
+        updatedAt: stamp,
+        date: "",
+        type: "综合",
+        dept: row.dept || "",
+        name: row.name || "",
+        level: row.level || "",
+        description: row.remark || "旧版汇总数据迁移",
+        offlineHours: row.offlineHours || 0,
+        volunteerHours: row.volunteerHours || 0,
+        trainingSatisfaction: row.satisfaction || "",
+        qualityHours: row.qualityHours || 0,
+        qualityReport: Boolean(row.qualityReport),
+        reviewHours: row.reviewHours || 0,
+        reviewReport: Boolean(row.reviewReport),
+        demandFeedback: row.demandFeedback || "",
+        shortCourses: row.shortCourses || 0,
+        longCourses: row.longCourses || 0,
+        articles: row.articles || 0,
+        mentoringHours: row.mentoringHours || 0,
+        competitionStatus: row.competitionGroup > 0 ? "竞聘成功（集团）" : row.competitionCategory > 0 ? "竞聘成功（条线）" : row.competitionInterview > 0 ? "复试入选" : row.competitionRegister > 0 ? "报名成功" : "",
+        performance: row.performance || "其他",
+        confirmed: row.confirmed || "未确认",
+        remark: row.remark || ""
+      });
+    }
+
+    function normalizeDetails(details) {
+      const fallbackStamp = nowStamp();
+      return details.map(detail => {
+        const matched = detail.trainerId
+          ? state.trainers.find(trainer => trainer.id === detail.trainerId)
+          : state.trainers.find(trainer => trainerIdentity(trainer) === `${(detail.dept || "").trim()}||${(detail.name || "").trim()}`);
+        return defaultDetail({
+          ...detail,
+          id: detail.id || createId(),
+          trainerId: matched ? matched.id : detail.trainerId || "",
+          createdAt: detail.createdAt || detail.updatedAt || fallbackStamp,
+          updatedAt: detail.updatedAt || detail.createdAt || fallbackStamp,
+          competitionStatus: detail.competitionStatus || ""
+        });
+      });
+    }
+
+    function normalizeTrainers(trainers = []) {
+      const map = new Map();
+      INITIAL_TRAINERS.forEach((trainer, index) => {
+        const normalized = normalizeTrainer(trainer, index);
+        map.set(trainerIdentity(normalized), normalized);
+      });
+      trainers.map(normalizeTrainer).forEach(trainer => {
+        const identity = trainerIdentity(trainer);
+        if (identity !== "||") map.set(identity, { ...(map.get(identity) || {}), ...trainer });
+      });
+      return Array.from(map.values());
+    }
+
+    function nextTrainerSeq() {
+      return Math.max(0, ...state.trainers.map(trainer => numberValue(trainer.seq))) + 1;
+    }
+
+    function resetTrainerForm() {
+      document.getElementById("newTrainerSeq").value = nextTrainerSeq();
+      document.getElementById("newTrainerName").value = "";
+      document.getElementById("newTrainerDept").value = "";
+      document.getElementById("newTrainerSubject").value = "";
+      document.getElementById("newTrainerLevel").value = "初级";
+      document.getElementById("newTrainerAppointed").value = today();
+    }
+
+    function addTrainerFromForm() {
+      if (isReadonlyMode) return;
+      const trainer = normalizeTrainer({
+        id: `trainer-${createId()}`,
+        seq: Math.max(1, Number(document.getElementById("newTrainerSeq").value) || nextTrainerSeq()),
+        name: document.getElementById("newTrainerName").value.trim(),
+        dept: document.getElementById("newTrainerDept").value.trim(),
+        subject: document.getElementById("newTrainerSubject").value.trim(),
+        level: document.getElementById("newTrainerLevel").value.trim() || "初级",
+        appointedAt: document.getElementById("newTrainerAppointed").value || today()
+      }, state.trainers.length);
+      if (!trainer.name || !trainer.dept) {
+        showToast("请至少填写姓名和部门。");
+        return;
+      }
+      if (state.trainers.some(item => trainerIdentity(item) === trainerIdentity(trainer))) {
+        showToast("已存在同部门同名培训师。");
+        return;
+      }
+      state.trainers.push(trainer);
+      state.trainers.sort((a, b) => numberValue(a.seq) - numberValue(b.seq) || a.name.localeCompare(b.name, "zh-CN"));
+      trainerForm.hidden = true;
+      save();
+      render();
+      showToast("已新增培训师。");
+    }
+
+    function load() {
+      try {
+        if (isReadonlyMode) {
+          if (PUBLISHED_STATE && Array.isArray(PUBLISHED_STATE.details)) {
+            state = {
+              version: 2,
+              updatedAt: PUBLISHED_STATE.updatedAt || "",
+              notes: PUBLISHED_STATE.notes || "",
+              trainers: normalizeTrainers(PUBLISHED_STATE.trainers || []),
+              details: []
+            };
+            state.details = normalizeDetails(PUBLISHED_STATE.details);
+          }
+          return;
+        }
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.details)) {
+            state.trainers = normalizeTrainers(parsed.trainers || []);
+            state = {
+              version: 2,
+              updatedAt: parsed.updatedAt || "",
+              notes: parsed.notes || "",
+              trainers: normalizeTrainers(parsed.trainers || []),
+              details: normalizeDetails(parsed.details)
+            };
+            return;
+          }
+        }
+        const legacyRaw = localStorage.getItem(LEGACY_KEY);
+        if (legacyRaw) {
+          const legacy = JSON.parse(legacyRaw);
+          if (Array.isArray(legacy.rows)) {
+            state = {
+              version: 2,
+              updatedAt: "",
+              notes: legacy.notes || "",
+              trainers: normalizeTrainers([]),
+              details: legacy.rows.map(legacyToDetail)
+            };
+            save();
+            showToast("已将旧版本地数据迁移为新版明细结构。");
+          }
+        }
+      } catch (error) {
+        showToast("本地数据读取失败，已使用空白表格。");
+      }
+    }
+
+    function updateValue(target) {
+      if (isReadonlyMode) return;
+      const id = target.dataset.id;
+      const key = target.dataset.key;
+      if (!id || !key) return;
+      const detail = state.details.find(item => item.id === id);
+      if (!detail) return;
+      if (target.type === "checkbox") {
+        detail[key] = target.checked;
+      } else if (target.type === "number") {
+        detail[key] = target.value === "" ? "" : Math.max(0, Number(target.value));
+      } else {
+        detail[key] = target.value;
+      }
+      detail.updatedAt = nowStamp();
+      save();
+    }
+
+    function addDetail(seed = {}) {
+      if (isReadonlyMode) return;
+      const stamp = nowStamp();
+      let trainer = seed.trainerId ? getTrainerById(seed.trainerId) : null;
+      if (!trainer && seed.dept && seed.name) {
+        trainer = state.trainers.find(item => trainerIdentity(item) === `${seed.dept.trim()}||${seed.name.trim()}`);
+      }
+      if (!trainer) trainer = aggregateGroups()[0] ? getTrainerById(aggregateGroups()[0].trainerId) : state.trainers[0];
+      const detail = defaultDetail({
+        ...seed,
+        trainerId: trainer ? trainer.id : "",
+        dept: trainer ? trainer.dept : seed.dept || "",
+        name: trainer ? trainer.name : seed.name || "",
+        level: trainer ? trainer.level : seed.level || "",
+        createdAt: stamp,
+        updatedAt: stamp
+      });
+      state.details.unshift(detail);
+      ui.expanded.add(trainerKey(detail));
+      save();
+      render();
+      showToast("已新增明细。");
+    }
+
+    function duplicateDetail(id) {
+      if (isReadonlyMode) return;
+      const detail = state.details.find(item => item.id === id);
+      if (!detail) return;
+      const stamp = nowStamp();
+      const copy = { ...detail, id: createId(), date: detail.date || today(), description: `${detail.description || detail.type} 副本`, createdAt: stamp, updatedAt: stamp };
+      const index = state.details.findIndex(item => item.id === id);
+      state.details.splice(index + 1, 0, copy);
+      ui.expanded.add(trainerKey(copy));
+      save();
+      render();
+      showToast("已复制明细。");
+    }
+
+    function deleteDetail(id) {
+      if (isReadonlyMode) return;
+      const index = state.details.findIndex(item => item.id === id);
+      if (index < 0) return;
+      state.details.splice(index, 1);
+      save();
+      render();
+      showToast("已删除明细。");
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportGroupedCsv() {
+      const groups = aggregateGroups();
+      const rankedGroups = groups.filter(group => group.details.length > 0 && group.total > 0);
+      const rankMap = new Map(rankedGroups.map((group, index) => [group.key, index + 1]));
+      const lines = [[
+        "行类型", "序号", "姓名", "部门", "所属科目", "级别", "任用日期", "排名", "培训师时长", "考核周期", "总积分", "培训分", "质检分", "课程分", "师训分", "考核分",
+        "明细数", "日期范围", "确认状态", "实施日期", "事项类型", "事项说明", "明细总分", "录入时间", "最近修改时间", "备注"
+      ]];
+      groups.forEach((group, index) => {
+        const rank = rankMap.get(group.key) || "";
+        lines.push([
+          "汇总", group.seq || index + 1, group.name, group.dept, group.subject, group.level, group.appointedAt, rank, tenureText(group.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(group.training), format(group.quality),
+          format(group.course), format(group.work), format(group.self), group.details.length, group.dateRange, group.confirmed, "", "", "", "", "", "", ""
+        ]);
+        group.details.forEach(detail => {
+          const score = calculateDetail(detail);
+          const trainer = detailTrainer(detail);
+          lines.push([
+            "明细", trainer.seq || group.seq || index + 1, trainer.name, trainer.dept, trainer.subject, trainer.level, trainer.appointedAt, rank, tenureText(trainer.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(score.training), format(score.quality),
+            format(score.course), format(score.work), format(score.self), "", "", detail.confirmed, detail.date, detail.type,
+            detail.description, format(score.total), detail.createdAt || "", detail.updatedAt || "", detail.remark
+          ]);
+        });
+      });
+      const csv = "\ufeff" + lines.map(row => row.map(csvCell).join(",")).join("\n");
+      download(`培训师积分分组明细-${today()}.csv`, csv, "text/csv;charset=utf-8");
+      showToast("已导出 Excel 可打开的分组明细 CSV。");
+    }
+
+    function originalExcelRow(detail, index) {
+      const score = calculateDetail(detail);
+      const trainer = detailTrainer(detail);
+      return [
+        index + 1,
+        trainer.dept,
+        trainer.name,
+        trainer.level,
+        format(score.trainingHours),
+        format(score.trainingSatisfaction),
+        format(score.qualityCheck),
+        format(score.review),
+        format(score.demand),
+        format(score.course),
+        format(score.articleScore),
+        format(score.mentoring),
+        format(score.competition),
+        format(score.self),
+        format(score.total),
+        detail.confirmed,
+        [detail.date, detail.type, detail.description, detail.remark, detail.createdAt ? `录入时间：${detail.createdAt}` : "", detail.updatedAt ? `最近修改：${detail.updatedAt}` : ""].filter(Boolean).join(" - ")
+      ];
+    }
+
+    function exportOriginalCsv() {
+      const details = getFilteredDetails().slice().sort((a, b) => {
+        const keyCompare = trainerKey(a).localeCompare(trainerKey(b), "zh-CN");
+        return keyCompare || String(a.date || "").localeCompare(String(b.date || ""));
+      });
+      const header = [
+        "序号", "部门", "姓名", "级别",
+        "线下/录播/直播培训：2分/h；支教志愿者培训：1分/h",
+        "培训学员满意度",
+        "督课质检 0.5分/h 需产出报告",
+        "评委评分 0.5分/h 需产出报告",
+        "需求方师训工作反馈",
+        "课程开发数量",
+        "师训文章撰写",
+        "培训师带教",
+        "集团培训师竞聘",
+        "教师个人年度绩效",
+        "总积分",
+        "培训师回复确认情况",
+        "备注"
+      ];
+      const lines = [header, ...details.map(originalExcelRow)];
+      const csv = "\ufeff" + lines.map(row => row.map(csvCell).join(",")).join("\n");
+      download(`培训师积分原表格式-${today()}.csv`, csv, "text/csv;charset=utf-8");
+      showToast("已导出 Excel 可打开的原表格式 CSV。");
+    }
+
+    function exportJson() {
+      download(`培训师积分备份-${today()}.json`, JSON.stringify(state, null, 2), "application/json;charset=utf-8");
+      showToast("JSON 备份已导出。");
+    }
+
+    function exportReadonlyHtml() {
+      const snapshot = JSON.stringify(state).replaceAll("<", "\\u003c");
+      const source = "<!doctype html>\n" + document.documentElement.outerHTML;
+      const html = source.replace("const PUBLISHED_STATE = null;", `const PUBLISHED_STATE = ${snapshot};`);
+      download(`培训师积分只读快照-${today()}.html`, html, "text/html;charset=utf-8");
+      showToast("分享预览 HTML 已导出，可用于覆盖 GitHub Pages 页面。");
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (Array.isArray(parsed.details)) {
+            const trainers = normalizeTrainers(parsed.trainers || []);
+            state.trainers = trainers;
+            state = { version: 2, updatedAt: "", notes: parsed.notes || "", trainers, details: normalizeDetails(parsed.details) };
+          } else if (Array.isArray(parsed.rows)) {
+            state.trainers = normalizeTrainers([]);
+            state = { version: 2, updatedAt: "", notes: parsed.notes || "", trainers: normalizeTrainers([]), details: parsed.rows.map(legacyToDetail) };
+          } else {
+            throw new Error("missing details");
+          }
+          globalNotes.value = state.notes || "";
+          ui.expanded.clear();
+          save();
+          render();
+          showToast("备份文件已导入。");
+        } catch (error) {
+          showToast("导入失败，请确认选择的是本页面导出的 JSON 备份。");
+        } finally {
+          fileInput.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    document.getElementById("addDetailBtn").addEventListener("click", () => addDetail());
+    document.getElementById("toggleTrainerFormBtn").addEventListener("click", () => {
+      if (isReadonlyMode) return;
+      trainerForm.hidden = !trainerForm.hidden;
+      if (!trainerForm.hidden) resetTrainerForm();
+    });
+    document.getElementById("saveTrainerBtn").addEventListener("click", addTrainerFromForm);
+    document.getElementById("cancelTrainerBtn").addEventListener("click", () => {
+      trainerForm.hidden = true;
+    });
+    document.getElementById("exportGroupedBtn").addEventListener("click", exportGroupedCsv);
+    document.getElementById("exportExcelBtn").addEventListener("click", exportOriginalCsv);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("exportReadonlyBtn").addEventListener("click", exportReadonlyHtml);
+    document.getElementById("importBtn").addEventListener("click", () => fileInput.click());
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      if (isReadonlyMode) return;
+      if (!confirm("确定清空所有培训师积分数据吗？建议先导出 JSON 备份。")) return;
+      state = { version: 2, updatedAt: "", notes: "", trainers: normalizeTrainers([]), details: [] };
+      globalNotes.value = "";
+      ui.expanded.clear();
+      save();
+      render();
+      showToast("已清空。");
+    });
+
+    fileInput.addEventListener("change", event => {
+      if (isReadonlyMode) return;
+      const [file] = event.target.files;
+      if (file) importJson(file);
+    });
+
+    groupsBody.addEventListener("input", event => updateValue(event.target));
+    groupsBody.addEventListener("change", event => {
+      updateValue(event.target);
+      render();
+    });
+    groupsBody.addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const action = button.dataset.action;
+      if (action === "toggle-group") {
+        const key = button.dataset.key;
+        if (ui.expanded.has(key)) ui.expanded.delete(key);
+        else ui.expanded.add(key);
+        render();
+      }
+      if (action === "add-under-trainer") {
+        const group = aggregateGroups().find(item => item.key === button.dataset.key);
+        if (!group) return;
+        addDetail({ trainerId: button.dataset.trainerId || group.trainerId || "", dept: group.dept === "未填写部门" ? "" : group.dept, name: group.name === "未填写姓名" ? "" : group.name, level: group.level || "" });
+      }
+      if (action === "duplicate-detail") duplicateDetail(button.dataset.id);
+      if (action === "delete-detail") deleteDetail(button.dataset.id);
+    });
+
+    document.getElementById("deptFilter").addEventListener("change", event => {
+      ui.filters.dept = event.target.value;
+      render();
+    });
+    document.getElementById("nameFilter").addEventListener("input", event => {
+      ui.filters.keyword = event.target.value;
+      render();
+    });
+    document.getElementById("startDateFilter").addEventListener("change", event => {
+      ui.filters.startDate = event.target.value;
+      render();
+    });
+    document.getElementById("endDateFilter").addEventListener("change", event => {
+      ui.filters.endDate = event.target.value;
+      render();
+    });
+    document.getElementById("statusFilter").addEventListener("change", event => {
+      ui.filters.status = event.target.value;
+      render();
+    });
+    document.getElementById("resetFilterBtn").addEventListener("click", () => {
+      ui.filters = { dept: "", keyword: "", startDate: "", endDate: "", status: "" };
+      document.getElementById("nameFilter").value = "";
+      document.getElementById("startDateFilter").value = "";
+      document.getElementById("endDateFilter").value = "";
+      document.getElementById("statusFilter").value = "";
+      render();
+    });
+
+    globalNotes.addEventListener("input", () => {
+      if (isReadonlyMode) return;
+      state.notes = globalNotes.value;
+      save();
+    });
+
+    if (isReadonlyMode) document.body.classList.add("readonly");
+    load();
+    globalNotes.value = state.notes || "";
+    resetTrainerForm();
+    render();
+  </script>
+  <script>
+    (() => {
+      const STORAGE_KEY_V3 = "trainer-score-manager-v3";
+      const STORAGE_KEY_V2 = "trainer-score-manager-v2";
+      const LEGACY_KEY_V1 = "trainer-score-manager-v1";
+      const SNAPSHOT_STATE_V3 = null;
+      const readonlyMode = (() => {
+        const loc = window.location || { search: "", hash: "", hostname: "" };
+        return Boolean(SNAPSHOT_STATE_V3) || loc.search.includes("readonly=1") || loc.hash.includes("readonly") || loc.hostname.endsWith("github.io");
+      })();
+
+      const PERIOD = { start: "2026-06-01", end: "2027-05-31", label: "2026-06-01 至 2027-05-31" };
+      const QUARTERS = [
+        { id: "Q1", label: "第一季度", start: "2026-06-01", end: "2026-08-31" },
+        { id: "Q2", label: "第二季度", start: "2026-09-01", end: "2026-11-30" },
+        { id: "Q3", label: "第三季度", start: "2026-12-01", end: "2027-02-28" },
+        { id: "Q4", label: "第四季度", start: "2027-03-01", end: "2027-05-31" }
+      ];
+
+      const TEACHING_TRAINERS = [
+        { id: "teach-01", seq: 1, name: "陈芳", dept: "素养智学部", subject: "口才", level: "初级", appointedAt: "2023-12-21" },
+        { id: "teach-02", seq: 2, name: "高磊", dept: "高中部", subject: "物理", level: "初级", appointedAt: "2023-12-21" },
+        { id: "teach-03", seq: 3, name: "方显威", dept: "素养智学部", subject: "分级阅读", level: "初级", appointedAt: "2017-01-01" },
+        { id: "teach-04", seq: 4, name: "丁璇", dept: "素养智学部", subject: "分级阅读", level: "初级", appointedAt: "2023-12-21" },
+        { id: "teach-05", seq: 5, name: "陈晨", dept: "高中部", subject: "英语", level: "初级", appointedAt: "2021-07-02" },
+        { id: "teach-06", seq: 6, name: "黄鑫", dept: "智慧学习部", subject: "数学", level: "初级", appointedAt: "2023-12-21" },
+        { id: "teach-07", seq: 7, name: "张孔政", dept: "高中部", subject: "数学", level: "初级", appointedAt: "2019-01-09" },
+        { id: "teach-08", seq: 8, name: "沈千云", dept: "素养智学部", subject: "脑力与思维", level: "初级", appointedAt: "2023-12-21" },
+        { id: "teach-09", seq: 9, name: "苗鹏", dept: "素养智学部", subject: "脑力与思维", level: "初级", appointedAt: "2021-07-02" }
+      ];
+
+      const OPERATIONS_TRAINERS = [
+        { id: "ops-01", seq: 1, name: "黄宗龙", dept: "素养智学部", level: "初级", appointedAt: "2023-12-21" },
+        { id: "ops-02", seq: 2, name: "吴远枝", dept: "人力资源部", level: "初级", appointedAt: "2019-11-01" },
+        { id: "ops-03", seq: 3, name: "方鹏程", dept: "智慧学习部", level: "初级", appointedAt: "2023-12-21" },
+        { id: "ops-04", seq: 4, name: "黄青兰", dept: "文旅部", level: "初级", appointedAt: "2017-01-01" },
+        { id: "ops-05", seq: 5, name: "王珊", dept: "素养智学部", level: "初级", appointedAt: "2023-04-23" },
+        { id: "ops-06", seq: 6, name: "刘庄", dept: "高中部", level: "初级", appointedAt: "2019-01-09" },
+        { id: "ops-07", seq: 7, name: "陈秀周", dept: "智慧学习部", level: "初级", appointedAt: "2023-12-21" },
+        { id: "ops-08", seq: 8, name: "刘翀宇", dept: "高中部", level: "初级", appointedAt: "2023-12-21" },
+        { id: "ops-09", seq: 9, name: "陈婷45", dept: "人力资源部", level: "初级", appointedAt: "2023-04-23" }
+      ];
+
+      const BOARD_CONFIG = {
+        teaching: {
+          title: "教学培训师积分看板",
+          hero: "固定展示教学培训师基础信息，横向滚动时也能快速对应姓名；按实施日期维护明细，汇总排名和模块贡献实时更新。",
+          art: "assets/hero-frame.png",
+          trainerLabel: "教学培训师",
+          formula: "总积分 = 培训×30% + 质检评审×30% + 课程开发×20% + 师训工作×15% + 个人教学考核×5%",
+          stack: "培训 / 质检 / 课程 / 师训 / 绩效",
+          heads: ["培训分", "质检分", "课程分", "师训分", "考核分"],
+          totalHead: "总积分",
+          rules: [
+            ["培训 30%", "线下/录播/直播 2分/h，支教志愿者 1分/h；满意度最高 2分。"],
+            ["质检评审 30%", "督课质检、评委评分 0.5分/h，需产出报告；保留需求方反馈。"],
+            ["课程开发 20%", "2小时内课程 2分/门，2小时以上课程 3分/门。"],
+            ["师训工作 15%", "文章、带教、集团竞聘按规则折算。"],
+            ["绩效 5%", "A+=3，A=2，B+=1，其他=0。"],
+            ["明细审计", "每条明细自动记录录入时间和最近修改时间。"]
+          ]
+        },
+        operations: {
+          title: "运营培训师积分看板",
+          hero: "运营看板按培训管理评估、课时完成率、培训效果满意度三项百分制计算，和教学看板互不串数据。",
+          art: "assets/hero-clipboard.png",
+          trainerLabel: "运营培训师",
+          formula: "总分 = 培训管理评估×40% + 课时完成率×40% + 培训效果满意度×20%",
+          stack: "管理评估 / 课时完成 / 满意度",
+          heads: ["管理评估", "课时完成", "满意度", "-", "-"],
+          totalHead: "总分",
+          rules: [
+            ["培训管理评估 40%", "课件、现场照片、其他附件少提交一项扣 5 分，最低 0 分。"],
+            ["课时完成率 40%", "个人实际课时数 / 运营全名单平均实际课时数 ×100%，最高 100。"],
+            ["培训效果满意度 20%", "个人财年平均课程满意度 / 5 ×100%，最高 100。"],
+            ["季度预警", "每个季度自动列出当季无积分或季度得分为 0 的培训师。"]
+          ]
+        }
+      };
+
+      const typeOptions = ["培训", "质检评审", "课程开发", "师训文章", "培训师带教", "集团竞聘", "绩效考核", "综合"];
+      const confirmOptions = ["未确认", "已确认", "待补充", "有异议"];
+      const performanceOptions = ["A+", "A", "B+", "其他"];
+      const competitionOptions = ["", "报名成功", "复试入选", "竞聘成功（条线）", "竞聘成功（集团）"];
+      const competitionScores = { "": 0, "报名成功": 1, "复试入选": 2, "竞聘成功（条线）": 2, "竞聘成功（集团）": 4 };
+      const attachmentOptions = ["已提交", "未提交"];
+
+      const today = () => new Date().toISOString().slice(0, 10);
+      const nowStamp = () => {
+        const date = new Date();
+        const pad = value => String(value).padStart(2, "0");
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      };
+      const createId = prefix => {
+        const raw = window.crypto && typeof window.crypto.randomUUID === "function" ? window.crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+        return `${prefix}-${raw}`;
+      };
+
+      function fresh(id) {
+        const node = document.getElementById(id);
+        if (!node) return null;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+        return clone;
+      }
+
+      const controls = {
+        groupsBody: fresh("groupsBody"),
+        deptFilter: fresh("deptFilter"),
+        nameFilter: fresh("nameFilter"),
+        startDateFilter: fresh("startDateFilter"),
+        endDateFilter: fresh("endDateFilter"),
+        statusFilter: fresh("statusFilter"),
+        resetFilterBtn: fresh("resetFilterBtn"),
+        addDetailBtn: fresh("addDetailBtn"),
+        toggleTrainerFormBtn: fresh("toggleTrainerFormBtn"),
+        undoDeleteBtn: fresh("undoDeleteBtn"),
+        toggleTrashBtn: fresh("toggleTrashBtn"),
+        exportGroupedBtn: fresh("exportGroupedBtn"),
+        exportExcelBtn: fresh("exportExcelBtn"),
+        exportJsonBtn: fresh("exportJsonBtn"),
+        exportReadonlyBtn: fresh("exportReadonlyBtn"),
+        importBtn: fresh("importBtn"),
+        printBtn: fresh("printBtn"),
+        clearBtn: fresh("clearBtn"),
+        fileInput: fresh("fileInput"),
+        saveTrainerBtn: fresh("saveTrainerBtn"),
+        cancelTrainerBtn: fresh("cancelTrainerBtn"),
+        globalNotes: fresh("globalNotes")
+      };
+
+      const el = id => document.getElementById(id);
+      const toast = el("toast");
+      const trainerForm = el("trainerForm");
+      const trashPanel = el("trashPanel");
+
+      let state = emptyState();
+      const ui = {
+        expanded: new Set(),
+        filters: { dept: "", keyword: "", startDate: "", endDate: "", status: "" },
+        lastDeleted: null
+      };
+
+      function emptyBoard(key) {
+        return {
+          notes: "",
+          trainers: (key === "operations" ? OPERATIONS_TRAINERS : TEACHING_TRAINERS).map((item, index) => normalizeTrainer(item, index, key)),
+          details: [],
+          trash: []
+        };
+      }
+
+      function emptyState() {
+        return {
+          version: 3,
+          activeBoard: "teaching",
+          updatedAt: "",
+          boards: {
+            teaching: emptyBoard("teaching"),
+            operations: emptyBoard("operations")
+          }
+        };
+      }
+
+      function activeKey() {
+        return state.activeBoard === "operations" ? "operations" : "teaching";
+      }
+
+      function board(key = activeKey()) {
+        return state.boards[key];
+      }
+
+      function config(key = activeKey()) {
+        return BOARD_CONFIG[key];
+      }
+
+      function numberValue(value) {
+        const num = Number(value);
+        return Number.isFinite(num) && num > 0 ? num : 0;
+      }
+
+      function format(num) {
+        const rounded = Math.round((Number(num || 0) + Number.EPSILON) * 100) / 100;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function trainerIdentity(trainer) {
+        return `${(trainer.dept || "").trim()}||${(trainer.name || "").trim()}`;
+      }
+
+      function normalizeTrainer(trainer = {}, index = 0, key = "teaching") {
+        const subject = key === "teaching"
+          ? trainer.name === "高磊" && trainer.dept === "高中部" ? "物理" : trainer.subject || ""
+          : "";
+        return {
+          id: trainer.id || createId(`${key}-trainer`),
+          seq: Number(trainer.seq) || index + 1,
+          name: trainer.name || "",
+          dept: trainer.dept || "",
+          subject,
+          level: trainer.level || "初级",
+          appointedAt: trainer.appointedAt || ""
+        };
+      }
+
+      function mergeTrainers(input = [], key = "teaching") {
+        const defaults = (key === "operations" ? OPERATIONS_TRAINERS : TEACHING_TRAINERS).map((item, index) => normalizeTrainer(item, index, key));
+        const map = new Map(defaults.map(item => [trainerIdentity(item), item]));
+        input.forEach((item, index) => {
+          const trainer = normalizeTrainer(item, index, key);
+          const identity = trainerIdentity(trainer);
+          if (identity !== "||") map.set(identity, { ...(map.get(identity) || {}), ...trainer });
+        });
+        return Array.from(map.values()).sort(sortTrainers);
+      }
+
+      function sortTrainers(a, b) {
+        return numberValue(a.seq) - numberValue(b.seq) || String(a.name).localeCompare(String(b.name), "zh-CN");
+      }
+
+      function defaultTeachingDetail(seed = {}) {
+        const stamp = seed.createdAt || seed.updatedAt || nowStamp();
+        return {
+          id: seed.id || createId("teach-detail"),
+          trainerId: "",
+          createdAt: stamp,
+          updatedAt: seed.updatedAt || stamp,
+          date: today(),
+          type: "培训",
+          description: "",
+          offlineHours: 0,
+          volunteerHours: 0,
+          trainingSatisfaction: "",
+          qualityHours: 0,
+          qualityReport: false,
+          reviewHours: 0,
+          reviewReport: false,
+          demandFeedback: "",
+          shortCourses: 0,
+          longCourses: 0,
+          articles: 0,
+          mentoringHours: 0,
+          competitionStatus: "",
+          performance: "其他",
+          confirmed: "未确认",
+          remark: "",
+          ...seed
+        };
+      }
+
+      function defaultOperationsDetail(seed = {}) {
+        const stamp = seed.createdAt || seed.updatedAt || nowStamp();
+        return {
+          id: seed.id || createId("ops-detail"),
+          trainerId: "",
+          createdAt: stamp,
+          updatedAt: seed.updatedAt || stamp,
+          date: today(),
+          description: "",
+          coursewareSubmitted: "已提交",
+          photoSubmitted: "已提交",
+          otherAttachmentSubmitted: "已提交",
+          actualHours: 0,
+          opsSatisfaction: "",
+          confirmed: "未确认",
+          remark: "",
+          ...seed
+        };
+      }
+
+      function normalizeDetails(details = [], key = "teaching", trainers = board(key).trainers) {
+        const fallback = nowStamp();
+        return details.map(item => {
+          const trainer = findTrainer(item, key, trainers);
+          const seed = {
+            ...item,
+            id: item.id || createId(`${key}-detail`),
+            trainerId: trainer ? trainer.id : item.trainerId || "",
+            createdAt: item.createdAt || item.updatedAt || fallback,
+            updatedAt: item.updatedAt || item.createdAt || fallback
+          };
+          return key === "operations" ? defaultOperationsDetail(seed) : defaultTeachingDetail(seed);
+        });
+      }
+
+      function findTrainer(detail, key = activeKey(), trainers = board(key).trainers) {
+        if (!detail) return null;
+        if (detail.trainerId) {
+          const byId = trainers.find(item => item.id === detail.trainerId);
+          if (byId) return byId;
+        }
+        const identity = `${(detail.dept || "").trim()}||${(detail.name || "").trim()}`;
+        return trainers.find(item => trainerIdentity(item) === identity) || null;
+      }
+
+      function getTrainer(id, key = activeKey()) {
+        return board(key).trainers.find(item => item.id === id);
+      }
+
+      function detailTrainer(detail, key = activeKey()) {
+        return findTrainer(detail, key) || { id: "", seq: "", name: "未填写姓名", dept: "未填写部门", subject: "", level: "", appointedAt: "" };
+      }
+
+      function satisfactionScore(value) {
+        const score = Number(value);
+        if (!Number.isFinite(score)) return 0;
+        if (score >= 4.8) return 2;
+        if (score >= 4.5) return 1.5;
+        if (score >= 4.0) return 1;
+        return 0;
+      }
+
+      function performanceScore(value) {
+        return { "A+": 3, "A": 2, "B+": 1, "其他": 0 }[value] || 0;
+      }
+
+      function calculateTeachingDetail(detail) {
+        const trainingHours = numberValue(detail.offlineHours) * 2 + numberValue(detail.volunteerHours);
+        const trainingSatisfaction = satisfactionScore(detail.trainingSatisfaction);
+        const training = trainingHours + trainingSatisfaction;
+        const qualityCheck = detail.qualityReport ? numberValue(detail.qualityHours) * 0.5 : 0;
+        const review = detail.reviewReport ? numberValue(detail.reviewHours) * 0.5 : 0;
+        const demand = satisfactionScore(detail.demandFeedback);
+        const quality = qualityCheck + review + demand;
+        const course = numberValue(detail.shortCourses) * 2 + numberValue(detail.longCourses) * 3;
+        const articleScore = numberValue(detail.articles);
+        const mentoring = numberValue(detail.mentoringHours) * 0.5;
+        const competition = competitionScores[detail.competitionStatus || ""] || 0;
+        const work = articleScore + mentoring + competition;
+        const self = performanceScore(detail.performance);
+        const total = training * 0.3 + quality * 0.3 + course * 0.2 + work * 0.15 + self * 0.05;
+        return { trainingHours, trainingSatisfaction, training, qualityCheck, review, demand, quality, course, articleScore, mentoring, competition, work, self, total };
+      }
+
+      function operationsManagement(detail) {
+        const missing = ["coursewareSubmitted", "photoSubmitted", "otherAttachmentSubmitted"]
+          .filter(key => detail[key] !== "已提交").length;
+        return Math.max(0, 100 - missing * 5);
+      }
+
+      function operationsSatisfaction(details) {
+        const values = details.map(item => Number(item.opsSatisfaction)).filter(value => Number.isFinite(value) && value > 0);
+        if (!values.length) return 0;
+        return Math.min((values.reduce((sum, value) => sum + value, 0) / values.length) / 5 * 100, 100);
+      }
+
+      function sortByDateDesc(a, b) {
+        return String(b.date || "").localeCompare(String(a.date || ""));
+      }
+
+      function dateInRange(detail) {
+        if (ui.filters.startDate && (!detail.date || detail.date < ui.filters.startDate)) return false;
+        if (ui.filters.endDate && (!detail.date || detail.date > ui.filters.endDate)) return false;
+        return true;
+      }
+
+      function detailMatchesFilters(detail, key = activeKey()) {
+        const trainer = detailTrainer(detail, key);
+        const keyword = ui.filters.keyword.trim().toLowerCase();
+        if (ui.filters.dept && trainer.dept !== ui.filters.dept) return false;
+        if (ui.filters.status && detail.confirmed !== ui.filters.status) return false;
+        if (!dateInRange(detail)) return false;
+        if (keyword) {
+          const haystack = [trainer.name, trainer.dept, trainer.subject, detail.type, detail.description, detail.remark].join(" ").toLowerCase();
+          if (!haystack.includes(keyword)) return false;
+        }
+        return true;
+      }
+
+      function trainerMatchesFilters(trainer, details) {
+        const keyword = ui.filters.keyword.trim().toLowerCase();
+        if (ui.filters.dept && trainer.dept !== ui.filters.dept) return false;
+        if (ui.filters.status && !details.length) return false;
+        if ((ui.filters.startDate || ui.filters.endDate) && !details.length) return false;
+        if (keyword) {
+          const trainerText = [trainer.name, trainer.dept, trainer.subject, trainer.level].join(" ").toLowerCase();
+          const detailHit = details.some(detail => [detail.description, detail.remark, detail.type].join(" ").toLowerCase().includes(keyword));
+          if (!trainerText.includes(keyword) && !detailHit) return false;
+        }
+        return true;
+      }
+
+      function filteredDetails(key = activeKey()) {
+        return board(key).details.filter(detail => detailMatchesFilters(detail, key));
+      }
+
+      function blankGroup(trainer) {
+        return {
+          key: trainer.id,
+          trainerId: trainer.id,
+          seq: trainer.seq,
+          name: trainer.name,
+          dept: trainer.dept,
+          subject: trainer.subject || "",
+          level: trainer.level,
+          appointedAt: trainer.appointedAt,
+          details: [],
+          training: 0,
+          quality: 0,
+          course: 0,
+          work: 0,
+          self: 0,
+          total: 0,
+          dateRange: "暂无明细",
+          confirmed: "暂无明细"
+        };
+      }
+
+      function aggregateTeaching(details = filteredDetails("teaching"), useFilters = true) {
+        const current = board("teaching");
+        const map = new Map(current.trainers.map(trainer => [trainer.id, blankGroup(trainer)]));
+        details.forEach(detail => {
+          const trainer = detailTrainer(detail, "teaching");
+          if (!map.has(trainer.id)) map.set(trainer.id || createId("unknown"), blankGroup(trainer));
+          const group = map.get(trainer.id);
+          const score = calculateTeachingDetail(detail);
+          group.details.push(detail);
+          group.training += score.training;
+          group.quality += score.quality;
+          group.course += score.course;
+          group.work += score.work;
+          group.self += score.self;
+          group.total += score.total;
+        });
+        return finishGroups(map, useFilters);
+      }
+
+      function aggregateOperations(details = filteredDetails("operations"), useFilters = true) {
+        const current = board("operations");
+        const totalHours = details.reduce((sum, detail) => sum + numberValue(detail.actualHours), 0);
+        const averageHours = current.trainers.length ? totalHours / current.trainers.length : 0;
+        const map = new Map(current.trainers.map(trainer => [trainer.id, blankGroup(trainer)]));
+        details.forEach(detail => {
+          const trainer = detailTrainer(detail, "operations");
+          if (!map.has(trainer.id)) map.set(trainer.id || createId("unknown"), blankGroup(trainer));
+          map.get(trainer.id).details.push(detail);
+        });
+        map.forEach(group => {
+          const hours = group.details.reduce((sum, detail) => sum + numberValue(detail.actualHours), 0);
+          const management = group.details.length
+            ? group.details.reduce((sum, detail) => sum + operationsManagement(detail), 0) / group.details.length
+            : 0;
+          const hourRate = averageHours > 0 ? Math.min(hours / averageHours * 100, 100) : 0;
+          const satisfaction = operationsSatisfaction(group.details);
+          group.training = management;
+          group.quality = hourRate;
+          group.course = satisfaction;
+          group.total = management * 0.4 + hourRate * 0.4 + satisfaction * 0.2;
+        });
+        return finishGroups(map, useFilters);
+      }
+
+      function finishGroups(map, useFilters) {
+        return Array.from(map.values())
+          .map(group => {
+            group.details.sort(sortByDateDesc);
+            const dates = group.details.map(item => item.date).filter(Boolean).sort();
+            group.dateRange = dates.length ? `${dates[0]} 至 ${dates[dates.length - 1]}` : "暂无明细";
+            group.confirmed = group.details.length === 0
+              ? "暂无明细"
+              : group.details.every(item => item.confirmed === "已确认")
+                ? "已确认"
+                : group.details.some(item => item.confirmed === "有异议")
+                  ? "有异议"
+                  : group.details.some(item => item.confirmed === "待补充")
+                    ? "待补充"
+                    : "未确认";
+            return group;
+          })
+          .filter(group => !useFilters || trainerMatchesFilters(group, group.details))
+          .sort((a, b) => b.total - a.total || numberValue(a.seq) - numberValue(b.seq) || a.name.localeCompare(b.name, "zh-CN"));
+      }
+
+      function aggregateGroups(key = activeKey(), details = filteredDetails(key), useFilters = true) {
+        return key === "operations" ? aggregateOperations(details, useFilters) : aggregateTeaching(details, useFilters);
+      }
+
+      function tenureText(appointedAt) {
+        if (!appointedAt) return "-";
+        const start = new Date(`${appointedAt}T00:00:00`);
+        const end = new Date(`${today()}T00:00:00`);
+        if (Number.isNaN(start.getTime()) || end < start) return "-";
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        if (end.getDate() < start.getDate()) months -= 1;
+        const years = Math.floor(Math.max(months, 0) / 12);
+        const rest = Math.max(months, 0) % 12;
+        if (years && rest) return `${years}年${rest}个月`;
+        if (years) return `${years}年`;
+        return `${rest}个月`;
+      }
+
+      function icon(name) {
+        const icons = {
+          plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>',
+          copy: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>',
+          trash: '<svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>',
+          undo: '<svg viewBox="0 0 24 24"><path d="M3 7v6h6"></path><path d="M21 17a8 8 0 0 0-13.7-5.7L3 15"></path></svg>',
+          down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>',
+          right: '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>'
+        };
+        return icons[name] || "";
+      }
+
+      function inputControl(detail, key, type = "text", options = {}) {
+        const value = detail[key] ?? "";
+        const common = `data-id="${detail.id}" data-key="${key}"`;
+        if (readonlyMode) {
+          if (type === "checkbox") return `<span class="fixed-field">${value ? "是" : "否"}</span>`;
+        }
+        if (type === "select") {
+          const choices = options.choices || [];
+          return `<select ${common}>${choices.map(item => `<option value="${escapeHtml(item)}" ${value === item ? "selected" : ""}>${escapeHtml(item || "请选择")}</option>`).join("")}</select>`;
+        }
+        if (type === "checkbox") return `<input type="checkbox" ${common} ${value ? "checked" : ""}>`;
+        if (type === "textarea") return `<textarea ${common} rows="2">${escapeHtml(value)}</textarea>`;
+        const step = options.step || "1";
+        const min = options.min ?? "0";
+        const max = options.max ? ` max="${options.max}"` : "";
+        const numberAttrs = type === "number" ? ` min="${min}" step="${step}"${max}` : "";
+        return `<input type="${type}" ${common} value="${escapeHtml(value)}"${numberAttrs}>`;
+      }
+
+      function fieldHtml(label, control) {
+        return `<div class="field"><label>${label}</label>${control}</div>`;
+      }
+
+      function teachingFields(detail) {
+        const all = detail.type === "综合";
+        const parts = [];
+        if (all || detail.type === "培训") {
+          parts.push(fieldHtml("线下/录播/直播小时", inputControl(detail, "offlineHours", "number", { step: "0.5" })));
+          parts.push(fieldHtml("支教志愿者小时", inputControl(detail, "volunteerHours", "number", { step: "0.5" })));
+          parts.push(fieldHtml("培训满意度", inputControl(detail, "trainingSatisfaction", "number", { step: "0.1", max: "5" })));
+        }
+        if (all || detail.type === "质检评审") {
+          parts.push(fieldHtml("督课质检小时", inputControl(detail, "qualityHours", "number", { step: "0.5" })));
+          parts.push(fieldHtml("督课报告", inputControl(detail, "qualityReport", "checkbox")));
+          parts.push(fieldHtml("评委评分小时", inputControl(detail, "reviewHours", "number", { step: "0.5" })));
+          parts.push(fieldHtml("评委报告", inputControl(detail, "reviewReport", "checkbox")));
+          parts.push(fieldHtml("需求方反馈", inputControl(detail, "demandFeedback", "number", { step: "0.1", max: "5" })));
+        }
+        if (all || detail.type === "课程开发") {
+          parts.push(fieldHtml("2小时内课程门数", inputControl(detail, "shortCourses", "number")));
+          parts.push(fieldHtml("2小时以上课程门数", inputControl(detail, "longCourses", "number")));
+        }
+        if (all || detail.type === "师训文章") parts.push(fieldHtml("原创师训文章篇数", inputControl(detail, "articles", "number")));
+        if (all || detail.type === "培训师带教") parts.push(fieldHtml("带教小时", inputControl(detail, "mentoringHours", "number", { step: "0.5" })));
+        if (all || detail.type === "集团竞聘") parts.push(fieldHtml("集团竞聘情况", inputControl(detail, "competitionStatus", "select", { choices: competitionOptions })));
+        if (all || detail.type === "绩效考核") parts.push(fieldHtml("年度绩效", inputControl(detail, "performance", "select", { choices: performanceOptions })));
+        return parts.join("");
+      }
+
+      function operationsFields(detail) {
+        return [
+          fieldHtml("课件是否提交", inputControl(detail, "coursewareSubmitted", "select", { choices: attachmentOptions })),
+          fieldHtml("现场照片是否提交", inputControl(detail, "photoSubmitted", "select", { choices: attachmentOptions })),
+          fieldHtml("其他附件是否提交", inputControl(detail, "otherAttachmentSubmitted", "select", { choices: attachmentOptions })),
+          fieldHtml("实际课时数", inputControl(detail, "actualHours", "number", { step: "0.5" })),
+          fieldHtml("课程满意度", inputControl(detail, "opsSatisfaction", "number", { step: "0.1", max: "5" }))
+        ].join("");
+      }
+
+      function detailCard(detail, key = activeKey()) {
+        const score = key === "operations"
+          ? {
+              training: operationsManagement(detail),
+              quality: numberValue(detail.actualHours),
+              course: Number(detail.opsSatisfaction) ? Math.min(Number(detail.opsSatisfaction) / 5 * 100, 100) : 0,
+              work: 0,
+              self: 0,
+              total: 0
+            }
+          : calculateTeachingDetail(detail);
+        const heads = config(key).heads;
+        const typeSelect = key === "teaching"
+          ? fieldHtml("事项类型", inputControl(detail, "type", "select", { choices: typeOptions }))
+          : fieldHtml("事项类型", '<div class="fixed-field">运营培训</div>');
+        const businessFields = key === "operations" ? operationsFields(detail) : teachingFields(detail);
+        const calcLabels = key === "operations"
+          ? [
+              ["管理评估", score.training],
+              ["实际课时", score.quality],
+              ["满意度折算", score.course],
+              ["明细提示", "汇总计算"],
+              ["权重说明", "40/40/20"]
+            ]
+          : [
+              [heads[0], score.training],
+              [heads[1], score.quality],
+              [heads[2], score.course],
+              [heads[3], score.work],
+              [heads[4], score.self]
+            ];
+        return `
+          <div class="detail-card" data-detail-card="${detail.id}">
+            <div class="detail-card-top">
+              <div class="detail-card-title">
+                <span>${escapeHtml(detail.date || "未填日期")}</span>
+                <span>${escapeHtml(key === "operations" ? "运营培训" : detail.type || "明细")}</span>
+              </div>
+              <div class="detail-front-actions edit-only">
+                <button class="small-btn" data-action="delete-detail" data-id="${detail.id}" title="移入回收站">${icon("trash")} 删除</button>
+                <button class="small-btn" data-action="duplicate-detail" data-id="${detail.id}" title="复制明细">${icon("copy")} 复制</button>
+              </div>
+            </div>
+            <div class="detail-grid">
+              ${fieldHtml("实施日期", inputControl(detail, "date", "date"))}
+              ${typeSelect}
+              ${fieldHtml("事项说明", inputControl(detail, "description"))}
+              ${fieldHtml("回复确认", inputControl(detail, "confirmed", "select", { choices: confirmOptions }))}
+              ${fieldHtml("备注", inputControl(detail, "remark"))}
+            </div>
+            <div class="business-grid">${businessFields}</div>
+            <div class="calc-strip">
+              ${calcLabels.map(([label, value]) => `<div class="calc"><span>${escapeHtml(label)}</span><b>${typeof value === "number" ? format(value) : escapeHtml(value)}</b></div>`).join("")}
+              <div class="calc total-calc"><span>${key === "operations" ? "权重总分" : "本条权重总分"}</span><b>${key === "operations" ? "汇总生成" : format(score.total)}</b></div>
+            </div>
+            <div class="audit-strip">
+              <span>录入时间：${escapeHtml(detail.createdAt || "-")}</span>
+              <span>最近修改：${escapeHtml(detail.updatedAt || "-")}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function render() {
+        const key = activeKey();
+        document.body.classList.toggle("readonly", readonlyMode);
+        document.body.classList.toggle("operations-board", key === "operations");
+        document.body.classList.toggle("teaching-board", key === "teaching");
+        renderHero();
+        renderHeaders();
+        renderDepartmentFilter();
+        renderRules();
+        controls.globalNotes.value = board().notes || "";
+        const groups = aggregateGroups();
+        renderSummary(groups);
+        renderCharts(groups);
+        renderRisk();
+        renderRows(groups);
+        renderTrash();
+        saveStatus();
+      }
+
+      function renderHero() {
+        const current = board();
+        const cfg = config();
+        el("heroTitle").textContent = cfg.title;
+        el("heroSubtitle").textContent = cfg.hero;
+        el("heroArt").src = cfg.art;
+        el("heroTrainerBadge").textContent = `${current.trainers.length} 位${cfg.trainerLabel}`;
+        document.querySelector(".brand h1").textContent = activeKey() === "operations" ? "新东方福州学校运营培训师积分明细" : "新东方福州学校校级教学培训师积分明细";
+        document.querySelector(".brand p").textContent = activeKey() === "operations" ? "按运营培训师汇总，展开查看不同实施日期的明细" : "按教学培训师汇总，展开查看不同实施日期的明细";
+        document.querySelectorAll("#boardSwitch button").forEach(button => button.classList.toggle("active", button.dataset.board === activeKey()));
+        const subjectField = el("newTrainerSubjectField");
+        if (subjectField) subjectField.hidden = activeKey() === "operations";
+      }
+
+      function renderHeaders() {
+        const cfg = config();
+        el("formulaText").textContent = cfg.formula;
+        el("stackSubtitle").textContent = cfg.stack;
+        el("totalHeader").textContent = cfg.totalHead;
+        cfg.heads.forEach((head, index) => {
+          const cell = el(`scoreHead${index + 1}`);
+          if (cell) cell.textContent = head;
+        });
+      }
+
+      function renderDepartmentFilter() {
+        const depts = Array.from(new Set(board().trainers.map(item => item.dept).filter(Boolean))).sort((a, b) => a.localeCompare(b, "zh-CN"));
+        const current = ui.filters.dept;
+        controls.deptFilter.innerHTML = `<option value="">全部部门</option>${depts.map(dept => `<option value="${escapeHtml(dept)}" ${dept === current ? "selected" : ""}>${escapeHtml(dept)}</option>`).join("")}`;
+      }
+
+      function renderRules() {
+        el("rulesTitle").textContent = activeKey() === "operations" ? "运营评分规则" : "教学评分规则";
+        el("rulesGrid").innerHTML = config().rules.map(([term, desc]) => `<div><dt>${escapeHtml(term)}</dt><dd>${escapeHtml(desc)}</dd></div>`).join("");
+      }
+
+      function renderSummary(groups) {
+        const current = board();
+        const valid = groups.filter(group => group.details.length > 0 && group.total > 0);
+        const top = valid[0] || null;
+        el("trainerCount").textContent = current.trainers.length;
+        el("detailCount").textContent = current.details.length;
+        el("topTrainer").textContent = top ? top.name : "-";
+        el("topScore").textContent = top ? format(top.total) : "0";
+        el("cycleLabel").textContent = "2026.06-2027.05";
+      }
+
+      function renderCharts(groups) {
+        const ranked = groups.filter(group => group.details.length > 0 && group.total > 0).slice(0, 8);
+        if (!ranked.length) {
+          el("rankChart").innerHTML = '<div class="empty-chart">暂无积分数据，录入明细后自动生成排名。</div>';
+          el("stackChart").innerHTML = '<div class="empty-chart">暂无模块贡献数据。</div>';
+          return;
+        }
+        const max = Math.max(...ranked.map(group => group.total), 1);
+        el("rankChart").innerHTML = `
+          <div class="rank-list">
+            ${ranked.map(group => `
+              <div class="rank-row">
+                <div class="rank-name">${escapeHtml(group.name)} · ${escapeHtml(group.dept)}</div>
+                <div class="bar-track"><div class="bar" style="width:${Math.max(group.total / max * 100, 2)}%"></div></div>
+                <div class="bar-value">${format(group.total)}</div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+        el("stackChart").innerHTML = `
+          <div class="stack-list">
+            ${ranked.map(group => stackRow(group)).join("")}
+          </div>
+          <div class="legend">
+            <span><i class="seg-training"></i>${config().heads[0]}</span>
+            <span><i class="seg-quality"></i>${config().heads[1]}</span>
+            <span><i class="seg-course"></i>${config().heads[2]}</span>
+            ${activeKey() === "teaching" ? '<span><i class="seg-work"></i>师训</span><span><i class="seg-self"></i>绩效</span>' : ""}
+          </div>
+        `;
+      }
+
+      function stackRow(group) {
+        const parts = activeKey() === "operations"
+          ? { training: group.training * 0.4, quality: group.quality * 0.4, course: group.course * 0.2, work: 0, self: 0 }
+          : { training: group.training * 0.3, quality: group.quality * 0.3, course: group.course * 0.2, work: group.work * 0.15, self: group.self * 0.05 };
+        const total = Math.max(group.total, 1);
+        return `
+          <div class="stack-row">
+            <div class="stack-name">${escapeHtml(group.name)}</div>
+            <div class="stack-track">
+              ${["training", "quality", "course", "work", "self"].map(name => parts[name] > 0 ? `<div class="seg-${name}" style="width:${parts[name] / total * 100}%"></div>` : "").join("")}
+            </div>
+            <div class="bar-value">${format(group.total)}</div>
+          </div>
+        `;
+      }
+
+      function rankMap(groups) {
+        return new Map(groups.filter(group => group.details.length > 0 && group.total > 0).map((group, index) => [group.key, index + 1]));
+      }
+
+      function renderRows(groups) {
+        const ranks = rankMap(groups);
+        el("emptyState").hidden = board().trainers.length > 0;
+        controls.groupsBody.innerHTML = groups.map(group => {
+          const expanded = ui.expanded.has(group.key);
+          const statusClass = group.confirmed === "已确认" ? "" : group.confirmed === "有异议" ? "bad" : "warn";
+          return `
+            <tr class="trainer-row">
+              <td class="sticky-col col-seq seq-cell">${escapeHtml(group.seq || "")}</td>
+              <td class="sticky-col col-name">
+                <button class="expander" data-action="toggle-group" data-key="${escapeHtml(group.key)}" title="${expanded ? "收起" : "展开"}">${icon(expanded ? "down" : "right")}</button>
+                <span class="trainer-name">${escapeHtml(group.name)}</span>
+              </td>
+              <td class="sticky-col col-dept">${escapeHtml(group.dept)}</td>
+              <td class="sticky-col col-subject">${escapeHtml(group.subject || "")}</td>
+              <td class="sticky-col col-level">${escapeHtml(group.level || "")}</td>
+              <td class="sticky-col col-appointed">${escapeHtml(group.appointedAt || "")}</td>
+              <td class="sticky-col col-action"><button class="front-action edit-only" data-action="add-under-trainer" data-trainer-id="${escapeHtml(group.trainerId)}" data-key="${escapeHtml(group.key)}">${icon("plus")}新增</button></td>
+              <td class="rank-cell">${ranks.get(group.key) || "-"}</td>
+              <td>${escapeHtml(tenureText(group.appointedAt))}</td>
+              <td>${PERIOD.label}</td>
+              <td class="score total-score">${format(group.total)}</td>
+              <td class="score">${format(group.training)}</td>
+              <td class="score">${format(group.quality)}</td>
+              <td class="score">${format(group.course)}</td>
+              <td class="score">${activeKey() === "operations" ? "-" : format(group.work)}</td>
+              <td class="score">${activeKey() === "operations" ? "-" : format(group.self)}</td>
+              <td class="score">${group.details.length}</td>
+              <td>${escapeHtml(group.dateRange)}</td>
+              <td><span class="pill ${statusClass}">${escapeHtml(group.confirmed)}</span></td>
+            </tr>
+            ${expanded ? `
+              <tr class="details-row">
+                <td colspan="19">
+                  <div class="details-panel">
+                    <div class="details-head">
+                      <strong>${escapeHtml(group.name)} 的明细</strong>
+                      <button class="small-btn edit-only" data-action="add-under-trainer" data-trainer-id="${escapeHtml(group.trainerId)}" data-key="${escapeHtml(group.key)}">${icon("plus")} 新增明细</button>
+                    </div>
+                    ${group.details.length ? group.details.map(detail => detailCard(detail)).join("") : `<div class="empty"><div class="empty-visual"><img src="assets/hero-graduate.png" alt=""><span>暂无明细，点击本行“新增”开始录入。</span></div></div>`}
+                  </div>
+                </td>
+              </tr>
+            ` : ""}
+          `;
+        }).join("");
+      }
+
+      function currentQuarters() {
+        const current = today();
+        if (current > PERIOD.end) return QUARTERS;
+        return QUARTERS.filter(quarter => current >= quarter.start);
+      }
+
+      function detailsInQuarter(details, quarter) {
+        return details.filter(detail => detail.date && detail.date >= quarter.start && detail.date <= quarter.end);
+      }
+
+      function renderRisk() {
+        const key = activeKey();
+        const quarters = currentQuarters();
+        if (!quarters.length) {
+          el("riskBody").innerHTML = '<div class="empty-chart">考核周期尚未开始。</div>';
+          return;
+        }
+        const content = quarters.map(quarter => {
+          const quarterDetails = detailsInQuarter(board(key).details, quarter);
+          const groups = aggregateGroups(key, quarterDetails, false);
+          const risks = groups.filter(group => group.details.length === 0 || group.total <= 0);
+          return `
+            <div class="risk-item">
+              <strong>${quarter.id}<br>${quarter.label}</strong>
+              <span>${quarter.start} 至 ${quarter.end}<br>${risks.length ? risks.map(item => `${item.name}（${item.dept}）`).join("、") : "暂无风险"}</span>
+              <span class="pill ${risks.length ? "bad" : ""}">${risks.length ? `${risks.length} 人预警` : "正常"}</span>
+            </div>
+          `;
+        }).join("");
+        el("riskBody").innerHTML = `<div class="risk-list">${content}</div>`;
+      }
+
+      function renderTrash() {
+        const current = board();
+        controls.undoDeleteBtn.hidden = !ui.lastDeleted || readonlyMode;
+        if (!trashPanel || trashPanel.hidden) return;
+        if (!current.trash.length) {
+          el("trashBody").innerHTML = '<div class="empty-chart">回收站为空。</div>';
+          return;
+        }
+        el("trashBody").innerHTML = `
+          <div class="trash-list">
+            ${current.trash.map(detail => {
+              const trainer = detailTrainer(detail);
+              return `
+                <div class="trash-item">
+                  <strong>${escapeHtml(trainer.name)}</strong>
+                  <span>${escapeHtml(detail.date || "-")} · ${escapeHtml(activeKey() === "operations" ? "运营培训" : detail.type || "明细")} · 删除时间：${escapeHtml(detail.deletedAt || "-")}</span>
+                  <button class="small-btn" data-action="restore-detail" data-id="${escapeHtml(detail.id)}">${icon("undo")}恢复</button>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function saveStatus() {
+        el("saveStatus").textContent = state.updatedAt ? `已保存：${state.updatedAt}` : "等待录入";
+      }
+
+      function save() {
+        if (readonlyMode) return;
+        state.version = 3;
+        state.updatedAt = nowStamp();
+        try {
+          localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(state));
+        } catch (error) {
+          showToast("浏览器限制了本地保存，请导出 JSON 备份。");
+        }
+        saveStatus();
+      }
+
+      function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("show");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+      }
+
+      function setDetailTrainer(detail, trainer) {
+        detail.trainerId = trainer ? trainer.id : "";
+        detail.dept = trainer ? trainer.dept : "";
+        detail.name = trainer ? trainer.name : "";
+        detail.level = trainer ? trainer.level : "";
+      }
+
+      function addDetail(seed = {}) {
+        if (readonlyMode) return;
+        const key = activeKey();
+        const trainer = seed.trainerId ? getTrainer(seed.trainerId, key) : board(key).trainers[0];
+        if (!trainer) {
+          showToast("请先新增培训师。");
+          return;
+        }
+        const stamp = nowStamp();
+        const detail = key === "operations"
+          ? defaultOperationsDetail({ ...seed, createdAt: stamp, updatedAt: stamp })
+          : defaultTeachingDetail({ ...seed, createdAt: stamp, updatedAt: stamp });
+        setDetailTrainer(detail, trainer);
+        board(key).details.unshift(detail);
+        ui.expanded.add(trainer.id);
+        save();
+        render();
+        showToast("已新增明细。");
+      }
+
+      function duplicateDetail(id) {
+        if (readonlyMode) return;
+        const current = board();
+        const detail = current.details.find(item => item.id === id);
+        if (!detail) return;
+        const stamp = nowStamp();
+        const copy = { ...detail, id: createId(`${activeKey()}-detail`), description: `${detail.description || "明细"} 副本`, createdAt: stamp, updatedAt: stamp };
+        const index = current.details.findIndex(item => item.id === id);
+        current.details.splice(index + 1, 0, copy);
+        ui.expanded.add(copy.trainerId);
+        save();
+        render();
+        showToast("已复制明细。");
+      }
+
+      function deleteDetail(id) {
+        if (readonlyMode) return;
+        const current = board();
+        const index = current.details.findIndex(item => item.id === id);
+        if (index < 0) return;
+        const [detail] = current.details.splice(index, 1);
+        const deleted = { ...detail, deletedAt: nowStamp() };
+        current.trash.unshift(deleted);
+        ui.lastDeleted = { boardKey: activeKey(), id: deleted.id };
+        save();
+        render();
+        showToast("已移入回收站，可点“恢复”撤销。");
+      }
+
+      function restoreDeleted(id, key = activeKey()) {
+        const targetBoard = board(key);
+        const index = targetBoard.trash.findIndex(item => item.id === id);
+        if (index < 0) return false;
+        const [detail] = targetBoard.trash.splice(index, 1);
+        delete detail.deletedAt;
+        detail.updatedAt = nowStamp();
+        targetBoard.details.unshift(detail);
+        ui.expanded.add(detail.trainerId);
+        return true;
+      }
+
+      function undoLastDelete() {
+        if (!ui.lastDeleted || readonlyMode) return;
+        state.activeBoard = ui.lastDeleted.boardKey;
+        if (restoreDeleted(ui.lastDeleted.id, ui.lastDeleted.boardKey)) {
+          ui.lastDeleted = null;
+          save();
+          render();
+          showToast("已恢复最近删除的明细。");
+        }
+      }
+
+      function updateValue(target) {
+        if (readonlyMode) return;
+        const id = target.dataset.id;
+        const key = target.dataset.key;
+        if (!id || !key) return;
+        const detail = board().details.find(item => item.id === id);
+        if (!detail) return;
+        if (target.type === "checkbox") detail[key] = target.checked;
+        else if (target.type === "number") detail[key] = target.value === "" ? "" : Math.max(0, Number(target.value));
+        else detail[key] = target.value;
+        detail.updatedAt = nowStamp();
+        save();
+      }
+
+      function nextTrainerSeq() {
+        return Math.max(0, ...board().trainers.map(item => numberValue(item.seq))) + 1;
+      }
+
+      function resetTrainerForm() {
+        el("newTrainerSeq").value = nextTrainerSeq();
+        el("newTrainerName").value = "";
+        el("newTrainerDept").value = "";
+        el("newTrainerSubject").value = "";
+        el("newTrainerLevel").value = "初级";
+        el("newTrainerAppointed").value = today();
+      }
+
+      function addTrainerFromForm() {
+        if (readonlyMode) return;
+        const key = activeKey();
+        const trainer = normalizeTrainer({
+          id: createId(`${key}-trainer`),
+          seq: Math.max(1, Number(el("newTrainerSeq").value) || nextTrainerSeq()),
+          name: el("newTrainerName").value.trim(),
+          dept: el("newTrainerDept").value.trim(),
+          subject: el("newTrainerSubject").value.trim(),
+          level: el("newTrainerLevel").value.trim() || "初级",
+          appointedAt: el("newTrainerAppointed").value || today()
+        }, board().trainers.length, key);
+        if (!trainer.name || !trainer.dept) {
+          showToast("请至少填写姓名和部门。");
+          return;
+        }
+        if (board().trainers.some(item => trainerIdentity(item) === trainerIdentity(trainer))) {
+          showToast("已存在同部门同名培训师。");
+          return;
+        }
+        board().trainers.push(trainer);
+        board().trainers.sort(sortTrainers);
+        trainerForm.hidden = true;
+        save();
+        render();
+        showToast("已新增培训师。");
+      }
+
+      function switchBoard(key) {
+        if (!BOARD_CONFIG[key]) return;
+        state.activeBoard = key;
+        trainerForm.hidden = true;
+        trashPanel.hidden = true;
+        ui.filters = { dept: "", keyword: "", startDate: "", endDate: "", status: "" };
+        syncFilterInputs();
+        if (!readonlyMode) save();
+        render();
+      }
+
+      function syncFilterInputs() {
+        controls.nameFilter.value = ui.filters.keyword;
+        controls.startDateFilter.value = ui.filters.startDate;
+        controls.endDateFilter.value = ui.filters.endDate;
+        controls.statusFilter.value = ui.filters.status;
+      }
+
+      function csvCell(value) {
+        const text = String(value ?? "");
+        return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+      }
+
+      function download(filename, content, type) {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportGroupedCsv() {
+        const key = activeKey();
+        const groups = aggregateGroups();
+        const ranks = rankMap(groups);
+        const lines = [[
+          "看板", "行类型", "序号", "姓名", "部门", "所属科目", "级别", "任用日期", "排名", "培训师时长", "考核周期",
+          config(key).totalHead, config(key).heads[0], config(key).heads[1], config(key).heads[2], config(key).heads[3], config(key).heads[4],
+          "明细数", "日期范围", "确认状态", "实施日期", "事项说明", "录入时间", "最近修改时间", "备注"
+        ]];
+        groups.forEach(group => {
+          lines.push([config(key).trainerLabel, "汇总", group.seq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, format(group.total), format(group.training), format(group.quality), format(group.course), activeKey() === "operations" ? "" : format(group.work), activeKey() === "operations" ? "" : format(group.self), group.details.length, group.dateRange, group.confirmed, "", "", "", "", ""]);
+          group.details.forEach(detail => {
+            const score = key === "operations" ? { training: operationsManagement(detail), quality: numberValue(detail.actualHours), course: Number(detail.opsSatisfaction) ? Math.min(Number(detail.opsSatisfaction) / 5 * 100, 100) : 0, work: "", self: "" } : calculateTeachingDetail(detail);
+            lines.push([config(key).trainerLabel, "明细", group.seq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, "", format(score.training), format(score.quality), format(score.course), score.work === "" ? "" : format(score.work), score.self === "" ? "" : format(score.self), "", "", detail.confirmed, detail.date, detail.description || detail.type || "运营培训", detail.createdAt || "", detail.updatedAt || "", detail.remark || ""]);
+          });
+        });
+        const csv = "\ufeff" + lines.map(row => row.map(csvCell).join(",")).join("\n");
+        download(`${config(key).trainerLabel}分组明细-${today()}.csv`, csv, "text/csv;charset=utf-8");
+        showToast("已导出 Excel 可打开的分组明细 CSV。");
+      }
+
+      function exportOriginalCsv() {
+        const key = activeKey();
+        const details = filteredDetails(key).slice().sort((a, b) => `${a.trainerId}${a.date}`.localeCompare(`${b.trainerId}${b.date}`, "zh-CN"));
+        let header;
+        let rows;
+        if (key === "operations") {
+          const groups = aggregateGroups("operations");
+          header = ["序号", "部门", "姓名", "级别", "任用日期", "培训管理评估", "课时完成率", "培训效果满意度", "总分", "明细数", "确认状态", "备注"];
+          rows = groups.map(group => [group.seq, group.dept, group.name, group.level, group.appointedAt, format(group.training), format(group.quality), format(group.course), format(group.total), group.details.length, group.confirmed, group.details.map(detail => [detail.date, detail.description, detail.remark, detail.createdAt ? `录入时间：${detail.createdAt}` : "", detail.updatedAt ? `最近修改：${detail.updatedAt}` : ""].filter(Boolean).join(" - ")).join("；")]);
+        } else {
+          header = ["序号", "部门", "姓名", "级别", "线下/录播/直播培训：2分/h；支教志愿者培训：1分/h", "培训学员满意度", "督课质检", "评委评分", "需求方师训工作反馈", "课程开发数量", "师训文章撰写", "培训师带教", "集团培训师竞聘", "教师个人年度绩效", "总积分", "培训师回复确认情况", "备注"];
+          rows = details.map((detail, index) => {
+            const trainer = detailTrainer(detail, "teaching");
+            const score = calculateTeachingDetail(detail);
+            return [index + 1, trainer.dept, trainer.name, trainer.level, format(score.trainingHours), format(score.trainingSatisfaction), format(score.qualityCheck), format(score.review), format(score.demand), format(score.course), format(score.articleScore), format(score.mentoring), format(score.competition), format(score.self), format(score.total), detail.confirmed, [detail.date, detail.type, detail.description, detail.remark, detail.createdAt ? `录入时间：${detail.createdAt}` : "", detail.updatedAt ? `最近修改：${detail.updatedAt}` : ""].filter(Boolean).join(" - ")];
+          });
+        }
+        const csv = "\ufeff" + [header, ...rows].map(row => row.map(csvCell).join(",")).join("\n");
+        download(`${config(key).trainerLabel}原表格式-${today()}.csv`, csv, "text/csv;charset=utf-8");
+        showToast("已导出 Excel 可打开的原表格式 CSV。");
+      }
+
+      function exportJson() {
+        download(`培训师积分双看板备份-${today()}.json`, JSON.stringify(state, null, 2), "application/json;charset=utf-8");
+        showToast("JSON 备份已导出。");
+      }
+
+      function scoreSnapshotHtml() {
+        const snapshot = JSON.stringify(state).replaceAll("<", "\\u003c");
+        const source = "<!doctype html>\n" + document.documentElement.outerHTML;
+        return source.replace("const SNAPSHOT_STATE_V3 = null;", `const SNAPSHOT_STATE_V3 = ${snapshot};`);
+      }
+
+      function exportReadonlyHtml() {
+        download("index.html", scoreSnapshotHtml(), "text/html;charset=utf-8");
+        showToast("积分看板分享预览已导出。邀约页请在展示邀约页面单独导出。");
+      }
+
+      function importJson(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            state = normalizeState(JSON.parse(reader.result));
+            ui.expanded.clear();
+            ui.lastDeleted = null;
+            save();
+            render();
+            showToast("备份文件已导入。");
+          } catch (error) {
+            showToast("导入失败，请确认选择的是本页面导出的 JSON。");
+          } finally {
+            controls.fileInput.value = "";
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function legacyToDetail(row, trainers) {
+        const trainer = trainers.find(item => trainerIdentity(item) === `${(row.dept || "").trim()}||${(row.name || "").trim()}`);
+        const stamp = nowStamp();
+        const detail = defaultTeachingDetail({
+          trainerId: trainer ? trainer.id : "",
+          createdAt: stamp,
+          updatedAt: stamp,
+          date: row.date || "",
+          type: "综合",
+          description: row.remark || "旧版汇总数据迁移",
+          offlineHours: row.offlineHours || 0,
+          volunteerHours: row.volunteerHours || 0,
+          trainingSatisfaction: row.satisfaction || "",
+          qualityHours: row.qualityHours || 0,
+          qualityReport: Boolean(row.qualityReport),
+          reviewHours: row.reviewHours || 0,
+          reviewReport: Boolean(row.reviewReport),
+          demandFeedback: row.demandFeedback || "",
+          shortCourses: row.shortCourses || 0,
+          longCourses: row.longCourses || 0,
+          articles: row.articles || 0,
+          mentoringHours: row.mentoringHours || 0,
+          competitionStatus: row.competitionGroup > 0 ? "竞聘成功（集团）" : row.competitionCategory > 0 ? "竞聘成功（条线）" : row.competitionInterview > 0 ? "复试入选" : row.competitionRegister > 0 ? "报名成功" : "",
+          performance: row.performance || "其他",
+          confirmed: row.confirmed || "未确认",
+          remark: row.remark || ""
+        });
+        if (trainer) setDetailTrainer(detail, trainer);
+        return detail;
+      }
+
+      function normalizeBoard(input = {}, key = "teaching") {
+        const normalized = {
+          notes: input.notes || "",
+          trainers: mergeTrainers(input.trainers || [], key),
+          details: [],
+          trash: []
+        };
+        normalized.details = normalizeDetails(input.details || [], key, normalized.trainers);
+        normalized.trash = normalizeDetails(input.trash || [], key, normalized.trainers).map(item => ({ ...item, deletedAt: item.deletedAt || nowStamp() }));
+        return normalized;
+      }
+
+      function normalizeState(input) {
+        const next = emptyState();
+        if (input && input.boards) {
+          next.activeBoard = input.activeBoard === "operations" ? "operations" : "teaching";
+          next.updatedAt = input.updatedAt || "";
+          next.boards.teaching = normalizeBoard(input.boards.teaching || {}, "teaching");
+          next.boards.operations = normalizeBoard(input.boards.operations || {}, "operations");
+          return next;
+        }
+        if (input && Array.isArray(input.details)) {
+          const teaching = normalizeBoard({ notes: input.notes || "", trainers: input.trainers || [], details: input.details }, "teaching");
+          next.boards.teaching = teaching;
+          return next;
+        }
+        if (input && Array.isArray(input.rows)) {
+          const trainers = mergeTrainers([], "teaching");
+          next.boards.teaching = { notes: input.notes || "", trainers, details: input.rows.map(row => legacyToDetail(row, trainers)), trash: [] };
+          return next;
+        }
+        return next;
+      }
+
+      function load() {
+        try {
+          if (readonlyMode && SNAPSHOT_STATE_V3) {
+            state = normalizeState(SNAPSHOT_STATE_V3);
+            return;
+          }
+          if (!readonlyMode) {
+            const rawV3 = localStorage.getItem(STORAGE_KEY_V3);
+            if (rawV3) {
+              state = normalizeState(JSON.parse(rawV3));
+              return;
+            }
+            const rawV2 = localStorage.getItem(STORAGE_KEY_V2);
+            if (rawV2) {
+              state = normalizeState(JSON.parse(rawV2));
+              save();
+              return;
+            }
+            const rawV1 = localStorage.getItem(LEGACY_KEY_V1);
+            if (rawV1) {
+              state = normalizeState(JSON.parse(rawV1));
+              save();
+            }
+          }
+        } catch (error) {
+          state = emptyState();
+          showToast("本地数据读取失败，已使用初始名单。");
+        }
+      }
+
+      function bindEvents() {
+        document.querySelectorAll("#boardSwitch button").forEach(button => button.addEventListener("click", () => switchBoard(button.dataset.board)));
+        controls.addDetailBtn.addEventListener("click", () => addDetail());
+        controls.toggleTrainerFormBtn.addEventListener("click", () => {
+          if (readonlyMode) return;
+          trainerForm.hidden = !trainerForm.hidden;
+          if (!trainerForm.hidden) resetTrainerForm();
+        });
+        controls.undoDeleteBtn.addEventListener("click", undoLastDelete);
+        controls.toggleTrashBtn.addEventListener("click", () => {
+          if (readonlyMode) return;
+          trashPanel.hidden = !trashPanel.hidden;
+          renderTrash();
+        });
+        controls.saveTrainerBtn.addEventListener("click", addTrainerFromForm);
+        controls.cancelTrainerBtn.addEventListener("click", () => { trainerForm.hidden = true; });
+        controls.exportGroupedBtn.addEventListener("click", exportGroupedCsv);
+        controls.exportExcelBtn.addEventListener("click", exportOriginalCsv);
+        controls.exportJsonBtn.addEventListener("click", exportJson);
+        controls.exportReadonlyBtn.addEventListener("click", exportReadonlyHtml);
+        controls.importBtn.addEventListener("click", () => controls.fileInput.click());
+        controls.printBtn.addEventListener("click", () => window.print());
+        controls.clearBtn.addEventListener("click", () => {
+          if (readonlyMode) return;
+          if (!confirm("确定清空当前看板的明细、备注和回收站吗？名单会保留。建议先导出 JSON 备份。")) return;
+          board().details = [];
+          board().trash = [];
+          board().notes = "";
+          ui.expanded.clear();
+          save();
+          render();
+          showToast("已清空当前看板数据。");
+        });
+        controls.fileInput.addEventListener("change", event => {
+          if (readonlyMode) return;
+          const [file] = event.target.files;
+          if (file) importJson(file);
+        });
+        controls.groupsBody.addEventListener("input", event => updateValue(event.target));
+        controls.groupsBody.addEventListener("change", event => {
+          updateValue(event.target);
+          render();
+        });
+        controls.groupsBody.addEventListener("click", event => {
+          const button = event.target.closest("button[data-action]");
+          if (!button) return;
+          const action = button.dataset.action;
+          if (action === "toggle-group") {
+            const key = button.dataset.key;
+            if (ui.expanded.has(key)) ui.expanded.delete(key);
+            else ui.expanded.add(key);
+            render();
+          }
+          if (action === "add-under-trainer") addDetail({ trainerId: button.dataset.trainerId });
+          if (action === "duplicate-detail") duplicateDetail(button.dataset.id);
+          if (action === "delete-detail") deleteDetail(button.dataset.id);
+        });
+        el("trashBody").addEventListener("click", event => {
+          const button = event.target.closest("button[data-action='restore-detail']");
+          if (!button) return;
+          if (restoreDeleted(button.dataset.id)) {
+            save();
+            render();
+            showToast("已从回收站恢复。");
+          }
+        });
+        controls.deptFilter.addEventListener("change", event => { ui.filters.dept = event.target.value; render(); });
+        controls.nameFilter.addEventListener("input", event => { ui.filters.keyword = event.target.value; render(); });
+        controls.startDateFilter.addEventListener("change", event => { ui.filters.startDate = event.target.value; render(); });
+        controls.endDateFilter.addEventListener("change", event => { ui.filters.endDate = event.target.value; render(); });
+        controls.statusFilter.addEventListener("change", event => { ui.filters.status = event.target.value; render(); });
+        controls.resetFilterBtn.addEventListener("click", () => {
+          ui.filters = { dept: "", keyword: "", startDate: "", endDate: "", status: "" };
+          syncFilterInputs();
+          render();
+        });
+        controls.globalNotes.addEventListener("input", () => {
+          if (readonlyMode) return;
+          board().notes = controls.globalNotes.value;
+          save();
+        });
+      }
+
+      load();
+      bindEvents();
+      resetTrainerForm();
+      render();
+    })();
+  </script>
+</body>
+</html>

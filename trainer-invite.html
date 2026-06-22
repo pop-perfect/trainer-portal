@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>培训师展示与邀约</title>
+  <style>
+    :root {
+      --bg: #f4f8ef;
+      --panel: #fff;
+      --ink: #1f2a24;
+      --muted: #66736b;
+      --line: #cdddc8;
+      --head: #65ad3f;
+      --head-deep: #3f8f2f;
+      --green: #4f9c43;
+      --green-soft: #edf8e8;
+      --blue: #2f80c2;
+      --blue-soft: #e8f0f8;
+      --amber: #c77b0e;
+      --amber-soft: #fff3d7;
+      --shadow: 0 16px 46px rgba(58, 103, 49, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 6%, rgba(101, 173, 63, 0.18), transparent 260px),
+        linear-gradient(180deg, rgba(101, 173, 63, 0.12), rgba(244, 248, 239, 0) 270px),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    a.button {
+      border: 0;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 20px;
+      color: #fff;
+      background: linear-gradient(90deg, #3f8f2f, #76bd48);
+      box-shadow: 0 8px 24px rgba(54, 116, 42, 0.24);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 280px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .readonly-only {
+      display: none;
+    }
+
+    .readonly-panel {
+      display: none;
+    }
+
+    body.readonly .edit-only {
+      display: none !important;
+    }
+
+    body.readonly .readonly-only {
+      display: inline-flex;
+    }
+
+    body.readonly .readonly-panel {
+      display: block;
+    }
+
+    .text-btn,
+    .small-btn,
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 7px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .text-btn,
+    .icon-btn {
+      gap: 7px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      font-weight: 700;
+    }
+
+    .text-btn { padding: 0 12px; }
+    .icon-btn { width: 36px; }
+
+    .small-btn {
+      gap: 6px;
+      padding: 0 10px;
+      border: 1px solid #c9d5cc;
+      color: #243228;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .primary-btn {
+      color: #fff;
+      border-color: rgba(63, 143, 47, 0.24);
+      background: linear-gradient(90deg, #3f8f2f, #76bd48);
+    }
+
+    .text-btn:hover,
+    .small-btn:hover,
+    .icon-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .main {
+      width: min(100%, 1500px);
+      margin: 0 auto;
+      padding: 18px 20px 30px;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px;
+      gap: 16px;
+      min-height: 132px;
+      margin-bottom: 14px;
+      padding: 18px 20px;
+      overflow: hidden;
+      border: 1px solid rgba(104, 164, 87, 0.28);
+      border-radius: 8px;
+      background: linear-gradient(110deg, #f7fff2 0%, #fff 56%, #edf9e8 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .board-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-top: 12px;
+      padding: 4px;
+      border: 1px solid rgba(104, 164, 87, 0.34);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .board-switch button {
+      min-height: 30px;
+      padding: 0 13px;
+      border-radius: 6px;
+      color: #2f6d27;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .board-switch button.active {
+      color: #fff;
+      background: linear-gradient(90deg, #3f8f2f, #76bd48);
+      box-shadow: 0 6px 14px rgba(63, 143, 47, 0.18);
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #2f6d27;
+      background: #edf8e8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hero-art {
+      align-self: end;
+      justify-self: end;
+      width: 148px;
+      max-height: 128px;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 22px rgba(58, 103, 49, 0.16));
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid #c9d5cc;
+      border-radius: 6px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    input,
+    select { padding: 5px 7px; }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+      padding: 7px;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #1769aa;
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    input[readonly] {
+      color: #2f5f2a;
+      border-color: #cfe3c8;
+      background: #f3faf0;
+      font-weight: 750;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+
+    .panel-head strong { font-size: 15px; }
+    .panel-head small { color: var(--muted); }
+
+    .trainer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .trainer-card {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #d9e3dc;
+      border-radius: 8px;
+      background: #fff;
+      text-align: left;
+    }
+
+    .trainer-card.active {
+      border-color: rgba(101, 173, 63, 0.72);
+      box-shadow: 0 0 0 3px rgba(101, 173, 63, 0.14);
+    }
+
+    .avatar {
+      display: grid;
+      width: 76px;
+      height: 86px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid #d6e8cf;
+      border-radius: 8px;
+      background: #f4fbef;
+    }
+
+    .avatar img {
+      width: 74px;
+      height: 82px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 10px rgba(58, 103, 49, 0.12));
+    }
+
+    .trainer-card h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .trainer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 7px 0;
+    }
+
+    .chip {
+      display: inline-flex;
+      min-height: 22px;
+      align-items: center;
+      padding: 0 7px;
+      border-radius: 999px;
+      color: #4d5e53;
+      background: #eef4ef;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .chip.orange {
+      color: #2f6d27;
+      background: #edf8e8;
+    }
+
+    .trainer-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .side {
+      position: sticky;
+      top: 82px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .profile {
+      padding: 12px;
+    }
+
+    .profile-head {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .profile-head .avatar {
+      width: 96px;
+      height: 106px;
+    }
+
+    .profile-head .avatar img {
+      width: 94px;
+      height: 102px;
+    }
+
+    .profile h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .profile p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .topic {
+      display: grid;
+      gap: 6px;
+      padding: 9px;
+      border: 1px solid #dbe5de;
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .topic strong {
+      font-size: 13px;
+    }
+
+    .topic span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .topic-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .topic-form {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #d8e7d2;
+      border-radius: 8px;
+      background: #f8fff4;
+    }
+
+    .topic-form[hidden] {
+      display: none;
+    }
+
+    .invite-form {
+      display: grid;
+      gap: 9px;
+      padding: 12px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .invite-output {
+      display: none;
+      margin-top: 2px;
+      padding: 9px;
+      border: 1px solid #d8e7d2;
+      border-radius: 8px;
+      color: #17351d;
+      background: #f6fff2;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      padding: 30px 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty img {
+      display: block;
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 8px;
+      object-fit: contain;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      max-width: min(420px, calc(100vw - 36px));
+      padding: 10px 12px;
+      border: 1px solid rgba(67, 138, 36, 0.28);
+      border-radius: 8px;
+      color: #17351d;
+      background: #f6fff2;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1100px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .hero,
+      .layout,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-art {
+        display: none;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 1-2-2Z"></path><path d="M8 8h6"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>
+      </div>
+      <div>
+        <h1>培训师展示与邀约</h1>
+        <p>先搭好框架，后续替换真实照片、简介和课题</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <a class="text-btn button" href="index.html" title="返回积分看板">
+        <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path><path d="M9 12h12"></path><path d="M3 5v14"></path></svg>
+        返回积分看板
+      </a>
+      <span class="text-btn readonly-only" title="当前为只读分享页">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        只读查看
+      </span>
+      <button class="text-btn edit-only" id="exportInvitePreviewBtn" title="导出展示邀约分享页">
+        <svg viewBox="0 0 24 24"><path d="M12 3v4"></path><path d="M12 17v4"></path><path d="M5.6 5.6 8.4 8.4"></path><path d="m15.6 15.6 2.8 2.8"></path><path d="M3 12h4"></path><path d="M17 12h4"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        导出分享页
+      </button>
+      <button class="text-btn edit-only" id="exportInviteBtn" title="导出邀约记录">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+        导出邀约
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div>
+        <h2 id="heroTitle">教学培训师展示与邀约</h2>
+        <p id="heroDesc">按教学与运营分开展示培训师。选中培训师后可查看课题，点击课题后自动带入邀约表单。</p>
+        <div class="board-switch" id="boardSwitch">
+          <button type="button" class="active" data-board="teaching">教学培训师</button>
+          <button type="button" data-board="operations">运营培训师</button>
+        </div>
+        <div class="hero-badges">
+          <span class="hero-badge" id="trainerCountBadge">0 位培训师</span>
+        <span class="hero-badge edit-only">支持复制邀约文本</span>
+        <span class="hero-badge edit-only">可导出邀约记录 CSV</span>
+        <span class="hero-badge readonly-only">分享预览模式</span>
+        </div>
+      </div>
+      <img class="hero-art" id="heroArt" src="assets/hero-wave.png" alt="">
+    </section>
+
+    <section class="filters">
+      <div class="field">
+        <label for="keywordInput">搜索</label>
+        <input id="keywordInput" type="search" placeholder="搜索姓名、部门、科目、课题">
+      </div>
+      <div class="field">
+        <label for="deptFilter">部门</label>
+        <select id="deptFilter"></select>
+      </div>
+      <div class="field">
+        <label for="subjectFilter">科目/方向</label>
+        <select id="subjectFilter"></select>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="small-btn" id="resetFilterBtn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+          重置筛选
+        </button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <strong>培训师列表</strong>
+          <small id="listHint">点击卡片查看详情</small>
+        </div>
+        <div class="trainer-grid" id="trainerGrid"></div>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-head">
+            <strong>培训师详情</strong>
+            <small id="selectedHint">未选择</small>
+          </div>
+          <div class="profile" id="profilePanel"></div>
+        </section>
+
+        <section class="panel edit-only">
+          <div class="panel-head">
+            <strong>发起邀约</strong>
+            <small>填写后可复制或导出</small>
+          </div>
+          <form class="invite-form" id="inviteForm">
+            <div class="form-row">
+              <div class="field">
+                <label for="trainerNameInput">邀约讲师姓名</label>
+                <input id="trainerNameInput" readonly aria-readonly="true">
+              </div>
+              <div class="field">
+                <label for="trainerDeptInput">邀约讲师部门</label>
+                <input id="trainerDeptInput" readonly aria-readonly="true">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="inviterInput">邀约人</label>
+                <input id="inviterInput" required placeholder="请输入邀约人">
+              </div>
+              <div class="field">
+                <label for="needDeptInput">需求部门</label>
+                <input id="needDeptInput" required placeholder="请输入需求部门">
+              </div>
+            </div>
+            <div class="field">
+              <label for="topicInput">需求课题</label>
+              <input id="topicInput" required placeholder="可从课题列表点选带入">
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="dateInput">期望时间</label>
+                <input id="dateInput" type="date">
+              </div>
+              <div class="field">
+                <label for="formatInput">培训形式</label>
+                <select id="formatInput">
+                  <option>线下</option>
+                  <option>线上</option>
+                  <option>均可</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="noteInput">需求说明</label>
+              <textarea id="noteInput" placeholder="可填写培训对象、人数、背景、希望解决的问题等"></textarea>
+            </div>
+            <button class="small-btn primary-btn" type="submit">
+              <svg viewBox="0 0 24 24"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7Z"></path></svg>
+              生成邀约
+            </button>
+            <button class="small-btn" id="copyInviteBtn" type="button">
+              <svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+              复制邀约文本
+            </button>
+            <button class="small-btn" id="submitTencentBtn" type="button">
+              <svg viewBox="0 0 24 24"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+              提交到腾讯表单
+            </button>
+            <div class="invite-output" id="inviteOutput"></div>
+          </form>
+        </section>
+
+        <section class="panel readonly-panel">
+          <div class="panel-head">
+            <strong>发起邀约</strong>
+            <small>通过腾讯表单提交</small>
+          </div>
+          <div class="invite-form">
+            <p class="muted">请先在左侧查看培训师和课题，再前往腾讯表单提交邀约。提交后会进入腾讯表格，便于提醒和审批。</p>
+            <button class="small-btn primary-btn" id="readonlyTencentBtn" type="button">
+              <svg viewBox="0 0 24 24"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+              前往腾讯表单
+            </button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "trainer-invite-records-v1";
+    const TOPIC_STORAGE_KEY = "trainer-invite-board-topics-v2";
+    const TENCENT_FORM_URL = "";
+    const SNAPSHOT_INVITE_STATE = null;
+    const readonlyMode = (() => {
+      const loc = window.location || { search: "", hash: "", hostname: "" };
+      return Boolean(SNAPSHOT_INVITE_STATE) || loc.search.includes("readonly=1") || loc.hash.includes("readonly") || loc.hostname.endsWith("github.io");
+    })();
+    const avatarPool = ["assets/hero-wave.png", "assets/hero-frame.png", "assets/hero-clipboard.png", "assets/hero-graduate.png"];
+
+    const boards = {
+      teaching: {
+        title: "教学培训师展示与邀约",
+        desc: "按教学培训师展示姓名、部门、科目和可讲课题。选中培训师后可查看课题详情并发起邀约。",
+        art: "assets/hero-wave.png",
+        subjectLabel: "科目",
+        trainers: [
+          { id: "teach-01", name: "陈芳", dept: "素养智学部", subject: "口才", photo: "assets/trainers/陈芳.png", intro: "校级教学培训师，聚焦课堂管理、沟通表达与教学互动设计。", topics: [
+            { title: "无效沟通时常逼疯你？简单教你如何掌控课堂管理", duration: "待定", audience: "教学教师 / 新教师", desc: "围绕课堂管理中的沟通场景，拆解更有效的表达、反馈和秩序建立方法。" }
+          ] },
+          { id: "teach-02", name: "高磊", dept: "高中部", subject: "物理", photo: "assets/trainers/高磊.jpg", intro: "校级教学培训师，聚焦新教师课堂入门、理科教学设计与课堂节奏。", topics: [
+            { title: "新老师如何上好新东方的第一节课", duration: "待定", audience: "新教师 / 高中部教师", desc: "帮助新教师理解新东方课堂标准，完成第一节课的结构设计、表达准备与课堂落地。" }
+          ] },
+          { id: "teach-03", name: "方显威", dept: "素养智学部", subject: "分级阅读", photo: "assets/trainers/方显威.jpg", intro: "校级教学培训师，后续可继续补充擅长方向与课程信息。", topics: [] },
+          { id: "teach-04", name: "丁璇", dept: "素养智学部", subject: "分级阅读", photo: "assets/trainers/丁璇.jpg", intro: "校级教学培训师，聚焦课堂活动设计、阅读课堂组织与学习体验。", topics: [
+            { title: "超实用的课堂活动", duration: "待定", audience: "素养教师 / 阅读项目教师", desc: "围绕课堂活动的设计、组织和复盘，提供可直接迁移到课堂中的活动方法。" }
+          ] },
+          { id: "teach-05", name: "陈晨", dept: "高中部", subject: "英语", photo: "assets/trainers/陈晨.jpg", intro: "校级教学培训师，后续可继续补充擅长方向与课程信息。", topics: [] },
+          { id: "teach-06", name: "黄鑫", dept: "智慧学习部", subject: "数学", photo: "assets/trainers/黄鑫.png", intro: "校级教学培训师，聚焦学情分析、学习反馈和数据化教学支持。", topics: [
+            { title: "如何做好期中考前后学员的学情分析", duration: "待定", audience: "教学教师 / 学习规划相关岗位", desc: "围绕期中考前后关键节点，拆解学员学情分析、反馈表达与后续教学跟进动作。" }
+          ] },
+          { id: "teach-07", name: "张孔政", dept: "高中部", subject: "数学", photo: "assets/trainers/张孔政.jpg", intro: "校级教学培训师，聚焦表达方法、AI 赋能教学与高中课堂实践。", topics: [
+            { title: "表达的黄金法则", duration: "待定", audience: "教学教师 / 新教师", desc: "拆解教学表达中的结构、节奏和重点呈现方式，提升课堂讲解清晰度。" },
+            { title: "AI赋能教学", duration: "待定", audience: "教学教师 / 备课负责人", desc: "围绕 AI 工具在备课、讲解设计和教学提效中的使用场景展开。" }
+          ] },
+          { id: "teach-08", name: "沈千云", dept: "素养智学部", subject: "脑力与思维", photo: "assets/trainers/沈千云.png", intro: "校级教学培训师，聚焦结构化沟通、师训体系与课堂协作。", topics: [
+            { title: "如何应用结构化模型高效沟通", duration: "待定", audience: "教学教师 / 培训师 / 管理者", desc: "通过结构化模型帮助教师提升沟通效率，减少信息遗漏和沟通反复。" }
+          ] },
+          { id: "teach-09", name: "苗鹏", dept: "素养智学部", subject: "脑力与思维", photo: "assets/trainers/苗鹏.jpg", intro: "校级教学培训师，覆盖教学、服务与续费相关培训主题。", topics: [
+            { title: "教师的解释力", duration: "待定", audience: "教学教师 / 新教师", desc: "提升教师对知识点、任务和课堂指令的解释能力。" },
+            { title: "新师教学外化", duration: "待定", audience: "新教师 / 导师", desc: "帮助新教师将教学思路外化为可观察、可反馈、可训练的课堂行为。" },
+            { title: "如何有效备好一节脑力课", duration: "待定", audience: "脑力与思维项目教师", desc: "围绕脑力课程备课流程、目标拆解和课堂活动设计展开。" },
+            { title: "如何提升脑力课堂趣味性", duration: "待定", audience: "脑力与思维项目教师", desc: "提升脑力课堂的参与感、互动性和学习体验。" },
+            { title: "如何做好家校沟通", duration: "待定", audience: "教学教师 / 服务相关岗位", desc: "围绕家校沟通场景，拆解沟通目标、话术结构与跟进动作。" },
+            { title: "决胜窗口期", duration: "待定", audience: "教学教师 / 续费相关岗位", desc: "围绕续费关键窗口期，梳理教学服务动作与沟通重点。" }
+          ] },
+          { id: "teach-10", name: "林烨婷", dept: "智慧学习部", subject: "语文", photo: "assets/hero-graduate.png", intro: "校级教学培训师，聚焦语文学科培训、通识教学能力和导师培训支持。", topics: [
+            { title: "诗歌鉴赏/文言教学/可视化写作/有效阅读课", duration: "具体情况而定", audience: "所有教师", desc: "根据具体培训需求，围绕语文学科教学主题进行定制化设计。" },
+            { title: "板书设计", duration: "1小时", audience: "所有教师", desc: "解决新教师板书设计问题，偏向文科课堂应用。" },
+            { title: "如何迅速搭好课件框架", duration: "1小时", audience: "所有教师", desc: "帮助新教师减少课件制作耗时，快速搭建清晰的课件框架。" },
+            { title: "新教师的“三备”", duration: "1.5小时", audience: "所有教师", desc: "通过备教材、备学生、备教法，系统完成新教师备课任务。" },
+            { title: "如何讲好一个知识点/概念", duration: "1.5小时", audience: "所有教师", desc: "从底层教学逻辑分析，拆解讲好一个知识点或概念的方法。" },
+            { title: "如何处理班课突发情况", duration: "1.5小时", audience: "所有教师", desc: "通过案例解读，帮助新教师处理课堂突发情况。" },
+            { title: "如何通过教育心理学，和学生进行有效沟通", duration: "1.5小时", audience: "所有教师", desc: "运用教育心理学原理，提升教学实际中的师生沟通效果。" },
+            { title: "如何进行有效的课堂把控", duration: "1.5小时", audience: "所有教师", desc: "通过案例解读，辅助新教师进行有效课堂把控。" },
+            { title: "教学互动与提问技巧", duration: "1.5小时", audience: "所有教师", desc: "通过案例解读，提高课堂互动设计与提问技巧。" },
+            { title: "如何进行课堂知识拓展", duration: "1.5小时", audience: "所有教师", desc: "指导文科新教师进行有效的课堂知识拓展。" },
+            { title: "教学效果检测和反馈纠错", duration: "1.5小时", audience: "所有教师", desc: "通过教学法和教学案例解读，指导教师进行有效检测、反馈和纠错。" },
+            { title: "如何做好多样课堂总结", duration: "1.5小时", audience: "所有教师", desc: "通过模型总结，帮助教师做好多样课堂总结。" },
+            { title: "基于问题解决的教学设计", duration: "2小时", audience: "所有教师", desc: "以教学设计底层逻辑出发，解决教师教学设计中的实际问题。" },
+            { title: "如何让课程更有闪光点", duration: "待定", audience: "所有教师", desc: "结合课程目标和课堂场景，优化课程亮点与呈现方式。" },
+            { title: "续班逻辑解读", duration: "2小时", audience: "所有教师", desc: "帮助教师完善续班流程，进行续班逻辑解读。" },
+            { title: "如何帮助新师提升课程设计能力", duration: "1.5小时", audience: "导师/校级培训师", desc: "辅助导师完成新教师课程设计能力提升。" },
+            { title: "如何有效评课（陪练模式）", duration: "按人数而定", audience: "导师/校级培训师", desc: "通过实操解决导师评课低效重复的问题，参考 13 人、3 个学科、3 小时。" },
+            { title: "新教师磨课和续班问题指导（可拆为共创会）", duration: "3小时", audience: "导师/校级培训师", desc: "通过共创会形式，帮助导师完善新教师磨课和续班问题。" },
+            { title: "如何有效设计培训课程", duration: "1.5小时", audience: "导师/校级培训师", desc: "通过拆解培训案例，指导培训课题和培训课程的完成。" },
+            { title: "集团培训师竞聘经验分享", duration: "2小时", audience: "导师/校级培训师", desc: "结合自身经历，对有意愿竞聘集团培训师的导师进行经验分享。" },
+            { title: "如何做好知识点预埋", duration: "2小时", audience: "偏向骨干教师", desc: "根据教师对自身知识的掌握情况，教授知识点预埋的方式和方法。" },
+            { title: "产品思维-推广语文产品", duration: "1.5小时", audience: "偏向骨干教师", desc: "通过共创形式，引导参训教师以产品思维推广语文产品。" },
+            { title: "寒春卖点设计", duration: "2小时", audience: "偏向骨干教师", desc: "通过竞品对比和学科知识原理，帮助教师提炼寒春卖点。" }
+          ] }
+        ]
+      },
+      operations: {
+        title: "运营培训师展示与邀约",
+        desc: "运营培训师按部门和培训方向展示，后续可继续补充照片、简介、课题和联系方式。",
+        art: "assets/hero-clipboard.png",
+        subjectLabel: "方向",
+        trainers: [
+          { id: "ops-01", name: "黄宗龙", dept: "素养智学部", subject: "运营培训", photo: avatarPool[2], intro: "擅长业务流程、项目协作和运营动作沉淀。", topics: [{ title: "运营流程标准化", duration: "60分钟", audience: "运营同事", desc: "示例课题，后续替换真实内容。" }] },
+          { id: "ops-02", name: "吴远枝", dept: "人力资源部", subject: "组织培训", photo: avatarPool[3], intro: "擅长组织培训、制度宣导和人才发展流程。", topics: [{ title: "培训需求收集与落地", duration: "60分钟", audience: "部门培训接口人", desc: "示例课题。" }] },
+          { id: "ops-03", name: "方鹏程", dept: "智慧学习部", subject: "学习运营", photo: avatarPool[0], intro: "擅长学习项目运营与工具使用。", topics: [{ title: "学习项目运营复盘", duration: "60分钟", audience: "项目运营人员", desc: "示例课题。" }] },
+          { id: "ops-04", name: "黄青兰", dept: "文旅部", subject: "活动运营", photo: avatarPool[1], intro: "擅长活动流程、现场协调和服务体验。", topics: [{ title: "活动执行流程拆解", duration: "60分钟", audience: "活动执行人员", desc: "示例课题。" }] },
+          { id: "ops-05", name: "王珊", dept: "素养智学部", subject: "项目运营", photo: avatarPool[2], intro: "擅长项目推进和跨部门协同。", topics: [{ title: "项目协同机制搭建", duration: "60分钟", audience: "项目负责人", desc: "示例课题。" }] },
+          { id: "ops-06", name: "刘庄", dept: "高中部", subject: "校区运营", photo: avatarPool[3], intro: "擅长校区运营流程与服务触点管理。", topics: [{ title: "校区运营关键动作", duration: "60分钟", audience: "校区运营同事", desc: "示例课题。" }] },
+          { id: "ops-07", name: "陈秀周", dept: "智慧学习部", subject: "学习运营", photo: avatarPool[0], intro: "擅长学习工具使用和用户跟进。", topics: [{ title: "学习工具使用与跟进", duration: "60分钟", audience: "学习运营人员", desc: "示例课题。" }] },
+          { id: "ops-08", name: "刘翀宇", dept: "高中部", subject: "校区运营", photo: avatarPool[1], intro: "擅长高中部运营动作拆解。", topics: [{ title: "高中部运营动作复盘", duration: "60分钟", audience: "高中部运营同事", desc: "示例课题。" }] },
+          { id: "ops-09", name: "陈婷45", dept: "人力资源部", subject: "培训组织", photo: avatarPool[2], intro: "擅长培训组织、资料归档和流程追踪。", topics: [{ title: "培训资料归档规范", duration: "45分钟", audience: "培训组织者", desc: "示例课题。" }] }
+        ]
+      }
+    };
+
+    if (SNAPSHOT_INVITE_STATE && SNAPSHOT_INVITE_STATE.boards) {
+      if (SNAPSHOT_INVITE_STATE.boards.teaching) boards.teaching = SNAPSHOT_INVITE_STATE.boards.teaching;
+      if (SNAPSHOT_INVITE_STATE.boards.operations) boards.operations = SNAPSHOT_INVITE_STATE.boards.operations;
+    } else {
+      loadSavedBoards();
+    }
+
+    let activeBoard = SNAPSHOT_INVITE_STATE && boards[SNAPSHOT_INVITE_STATE.activeBoard] ? SNAPSHOT_INVITE_STATE.activeBoard : "teaching";
+    let selectedTrainerId = currentInitialTrainerId();
+    let filters = { keyword: "", dept: "", subject: "" };
+    let inviteRecords = loadRecords();
+    let latestInviteText = "";
+
+    const $ = id => document.getElementById(id);
+
+    function currentInitialTrainerId() {
+      const list = boards[activeBoard] && Array.isArray(boards[activeBoard].trainers) ? boards[activeBoard].trainers : [];
+      return list[0] ? list[0].id : "";
+    }
+
+    function loadSavedBoards() {
+      if (readonlyMode) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem(TOPIC_STORAGE_KEY) || "null");
+        if (!saved || !saved.boards) return;
+        if (saved.boards.teaching) boards.teaching = saved.boards.teaching;
+        if (saved.boards.operations) boards.operations = saved.boards.operations;
+      } catch (error) {
+      }
+    }
+
+    function saveBoards() {
+      if (readonlyMode) return;
+      localStorage.setItem(TOPIC_STORAGE_KEY, JSON.stringify({ boards, updatedAt: nowStamp() }));
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function nowStamp() {
+      const date = new Date();
+      const pad = value => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
+    function currentBoard() {
+      return boards[activeBoard];
+    }
+
+    function filteredTrainers() {
+      const keyword = filters.keyword.trim().toLowerCase();
+      return currentBoard().trainers.filter(trainer => {
+        if (filters.dept && trainer.dept !== filters.dept) return false;
+        if (filters.subject && trainer.subject !== filters.subject) return false;
+        if (!keyword) return true;
+        const topicText = trainer.topics.map(topic => `${topic.title} ${topic.desc}`).join(" ");
+        return [trainer.name, trainer.dept, trainer.subject, trainer.intro, topicText].join(" ").toLowerCase().includes(keyword);
+      });
+    }
+
+    function render() {
+      document.body.classList.toggle("readonly", readonlyMode);
+      renderHero();
+      renderFilters();
+      renderTrainerGrid();
+      renderProfile();
+      syncTrainerInviteFields();
+    }
+
+    function renderHero() {
+      const board = currentBoard();
+      $("heroTitle").textContent = board.title;
+      $("heroDesc").textContent = board.desc;
+      $("heroArt").src = board.art;
+      $("trainerCountBadge").textContent = `${board.trainers.length} 位培训师`;
+      document.querySelectorAll("#boardSwitch button").forEach(button => {
+        button.classList.toggle("active", button.dataset.board === activeBoard);
+      });
+    }
+
+    function renderFilters() {
+      const board = currentBoard();
+      const departments = Array.from(new Set(board.trainers.map(item => item.dept))).sort((a, b) => a.localeCompare(b, "zh-CN"));
+      const subjects = Array.from(new Set(board.trainers.map(item => item.subject))).sort((a, b) => a.localeCompare(b, "zh-CN"));
+      $("deptFilter").innerHTML = `<option value="">全部部门</option>${departments.map(item => `<option value="${escapeHtml(item)}" ${item === filters.dept ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}`;
+      $("subjectFilter").innerHTML = `<option value="">全部${board.subjectLabel}</option>${subjects.map(item => `<option value="${escapeHtml(item)}" ${item === filters.subject ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}`;
+      $("keywordInput").value = filters.keyword;
+      $("listHint").textContent = `当前显示 ${filteredTrainers().length} 位`;
+    }
+
+    function renderTrainerGrid() {
+      const list = filteredTrainers();
+      if (!list.length) {
+        $("trainerGrid").innerHTML = '<div class="empty"><img src="assets/hero-graduate.png" alt="">暂无匹配培训师</div>';
+        return;
+      }
+      $("trainerGrid").innerHTML = list.map(trainer => `
+        <button class="trainer-card ${trainer.id === selectedTrainerId ? "active" : ""}" data-id="${escapeHtml(trainer.id)}" type="button">
+          <span class="avatar"><img src="${escapeHtml(trainer.photo)}" alt=""></span>
+          <span>
+            <h3>${escapeHtml(trainer.name)}</h3>
+            <span class="trainer-meta">
+              <span class="chip">${escapeHtml(trainer.dept)}</span>
+              <span class="chip orange">${escapeHtml(trainer.subject)}</span>
+              <span class="chip">${trainer.topics.length} 个课题</span>
+            </span>
+            <p>${escapeHtml(trainer.intro)}</p>
+          </span>
+        </button>
+      `).join("");
+    }
+
+    function selectedTrainer() {
+      return currentBoard().trainers.find(item => item.id === selectedTrainerId) || currentBoard().trainers[0];
+    }
+
+    function renderProfile() {
+      const trainer = selectedTrainer();
+      if (!trainer) {
+        $("selectedHint").textContent = "未选择";
+        $("profilePanel").innerHTML = '<div class="empty"><img src="assets/hero-graduate.png" alt="">请选择一位培训师</div>';
+        return;
+      }
+      $("selectedHint").textContent = `${trainer.name} · ${trainer.dept}`;
+      $("profilePanel").innerHTML = `
+        <div class="profile-head">
+          <span class="avatar"><img src="${escapeHtml(trainer.photo)}" alt=""></span>
+          <div>
+            <h3>${escapeHtml(trainer.name)}</h3>
+            <p>${escapeHtml(trainer.dept)} · ${escapeHtml(trainer.subject)}</p>
+            <div class="trainer-meta">
+              <span class="chip orange">${activeBoard === "teaching" ? "教学" : "运营"}</span>
+              <span class="chip">${trainer.topics.length} 个课题</span>
+            </div>
+          </div>
+        </div>
+        <p>${escapeHtml(trainer.intro)}</p>
+        <div class="topic-list">
+          ${trainer.topics.length ? trainer.topics.map(topic => `
+            <div class="topic">
+              <strong>${escapeHtml(topic.title)}</strong>
+              <span>${escapeHtml(topic.duration)} · ${escapeHtml(topic.audience)}</span>
+              <span>${escapeHtml(topic.desc)}</span>
+              <button class="small-btn edit-only" type="button" data-topic="${escapeHtml(topic.title)}">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                选为需求课题
+              </button>
+            </div>
+          `).join("") : '<div class="empty"><img src="assets/hero-graduate.png" alt="">暂无课题，后续可在本地新增维护</div>'}
+        </div>
+        <div class="topic-actions edit-only">
+          <button class="small-btn primary-btn" type="button" data-action="toggle-topic-form">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            新增课题
+          </button>
+        </div>
+        <form class="topic-form edit-only" id="topicForm" hidden>
+          <div class="field">
+            <label for="topicTitleInput">课题名称</label>
+            <input id="topicTitleInput" name="title" required placeholder="请输入课题名称">
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="topicAudienceInput">适合对象</label>
+              <input id="topicAudienceInput" name="audience" required placeholder="例如：新教师">
+            </div>
+            <div class="field">
+              <label for="topicDurationInput">时长</label>
+              <input id="topicDurationInput" name="duration" required placeholder="例如：60分钟">
+            </div>
+          </div>
+          <div class="field">
+            <label for="topicDescInput">课题简介</label>
+            <textarea id="topicDescInput" name="desc" required placeholder="简要说明课题内容、适用场景和收获"></textarea>
+          </div>
+          <button class="small-btn primary-btn" type="submit">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path></svg>
+            保存课题
+          </button>
+        </form>
+      `;
+    }
+
+    function syncTrainerInviteFields() {
+      const trainer = selectedTrainer();
+      const nameInput = $("trainerNameInput");
+      const deptInput = $("trainerDeptInput");
+      if (!nameInput || !deptInput) return;
+      nameInput.value = trainer ? trainer.name : "";
+      deptInput.value = trainer ? trainer.dept : "";
+    }
+
+    function generateInviteText() {
+      const trainer = selectedTrainer();
+      const inviter = $("inviterInput").value.trim();
+      const needDept = $("needDeptInput").value.trim();
+      const topic = $("topicInput").value.trim();
+      if (!trainer || !inviter || !needDept || !topic) {
+        showToast("请先填写邀约人、需求部门和需求课题。");
+        return "";
+      }
+      const date = $("dateInput").value || "待定";
+      const format = $("formatInput").value;
+      const note = $("noteInput").value.trim() || "无";
+      return [
+        "培训师邀约信息",
+        `看板类型：${activeBoard === "teaching" ? "教学培训师" : "运营培训师"}`,
+        `邀约讲师姓名：${trainer.name}`,
+        `邀约讲师部门：${trainer.dept}`,
+        `讲师科目/方向：${trainer.subject}`,
+        `邀约人：${inviter}`,
+        `需求部门：${needDept}`,
+        `需求课题：${topic}`,
+        `期望时间：${date}`,
+        `培训形式：${format}`,
+        `需求说明：${note}`
+      ].join("\n");
+    }
+
+    function saveInviteRecord(text) {
+      const trainer = selectedTrainer();
+      inviteRecords.unshift({
+        board: activeBoard,
+        inviteTrainerName: trainer.name,
+        inviteTrainerDept: trainer.dept,
+        trainerName: trainer.name,
+        trainerDept: trainer.dept,
+        trainerSubject: trainer.subject,
+        inviter: $("inviterInput").value.trim(),
+        needDept: $("needDeptInput").value.trim(),
+        topic: $("topicInput").value.trim(),
+        expectedDate: $("dateInput").value || "",
+        format: $("formatInput").value,
+        note: $("noteInput").value.trim(),
+        createdAt: nowStamp(),
+        text
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(inviteRecords));
+    }
+
+    function addTopicFromForm(form) {
+      if (readonlyMode) return;
+      const trainer = selectedTrainer();
+      if (!trainer) return;
+      const topic = {
+        title: form.elements.title.value.trim(),
+        audience: form.elements.audience.value.trim(),
+        duration: form.elements.duration.value.trim(),
+        desc: form.elements.desc.value.trim()
+      };
+      if (!topic.title || !topic.audience || !topic.duration || !topic.desc) {
+        showToast("请完整填写课题名称、适合对象、时长和简介。");
+        return;
+      }
+      trainer.topics.push(topic);
+      saveBoards();
+      form.reset();
+      form.hidden = true;
+      renderTrainerGrid();
+      renderProfile();
+      showToast("课题已新增，导出分享页后可对外展示。");
+    }
+
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+    }
+
+    function exportInvites() {
+      const header = ["创建时间", "看板", "邀约讲师姓名", "邀约讲师部门", "科目/方向", "邀约人", "需求部门", "需求课题", "期望时间", "培训形式", "需求说明"];
+      const rows = inviteRecords.map(item => [
+        item.createdAt,
+        item.board === "teaching" ? "教学培训师" : "运营培训师",
+        item.inviteTrainerName || item.trainerName,
+        item.inviteTrainerDept || item.trainerDept,
+        item.trainerSubject,
+        item.inviter,
+        item.needDept,
+        item.topic,
+        item.expectedDate,
+        item.format,
+        item.note
+      ]);
+      const csv = "\ufeff" + [header, ...rows].map(row => row.map(csvCell).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `培训师邀约记录-${today()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("已导出邀约记录。");
+    }
+
+    function downloadFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportInvitePreview() {
+      const snapshot = JSON.stringify({
+        activeBoard,
+        boards,
+        generatedAt: nowStamp()
+      }).replaceAll("<", "\\u003c");
+      const source = "<!doctype html>\n" + document.documentElement.outerHTML;
+      const html = source.replace("const SNAPSHOT_INVITE_STATE = null;", `const SNAPSHOT_INVITE_STATE = ${snapshot};`);
+      downloadFile("trainer-invite.html", html, "text/html;charset=utf-8");
+      showToast("展示邀约分享页已导出。请和 assets 文件夹放在一起分享。");
+    }
+
+    async function copyInviteText() {
+      if (!latestInviteText) latestInviteText = generateInviteText();
+      if (!latestInviteText) return;
+      try {
+        await navigator.clipboard.writeText(latestInviteText);
+        showToast("邀约文本已复制。");
+      } catch (error) {
+        $("inviteOutput").style.display = "block";
+        $("inviteOutput").textContent = latestInviteText;
+        showToast("复制受浏览器限制，已显示文本，可手动复制。");
+      }
+    }
+
+    function openTencentForm() {
+      if (!TENCENT_FORM_URL) {
+        showToast("请先配置腾讯表单链接。");
+        return;
+      }
+      if (!readonlyMode) {
+        if (!latestInviteText) latestInviteText = generateInviteText();
+        if (!latestInviteText) return;
+        $("inviteOutput").style.display = "block";
+        $("inviteOutput").textContent = latestInviteText;
+        saveInviteRecord(latestInviteText);
+      }
+      window.open(TENCENT_FORM_URL, "_blank", "noopener");
+      showToast("已打开腾讯表单，请粘贴邀约信息并提交。");
+    }
+
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    document.querySelectorAll("#boardSwitch button").forEach(button => {
+      button.addEventListener("click", () => {
+        activeBoard = button.dataset.board;
+        selectedTrainerId = currentBoard().trainers[0].id;
+        filters = { keyword: "", dept: "", subject: "" };
+        latestInviteText = "";
+      $("topicInput").value = "";
+      $("inviteOutput").style.display = "none";
+      render();
+      });
+    });
+
+    $("trainerGrid").addEventListener("click", event => {
+      const card = event.target.closest(".trainer-card");
+      if (!card) return;
+      selectedTrainerId = card.dataset.id;
+      latestInviteText = "";
+      renderTrainerGrid();
+      renderProfile();
+      syncTrainerInviteFields();
+    });
+
+    $("profilePanel").addEventListener("click", event => {
+      const toggleButton = event.target.closest("button[data-action='toggle-topic-form']");
+      if (toggleButton) {
+        const form = $("topicForm");
+        if (form) form.hidden = !form.hidden;
+        return;
+      }
+      const button = event.target.closest("button[data-topic]");
+      if (!button) return;
+      $("topicInput").value = button.dataset.topic;
+      latestInviteText = "";
+      showToast("已带入需求课题。");
+    });
+
+    $("profilePanel").addEventListener("submit", event => {
+      if (event.target.id !== "topicForm") return;
+      event.preventDefault();
+      addTopicFromForm(event.target);
+    });
+
+    $("keywordInput").addEventListener("input", event => {
+      filters.keyword = event.target.value;
+      renderFilters();
+      renderTrainerGrid();
+    });
+
+    $("deptFilter").addEventListener("change", event => {
+      filters.dept = event.target.value;
+      renderTrainerGrid();
+      renderFilters();
+    });
+
+    $("subjectFilter").addEventListener("change", event => {
+      filters.subject = event.target.value;
+      renderTrainerGrid();
+      renderFilters();
+    });
+
+    $("resetFilterBtn").addEventListener("click", () => {
+      filters = { keyword: "", dept: "", subject: "" };
+      render();
+    });
+
+    $("inviteForm").addEventListener("submit", event => {
+      event.preventDefault();
+      latestInviteText = generateInviteText();
+      if (!latestInviteText) return;
+      $("inviteOutput").style.display = "block";
+      $("inviteOutput").textContent = latestInviteText;
+      saveInviteRecord(latestInviteText);
+      showToast("邀约已生成并保存到本地记录。");
+    });
+
+    $("copyInviteBtn").addEventListener("click", copyInviteText);
+    $("submitTencentBtn").addEventListener("click", openTencentForm);
+    $("readonlyTencentBtn").addEventListener("click", openTencentForm);
+    $("exportInvitePreviewBtn").addEventListener("click", exportInvitePreview);
+    $("exportInviteBtn").addEventListener("click", exportInvites);
+
+    render();
+  </script>
+</body>
+</html>
