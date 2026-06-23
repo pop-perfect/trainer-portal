@@ -130,6 +130,29 @@
       display: block;
     }
 
+    .cloud-only,
+    .admin-only {
+      display: none !important;
+    }
+
+    body.cloud-configured .cloud-only {
+      display: inline-flex !important;
+    }
+
+    body.admin-mode .admin-only {
+      display: inline-flex !important;
+    }
+
+    body.cloud-configured.admin-mode .field.cloud-only.admin-only {
+      display: grid !important;
+    }
+
+    .cloud-status {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
     .text-btn,
     .small-btn,
     .icon-btn {
@@ -754,6 +777,48 @@
       transform: translateY(0);
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(18, 42, 24, 0.42);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .login-modal {
+      width: min(420px, 100%);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .login-modal h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .login-modal p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .login-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     @media (max-width: 1100px) {
       .topbar {
         align-items: flex-start;
@@ -792,6 +857,22 @@
       </div>
     </div>
     <div class="toolbar">
+      <span class="text-btn cloud-status" id="cloudStatus" title="当前资料来源">
+        <svg viewBox="0 0 24 24"><path d="M17.5 19H9a6 6 0 1 1 5.7-7.8A4.5 4.5 0 1 1 17.5 19Z"></path></svg>
+        本地资料
+      </span>
+      <button class="text-btn cloud-only" id="adminLoginBtn" title="管理员登录后可维护云端资料">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path></svg>
+        管理员登录
+      </button>
+      <button class="text-btn admin-only" id="syncCloudBtn" title="把当前页面资料保存到云端">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path><path d="M21 21v-5h-5"></path></svg>
+        同步云端
+      </button>
+      <button class="text-btn admin-only" id="adminLogoutBtn" title="退出管理员维护模式">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+        退出后台
+      </button>
       <span class="text-btn readonly-only" title="当前为只读分享页">
         <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         只读查看
@@ -908,18 +989,46 @@
     </section>
   </main>
 
+  <div class="modal-backdrop" id="adminLoginModal" hidden>
+    <form class="login-modal" id="adminLoginForm">
+      <h2>管理员登录</h2>
+      <p>登录后可在公网维护培训师资料、课题和照片。账号请在 Supabase 后台创建，仅授权人员可登录。</p>
+      <div class="field">
+        <label for="adminEmailInput">邮箱</label>
+        <input id="adminEmailInput" name="email" type="email" required placeholder="请输入管理员邮箱">
+      </div>
+      <div class="field">
+        <label for="adminPasswordInput">密码</label>
+        <input id="adminPasswordInput" name="password" type="password" required placeholder="请输入密码">
+      </div>
+      <div class="login-actions">
+        <button class="small-btn" type="button" id="adminCancelBtn">取消</button>
+        <button class="small-btn primary-btn" type="submit">登录</button>
+      </div>
+    </form>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const STORAGE_KEY = "trainer-invite-records-v1";
     const TOPIC_STORAGE_KEY = "trainer-invite-board-topics-v2";
     const INVITE_EMAIL_TO = "fz_px@xdf.cn";
     const INVITE_EMAIL_CC = "chenliyun@xdf.cn";
     const SNAPSHOT_INVITE_STATE = null;
+    const SUPABASE_SETTINGS = window.TRAINER_PORTAL_SUPABASE || {};
+    const CLOUD_PHOTO_BUCKET = SUPABASE_SETTINGS.photoBucket || "trainer-photos";
     const readonlyMode = (() => {
       const loc = window.location || { search: "", hash: "", hostname: "" };
       return Boolean(SNAPSHOT_INVITE_STATE) || loc.search.includes("readonly=1") || loc.hash.includes("readonly") || loc.hostname.endsWith("github.io");
     })();
+    const cloudConfigured = Boolean(SUPABASE_SETTINGS.url && SUPABASE_SETTINGS.anonKey);
+    let supabaseClient = null;
+    let currentUser = null;
+    let cloudDataLoaded = false;
+    let cloudSaveTimer = null;
     const avatarPool = ["assets/hero-wave.png", "assets/hero-frame.png", "assets/hero-clipboard.png", "assets/hero-graduate.png"];
 
     const boards = {
@@ -1020,6 +1129,25 @@
 
     const $ = id => document.getElementById(id);
 
+    function canEdit() {
+      return !readonlyMode || Boolean(currentUser);
+    }
+
+    function usingCloud() {
+      return Boolean(supabaseClient && cloudDataLoaded);
+    }
+
+    function ensureDataIds() {
+      Object.entries(boards).forEach(([boardKey, board]) => {
+        (board.trainers || []).forEach((trainer, trainerIndex) => {
+          if (!trainer.id) trainer.id = `${boardKey}-${trainerIndex + 1}-${Date.now()}`;
+          (trainer.topics || []).forEach((topic, topicIndex) => {
+            if (!topic.id) topic.id = `${trainer.id}-topic-${topicIndex + 1}`;
+          });
+        });
+      });
+    }
+
     function currentInitialTrainerId() {
       const list = boards[activeBoard] && Array.isArray(boards[activeBoard].trainers) ? boards[activeBoard].trainers : [];
       return list[0] ? list[0].id : "";
@@ -1037,7 +1165,15 @@
     }
 
     function saveBoards() {
-      if (readonlyMode) return;
+      if (!canEdit()) return;
+      ensureDataIds();
+      if (supabaseClient && currentUser) {
+        window.clearTimeout(cloudSaveTimer);
+        cloudSaveTimer = window.setTimeout(() => {
+          saveBoardsToCloud().catch(error => showToast(`云端保存失败：${error.message || error}`));
+        }, 120);
+        return;
+      }
       localStorage.setItem(TOPIC_STORAGE_KEY, JSON.stringify({ boards, updatedAt: nowStamp() }));
     }
 
@@ -1075,12 +1211,29 @@
     }
 
     function render() {
-      document.body.classList.toggle("readonly", readonlyMode);
+      document.body.classList.toggle("readonly", !canEdit());
+      document.body.classList.toggle("cloud-configured", cloudConfigured);
+      document.body.classList.toggle("admin-mode", Boolean(currentUser));
+      renderCloudStatus();
       renderHero();
       renderFilters();
       renderTrainerGrid();
       renderProfile();
       syncTrainerInviteFields();
+    }
+
+    function renderCloudStatus() {
+      const status = $("cloudStatus");
+      if (!status) return;
+      if (!cloudConfigured) {
+        status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> 本地资料';
+        return;
+      }
+      if (currentUser) {
+        status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg> 云端后台';
+        return;
+      }
+      status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17.5 19H9a6 6 0 1 1 5.7-7.8A4.5 4.5 0 1 1 17.5 19Z"></path></svg> 云端展示';
     }
 
     function renderHero() {
@@ -1231,6 +1384,10 @@
               <input id="trainerEditPhoto" name="photo" required value="${escapeHtml(trainer.photo)}" placeholder="例如 assets/trainers/姓名.jpg">
             </div>
           </div>
+          <div class="field cloud-only admin-only">
+            <label for="trainerPhotoFile">上传新照片</label>
+            <input id="trainerPhotoFile" name="photoFile" type="file" accept="image/*">
+          </div>
           <div class="field">
             <label for="trainerEditIntro">简介</label>
             <textarea id="trainerEditIntro" name="intro" required>${escapeHtml(trainer.intro)}</textarea>
@@ -1335,11 +1492,12 @@
     }
 
     function addTopicFromForm(form) {
-      if (readonlyMode) return;
+      if (!canEdit()) return;
       const trainer = selectedTrainer();
       if (!trainer) return;
       const indexValue = form.elements.index ? form.elements.index.value : "";
       const topic = {
+        id: indexValue !== "" && trainer.topics[Number(indexValue)] ? trainer.topics[Number(indexValue)].id : `${trainer.id}-topic-${Date.now()}`,
         title: form.elements.title.value.trim(),
         audience: form.elements.audience.value.trim(),
         duration: form.elements.duration.value.trim(),
@@ -1360,11 +1518,11 @@
       form.hidden = true;
       renderTrainerGrid();
       renderProfile();
-      showToast(indexValue !== "" ? "课题已更新，导出分享页后可对外展示。" : "课题已新增，导出分享页后可对外展示。");
+      showToast(indexValue !== "" ? saveDoneMessage("课题已更新") : saveDoneMessage("课题已新增"));
     }
 
     function fillTopicForm(index) {
-      if (readonlyMode) return;
+      if (!canEdit()) return;
       const trainer = selectedTrainer();
       const topic = trainer && trainer.topics[Number(index)];
       const form = $("topicForm");
@@ -1379,7 +1537,7 @@
     }
 
     function deleteTopic(index) {
-      if (readonlyMode) return;
+      if (!canEdit()) return;
       const trainer = selectedTrainer();
       if (!trainer || !trainer.topics[Number(index)]) return;
       if (!confirm(`确定删除课题“${trainer.topics[Number(index)].title}”吗？`)) return;
@@ -1387,18 +1545,29 @@
       saveBoards();
       renderTrainerGrid();
       renderProfile();
-      showToast("课题已删除，导出分享页后可对外展示。");
+      showToast(saveDoneMessage("课题已删除"));
     }
 
-    function updateTrainerFromForm(form) {
-      if (readonlyMode) return;
+    async function updateTrainerFromForm(form) {
+      if (!canEdit()) return;
       const trainer = selectedTrainer();
       if (!trainer) return;
+      let photo = form.elements.photo.value.trim();
+      const file = form.elements.photoFile && form.elements.photoFile.files ? form.elements.photoFile.files[0] : null;
+      if (file) {
+        try {
+          photo = await uploadTrainerPhoto(file, trainer);
+          form.elements.photo.value = photo;
+        } catch (error) {
+          showToast(`照片上传失败：${error.message || error}`);
+          return;
+        }
+      }
       const next = {
         name: form.elements.name.value.trim(),
         dept: form.elements.dept.value.trim(),
         subject: form.elements.subject.value.trim(),
-        photo: form.elements.photo.value.trim(),
+        photo,
         intro: form.elements.intro.value.trim()
       };
       if (!next.name || !next.dept || !next.subject || !next.photo || !next.intro) {
@@ -1410,7 +1579,186 @@
       renderFilters();
       renderTrainerGrid();
       renderProfile();
-      showToast("培训师信息已更新，导出分享页后可对外展示。");
+      showToast(saveDoneMessage("培训师信息已更新"));
+    }
+
+    function saveDoneMessage(prefix) {
+      return supabaseClient && currentUser ? `${prefix}，已保存到云端。` : `${prefix}，导出分享页后可对外展示。`;
+    }
+
+    function initSupabaseClient() {
+      if (!cloudConfigured || !window.supabase || !window.supabase.createClient) return null;
+      if (!supabaseClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_SETTINGS.url, SUPABASE_SETTINGS.anonKey);
+      }
+      return supabaseClient;
+    }
+
+    function topicRowToLocal(row) {
+      return {
+        id: row.id,
+        title: row.title || "",
+        audience: row.audience || "",
+        duration: row.duration || "",
+        desc: row.description || ""
+      };
+    }
+
+    function trainerRowToLocal(row, topics) {
+      return {
+        id: row.id,
+        name: row.name || "",
+        dept: row.dept || "",
+        subject: row.subject || "",
+        photo: row.photo_url || "assets/hero-graduate.png",
+        intro: row.intro || "",
+        topics: topics.map(topicRowToLocal)
+      };
+    }
+
+    async function loadBoardsFromCloud() {
+      const client = initSupabaseClient();
+      if (!client) return false;
+      const [trainerResult, topicResult] = await Promise.all([
+        client.from("trainers").select("*").eq("active", true).order("board").order("sort_order"),
+        client.from("topics").select("*").eq("active", true).order("sort_order")
+      ]);
+      if (trainerResult.error) throw trainerResult.error;
+      if (topicResult.error) throw topicResult.error;
+      const trainerRows = trainerResult.data || [];
+      const topicRows = topicResult.data || [];
+      if (!trainerRows.length) {
+        cloudDataLoaded = true;
+        return false;
+      }
+      ["teaching", "operations"].forEach(boardKey => {
+        const boardTrainers = trainerRows
+          .filter(row => row.board === boardKey)
+          .map(row => trainerRowToLocal(row, topicRows.filter(topic => topic.trainer_id === row.id)));
+        if (boardTrainers.length) boards[boardKey].trainers = boardTrainers;
+      });
+      selectedTrainerId = currentBoard().trainers.some(trainer => trainer.id === selectedTrainerId) ? selectedTrainerId : currentInitialTrainerId();
+      cloudDataLoaded = true;
+      return true;
+    }
+
+    function trainerRowsForCloud() {
+      ensureDataIds();
+      return Object.entries(boards).flatMap(([boardKey, board]) => (board.trainers || []).map((trainer, index) => ({
+        id: trainer.id,
+        board: boardKey,
+        name: trainer.name,
+        dept: trainer.dept,
+        subject: trainer.subject,
+        photo_url: trainer.photo,
+        intro: trainer.intro,
+        sort_order: index + 1,
+        active: true,
+        updated_at: new Date().toISOString()
+      })));
+    }
+
+    function topicRowsForCloud() {
+      ensureDataIds();
+      return Object.values(boards).flatMap(board => (board.trainers || []).flatMap(trainer => (trainer.topics || []).map((topic, index) => ({
+        id: topic.id,
+        trainer_id: trainer.id,
+        title: topic.title,
+        audience: topic.audience,
+        duration: topic.duration,
+        description: topic.desc,
+        sort_order: index + 1,
+        active: true,
+        updated_at: new Date().toISOString()
+      }))));
+    }
+
+    async function saveBoardsToCloud(showSuccess) {
+      const client = initSupabaseClient();
+      if (!client || !currentUser) return;
+      ensureDataIds();
+      const trainers = trainerRowsForCloud();
+      const topics = topicRowsForCloud();
+      const trainerIds = trainers.map(trainer => trainer.id);
+      const trainerResult = await client.from("trainers").upsert(trainers, { onConflict: "id" });
+      if (trainerResult.error) throw trainerResult.error;
+      if (trainerIds.length) {
+        const deleteResult = await client.from("topics").delete().in("trainer_id", trainerIds);
+        if (deleteResult.error) throw deleteResult.error;
+      }
+      if (topics.length) {
+        const topicResult = await client.from("topics").insert(topics);
+        if (topicResult.error) throw topicResult.error;
+      }
+      if (showSuccess) showToast("当前培训师资料与课题已同步到云端。");
+    }
+
+    async function uploadTrainerPhoto(file, trainer) {
+      const client = initSupabaseClient();
+      if (!client || !currentUser) {
+        throw new Error("请先登录云端后台。");
+      }
+      const safeName = file.name.replace(/[^\w.\-\u4e00-\u9fa5]/g, "_");
+      const path = `${activeBoard}/${trainer.id}/${Date.now()}-${safeName}`;
+      const result = await client.storage.from(CLOUD_PHOTO_BUCKET).upload(path, file, { upsert: true });
+      if (result.error) throw result.error;
+      const publicResult = client.storage.from(CLOUD_PHOTO_BUCKET).getPublicUrl(path);
+      return publicResult.data.publicUrl;
+    }
+
+    async function openAdminLogin() {
+      if (!initSupabaseClient()) {
+        showToast("请先配置 supabase-config.js。");
+        return;
+      }
+      $("adminLoginModal").hidden = false;
+      $("adminEmailInput").focus();
+    }
+
+    async function submitAdminLogin(form) {
+      const client = initSupabaseClient();
+      if (!client) return;
+      const email = form.elements.email.value.trim();
+      const password = form.elements.password.value;
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
+      if (error) {
+        showToast(`登录失败：${error.message}`);
+        return;
+      }
+      currentUser = data.user;
+      $("adminLoginModal").hidden = true;
+      form.reset();
+      await loadBoardsFromCloud();
+      render();
+      showToast("已进入云端后台维护模式。");
+    }
+
+    async function adminLogout() {
+      if (supabaseClient) await supabaseClient.auth.signOut();
+      currentUser = null;
+      render();
+      showToast("已退出后台维护模式。");
+    }
+
+    async function initCloud() {
+      ensureDataIds();
+      const client = initSupabaseClient();
+      if (!client) {
+        render();
+        return;
+      }
+      const sessionResult = await client.auth.getSession();
+      currentUser = sessionResult.data && sessionResult.data.session ? sessionResult.data.session.user : null;
+      client.auth.onAuthStateChange((event, session) => {
+        currentUser = session && session.user ? session.user : null;
+        render();
+      });
+      try {
+        await loadBoardsFromCloud();
+      } catch (error) {
+        showToast(`云端资料读取失败：${error.message || error}`);
+      }
+      render();
     }
 
     function loadRecords() {
@@ -1604,11 +1952,11 @@
       }
     });
 
-    $("profilePanel").addEventListener("submit", event => {
+    $("profilePanel").addEventListener("submit", async event => {
       if (event.target.id !== "topicForm" && event.target.id !== "trainerEditForm") return;
       event.preventDefault();
       if (event.target.id === "topicForm") addTopicFromForm(event.target);
-      if (event.target.id === "trainerEditForm") updateTrainerFromForm(event.target);
+      if (event.target.id === "trainerEditForm") await updateTrainerFromForm(event.target);
     });
 
     $("keywordInput").addEventListener("input", event => {
@@ -1638,8 +1986,21 @@
     $("mailInviteBtn").addEventListener("click", openInviteEmail);
     $("flowMailBtn").addEventListener("click", openInviteEmail);
     $("exportInvitePreviewBtn").addEventListener("click", exportInvitePreview);
+    $("adminLoginBtn").addEventListener("click", openAdminLogin);
+    $("adminLogoutBtn").addEventListener("click", adminLogout);
+    $("syncCloudBtn").addEventListener("click", () => saveBoardsToCloud(true).catch(error => showToast(`同步失败：${error.message || error}`)));
+    $("adminCancelBtn").addEventListener("click", () => {
+      $("adminLoginModal").hidden = true;
+    });
+    $("adminLoginModal").addEventListener("click", event => {
+      if (event.target.id === "adminLoginModal") $("adminLoginModal").hidden = true;
+    });
+    $("adminLoginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      await submitAdminLogin(event.target);
+    });
 
-    render();
+    initCloud();
   </script>
 </body>
 </html>
