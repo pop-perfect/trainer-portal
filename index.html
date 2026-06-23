@@ -1219,10 +1219,6 @@
         </div>
       </div>
       <div class="toolbar" aria-label="工具栏">
-        <a class="text-btn" href="trainer-invite.html" title="打开培训师展示与邀约">
-          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg>
-          展示邀约
-        </a>
         <button class="text-btn edit-only" id="addDetailBtn" title="新增明细">
           <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
           新增明细
@@ -1249,7 +1245,7 @@
         <button class="icon-btn" id="exportExcelBtn" title="导出 Excel 可打开的原表格式 CSV">
           <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M4 10h16"></path><path d="M10 4v16"></path></svg>
         </button>
-        <button class="icon-btn" id="exportJsonBtn" title="导出 JSON 备份">
+        <button class="icon-btn edit-only" id="exportJsonBtn" title="导出 JSON 备份">
           <svg viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M9 15h6"></path></svg>
         </button>
         <button class="icon-btn edit-only" id="exportReadonlyBtn" title="导出积分看板分享预览">
@@ -1934,7 +1930,7 @@
         const tr = document.createElement("tr");
         tr.className = "trainer-row";
         tr.innerHTML = `
-          <td class="sticky-col col-seq seq-cell">${escapeHtml(group.seq || index + 1)}</td>
+          <td class="sticky-col col-seq seq-cell">${escapeHtml(index + 1)}</td>
           <td class="sticky-col col-name">
             <button class="expander" data-action="toggle-group" data-key="${escapeHtml(group.key)}" title="${expanded ? "收起明细" : "展开明细"}">${icon(expanded ? "down" : "right")}</button>
             <span class="trainer-name">${escapeHtml(group.name)}</span>
@@ -2311,15 +2307,16 @@
       ]];
       groups.forEach((group, index) => {
         const rank = rankMap.get(group.key) || "";
+        const displaySeq = index + 1;
         lines.push([
-          "汇总", group.seq || index + 1, group.name, group.dept, group.subject, group.level, group.appointedAt, rank, tenureText(group.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(group.training), format(group.quality),
+          "汇总", displaySeq, group.name, group.dept, group.subject, group.level, group.appointedAt, rank, tenureText(group.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(group.training), format(group.quality),
           format(group.course), format(group.work), format(group.self), group.details.length, group.dateRange, group.confirmed, "", "", "", "", "", "", ""
         ]);
         group.details.forEach(detail => {
           const score = calculateDetail(detail);
           const trainer = detailTrainer(detail);
           lines.push([
-            "明细", trainer.seq || group.seq || index + 1, trainer.name, trainer.dept, trainer.subject, trainer.level, trainer.appointedAt, rank, tenureText(trainer.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(score.training), format(score.quality),
+            "明细", displaySeq, trainer.name, trainer.dept, trainer.subject, trainer.level, trainer.appointedAt, rank, tenureText(trainer.appointedAt), ASSESSMENT_PERIOD.label, format(group.total), format(score.training), format(score.quality),
             format(score.course), format(score.work), format(score.self), "", "", detail.confirmed, detail.date, detail.type,
             detail.description, format(score.total), detail.createdAt || "", detail.updatedAt || "", detail.remark
           ]);
@@ -2574,7 +2571,7 @@
       const BOARD_CONFIG = {
         teaching: {
           title: "教学培训师积分看板",
-          hero: "固定展示教学培训师基础信息，横向滚动时也能快速对应姓名；按实施日期维护明细，汇总排名和模块贡献实时更新。",
+          hero: "躬耕讲台淬炼专业素养，以教学价值驱动全员成长蜕变。",
           art: "assets/hero-frame.png",
           trainerLabel: "教学培训师",
           formula: "总积分 = 培训×30% + 质检评审×30% + 课程开发×20% + 师训工作×15% + 个人教学考核×5%",
@@ -2592,7 +2589,7 @@
         },
         operations: {
           title: "运营培训师积分看板",
-          hero: "运营看板按培训管理评估、课时完成率、培训效果满意度三项百分制计算，和教学看板互不串数据。",
+          hero: "讲台播种成长，一线深耕担当，各司微光，共筑前行坦途。",
           art: "assets/hero-clipboard.png",
           trainerLabel: "运营培训师",
           formula: "总分 = 培训管理评估×40% + 课时完成率×40% + 培训效果满意度×20%",
@@ -3187,7 +3184,7 @@
         el("heroSubtitle").textContent = cfg.hero;
         el("heroArt").src = cfg.art;
         el("heroTrainerBadge").textContent = `${current.trainers.length} 位${cfg.trainerLabel}`;
-        document.querySelector(".brand h1").textContent = activeKey() === "operations" ? "新东方福州学校运营培训师积分明细" : "新东方福州学校校级教学培训师积分明细";
+        document.querySelector(".brand h1").textContent = activeKey() === "operations" ? "新东方福州学校校级运营培训师积分明细" : "新东方福州学校校级教学培训师积分明细";
         document.querySelector(".brand p").textContent = activeKey() === "operations" ? "按运营培训师汇总，展开查看不同实施日期的明细" : "按教学培训师汇总，展开查看不同实施日期的明细";
         document.querySelectorAll("#boardSwitch button").forEach(button => button.classList.toggle("active", button.dataset.board === activeKey()));
         const subjectField = el("newTrainerSubjectField");
@@ -3282,12 +3279,13 @@
       function renderRows(groups) {
         const ranks = rankMap(groups);
         el("emptyState").hidden = board().trainers.length > 0;
-        controls.groupsBody.innerHTML = groups.map(group => {
+        controls.groupsBody.innerHTML = groups.map((group, index) => {
           const expanded = ui.expanded.has(group.key);
           const statusClass = group.confirmed === "已确认" ? "" : group.confirmed === "有异议" ? "bad" : "warn";
+          const displaySeq = index + 1;
           return `
             <tr class="trainer-row">
-              <td class="sticky-col col-seq seq-cell">${escapeHtml(group.seq || "")}</td>
+              <td class="sticky-col col-seq seq-cell">${displaySeq}</td>
               <td class="sticky-col col-name">
                 <button class="expander" data-action="toggle-group" data-key="${escapeHtml(group.key)}" title="${expanded ? "收起" : "展开"}">${icon(expanded ? "down" : "right")}</button>
                 <span class="trainer-name">${escapeHtml(group.name)}</span>
@@ -3585,11 +3583,12 @@
           config(key).totalHead, config(key).heads[0], config(key).heads[1], config(key).heads[2], config(key).heads[3], config(key).heads[4],
           "明细数", "日期范围", "确认状态", "实施日期", "事项说明", "录入时间", "最近修改时间", "备注"
         ]];
-        groups.forEach(group => {
-          lines.push([config(key).trainerLabel, "汇总", group.seq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, format(group.total), format(group.training), format(group.quality), format(group.course), activeKey() === "operations" ? "" : format(group.work), activeKey() === "operations" ? "" : format(group.self), group.details.length, group.dateRange, group.confirmed, "", "", "", "", ""]);
+        groups.forEach((group, index) => {
+          const displaySeq = index + 1;
+          lines.push([config(key).trainerLabel, "汇总", displaySeq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, format(group.total), format(group.training), format(group.quality), format(group.course), activeKey() === "operations" ? "" : format(group.work), activeKey() === "operations" ? "" : format(group.self), group.details.length, group.dateRange, group.confirmed, "", "", "", "", ""]);
           group.details.forEach(detail => {
             const score = key === "operations" ? { training: operationsManagement(detail), quality: numberValue(detail.actualHours), course: Number(detail.opsSatisfaction) ? Math.min(Number(detail.opsSatisfaction) / 5 * 100, 100) : 0, work: "", self: "" } : calculateTeachingDetail(detail);
-            lines.push([config(key).trainerLabel, "明细", group.seq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, "", format(score.training), format(score.quality), format(score.course), score.work === "" ? "" : format(score.work), score.self === "" ? "" : format(score.self), "", "", detail.confirmed, detail.date, detail.description || detail.type || "运营培训", detail.createdAt || "", detail.updatedAt || "", detail.remark || ""]);
+            lines.push([config(key).trainerLabel, "明细", displaySeq, group.name, group.dept, group.subject, group.level, group.appointedAt, ranks.get(group.key) || "", tenureText(group.appointedAt), PERIOD.label, "", format(score.training), format(score.quality), format(score.course), score.work === "" ? "" : format(score.work), score.self === "" ? "" : format(score.self), "", "", detail.confirmed, detail.date, detail.description || detail.type || "运营培训", detail.createdAt || "", detail.updatedAt || "", detail.remark || ""]);
           });
         });
         const csv = "\ufeff" + lines.map(row => row.map(csvCell).join(",")).join("\n");
@@ -3605,7 +3604,7 @@
         if (key === "operations") {
           const groups = aggregateGroups("operations");
           header = ["序号", "部门", "姓名", "级别", "任用日期", "培训管理评估", "课时完成率", "培训效果满意度", "总分", "明细数", "确认状态", "备注"];
-          rows = groups.map(group => [group.seq, group.dept, group.name, group.level, group.appointedAt, format(group.training), format(group.quality), format(group.course), format(group.total), group.details.length, group.confirmed, group.details.map(detail => [detail.date, detail.description, detail.remark, detail.createdAt ? `录入时间：${detail.createdAt}` : "", detail.updatedAt ? `最近修改：${detail.updatedAt}` : ""].filter(Boolean).join(" - ")).join("；")]);
+          rows = groups.map((group, index) => [index + 1, group.dept, group.name, group.level, group.appointedAt, format(group.training), format(group.quality), format(group.course), format(group.total), group.details.length, group.confirmed, group.details.map(detail => [detail.date, detail.description, detail.remark, detail.createdAt ? `录入时间：${detail.createdAt}` : "", detail.updatedAt ? `最近修改：${detail.updatedAt}` : ""].filter(Boolean).join(" - ")).join("；")]);
         } else {
           header = ["序号", "部门", "姓名", "级别", "线下/录播/直播培训：2分/h；支教志愿者培训：1分/h", "培训学员满意度", "督课质检", "评委评分", "需求方师训工作反馈", "课程开发数量", "师训文章撰写", "培训师带教", "集团培训师竞聘", "教师个人年度绩效", "总积分", "培训师回复确认情况", "备注"];
           rows = details.map((detail, index) => {

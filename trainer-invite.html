@@ -483,6 +483,49 @@
       background: #fbfcfb;
     }
 
+    .topic-group {
+      border: 1px solid #dbe5de;
+      border-radius: 8px;
+      background: #fbfcfb;
+      overflow: hidden;
+    }
+
+    .topic-group-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 11px;
+      border: 0;
+      color: var(--ink);
+      background: #f5fbf3;
+      font: inherit;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .topic-group-toggle span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .topic-group-body {
+      display: none;
+      gap: 8px;
+      padding: 9px;
+    }
+
+    .topic-group.open .topic-group-body {
+      display: grid;
+    }
+
+    .topic-group .topic {
+      background: white;
+    }
+
     .topic strong {
       font-size: 13px;
     }
@@ -491,6 +534,20 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
+    }
+
+    .topic-toolbar,
+    .hero-actions,
+    .mail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .topic-toolbar {
+      justify-content: flex-start;
+      margin-top: 2px;
     }
 
     .topic-actions {
@@ -511,6 +568,128 @@
 
     .topic-form[hidden] {
       display: none;
+    }
+
+    .maintenance-form {
+      display: grid;
+      gap: 9px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #d8e7d2;
+      border-radius: 8px;
+      background: #f8fff4;
+    }
+
+    .maintenance-form[hidden] {
+      display: none;
+    }
+
+    .flow-card {
+      padding: 12px;
+    }
+
+    .flow-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .flow-steps {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: flow;
+    }
+
+    .flow-steps li {
+      position: relative;
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid #dbe5de;
+      border-radius: 8px;
+      background: #fbfcfb;
+      counter-increment: flow;
+    }
+
+    .flow-steps li::before {
+      content: counter(flow);
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      color: white;
+      background: var(--green);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .flow-steps strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .flow-steps span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .warning-note {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #f5d79a;
+      border-radius: 8px;
+      color: #6b4300;
+      background: #fff8e6;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .feedback-reminder {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 14px;
+      border: 1px solid #cfe2c7;
+      border-radius: 8px;
+      background: #f4fbf1;
+    }
+
+    .feedback-reminder .reminder-icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: white;
+      background: var(--green);
+    }
+
+    .feedback-reminder svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feedback-reminder p {
+      margin: 0;
+      color: #285734;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .invite-form {
@@ -609,14 +788,10 @@
       </div>
       <div>
         <h1>培训师展示与邀约</h1>
-        <p>先搭好框架，后续替换真实照片、简介和课题</p>
+        <p>公开查看培训师与课题，按校培流程发起邮件邀约</p>
       </div>
     </div>
     <div class="toolbar">
-      <a class="text-btn button" href="index.html" title="返回积分看板">
-        <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path><path d="M9 12h12"></path><path d="M3 5v14"></path></svg>
-        返回积分看板
-      </a>
       <span class="text-btn readonly-only" title="当前为只读分享页">
         <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         只读查看
@@ -625,10 +800,6 @@
         <svg viewBox="0 0 24 24"><path d="M12 3v4"></path><path d="M12 17v4"></path><path d="M5.6 5.6 8.4 8.4"></path><path d="m15.6 15.6 2.8 2.8"></path><path d="M3 12h4"></path><path d="M17 12h4"></path><circle cx="12" cy="12" r="3"></circle></svg>
         导出分享页
       </button>
-      <button class="text-btn edit-only" id="exportInviteBtn" title="导出邀约记录">
-        <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-        导出邀约
-      </button>
     </div>
   </header>
 
@@ -636,16 +807,20 @@
     <section class="hero">
       <div>
         <h2 id="heroTitle">教学培训师展示与邀约</h2>
-        <p id="heroDesc">按教学与运营分开展示培训师。选中培训师后可查看课题，点击课题后自动带入邀约表单。</p>
+        <p id="heroDesc">按教学培训师展示姓名、部门、科目和可讲课题。选中培训师后可查看课题详情，并按流程发起邀约。</p>
         <div class="board-switch" id="boardSwitch">
           <button type="button" class="active" data-board="teaching">教学培训师</button>
           <button type="button" data-board="operations">运营培训师</button>
         </div>
-        <div class="hero-badges">
-          <span class="hero-badge" id="trainerCountBadge">0 位培训师</span>
-        <span class="hero-badge edit-only">支持复制邀约文本</span>
-        <span class="hero-badge edit-only">可导出邀约记录 CSV</span>
-        <span class="hero-badge readonly-only">分享预览模式</span>
+        <div class="hero-actions">
+          <button class="small-btn primary-btn" id="jumpFlowBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+            查看校培邀约流程
+          </button>
+          <button class="small-btn" id="mailInviteBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="m22 6-10 7L2 6"></path></svg>
+            一键发起邮件
+          </button>
         </div>
       </div>
       <img class="hero-art" id="heroArt" src="assets/hero-wave.png" alt="">
@@ -691,84 +866,45 @@
           <div class="profile" id="profilePanel"></div>
         </section>
 
-        <section class="panel edit-only">
-          <div class="panel-head">
-            <strong>发起邀约</strong>
-            <small>填写后可复制或导出</small>
-          </div>
-          <form class="invite-form" id="inviteForm">
-            <div class="form-row">
-              <div class="field">
-                <label for="trainerNameInput">邀约讲师姓名</label>
-                <input id="trainerNameInput" readonly aria-readonly="true">
-              </div>
-              <div class="field">
-                <label for="trainerDeptInput">邀约讲师部门</label>
-                <input id="trainerDeptInput" readonly aria-readonly="true">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="field">
-                <label for="inviterInput">邀约人</label>
-                <input id="inviterInput" required placeholder="请输入邀约人">
-              </div>
-              <div class="field">
-                <label for="needDeptInput">需求部门</label>
-                <input id="needDeptInput" required placeholder="请输入需求部门">
-              </div>
-            </div>
-            <div class="field">
-              <label for="topicInput">需求课题</label>
-              <input id="topicInput" required placeholder="可从课题列表点选带入">
-            </div>
-            <div class="form-row">
-              <div class="field">
-                <label for="dateInput">期望时间</label>
-                <input id="dateInput" type="date">
-              </div>
-              <div class="field">
-                <label for="formatInput">培训形式</label>
-                <select id="formatInput">
-                  <option>线下</option>
-                  <option>线上</option>
-                  <option>均可</option>
-                </select>
-              </div>
-            </div>
-            <div class="field">
-              <label for="noteInput">需求说明</label>
-              <textarea id="noteInput" placeholder="可填写培训对象、人数、背景、希望解决的问题等"></textarea>
-            </div>
-            <button class="small-btn primary-btn" type="submit">
-              <svg viewBox="0 0 24 24"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7Z"></path></svg>
-              生成邀约
-            </button>
-            <button class="small-btn" id="copyInviteBtn" type="button">
-              <svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
-              复制邀约文本
-            </button>
-            <button class="small-btn" id="submitTencentBtn" type="button">
-              <svg viewBox="0 0 24 24"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-              提交到腾讯表单
-            </button>
-            <div class="invite-output" id="inviteOutput"></div>
-          </form>
-        </section>
-
-        <section class="panel readonly-panel">
-          <div class="panel-head">
-            <strong>发起邀约</strong>
-            <small>通过腾讯表单提交</small>
-          </div>
-          <div class="invite-form">
-            <p class="muted">请先在左侧查看培训师和课题，再前往腾讯表单提交邀约。提交后会进入腾讯表格，便于提醒和审批。</p>
-            <button class="small-btn primary-btn" id="readonlyTencentBtn" type="button">
-              <svg viewBox="0 0 24 24"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-              前往腾讯表单
-            </button>
-          </div>
-        </section>
       </aside>
+    </section>
+
+    <section class="panel flow-panel" id="inviteFlow">
+      <div class="panel-head">
+        <strong>校培邀约流程</strong>
+        <small>邮件发起与人力确认</small>
+      </div>
+      <div class="flow-card">
+        <p>查看培训师和课题后，按以下流程通过邮件发起校培邀约。人力资源部会统一确认培训任务、问卷与课酬流程。</p>
+        <ol class="flow-steps">
+          <li><div><strong>初步沟通</strong><span>需求方可先行和意向培训师初步确认档期和需求。</span></div></li>
+          <li><div><strong>发送需求邮件</strong><span>填写需求表，发送至福州学校人力资源部培训邮箱 fz_px@xdf.cn，抄送部门总监邮箱、人力总监邮箱 chenliyun@xdf.cn 及其他相关人员。</span></div></li>
+          <li><div><strong>人力确认任务</strong><span>收到邮件后，人力资源部会与培训师本人确认培训任务；确认可执行后，3 天内邮件回复。</span></div></li>
+          <li><div><strong>问卷回收</strong><span>回复邮件中会附需求方满意度问卷和受训学员满意度问卷，培训结束后 3 天内填写完毕。</span></div></li>
+          <li><div><strong>课酬报批</strong><span>培训结束后，由人力资源部发起课酬报批与发放。</span></div></li>
+        </ol>
+        <div class="warning-note">如有特定培训需求，请在邮件中注明培训背景、对象、人数、期望时间、培训形式和希望解决的问题。</div>
+        <div class="mail-actions">
+          <button class="small-btn primary-btn" id="flowMailBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="m22 6-10 7L2 6"></path></svg>
+            一键发起邮件
+          </button>
+          <span class="muted">收件人：fz_px@xdf.cn；抄送：chenliyun@xdf.cn</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <strong>培训后反馈提醒</strong>
+        <small>培训结束后 3 天内</small>
+      </div>
+      <div class="feedback-reminder">
+        <span class="reminder-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><path d="M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path><path d="m9 16 2 2 4-5"></path></svg>
+        </span>
+        <p>培训结束后，请需求方在3天内填写《需求方反馈问卷》完成培训师满意度反馈，反馈结果将用于培训师后续培训复盘、积分及课酬核算。</p>
+      </div>
     </section>
   </main>
 
@@ -777,7 +913,8 @@
   <script>
     const STORAGE_KEY = "trainer-invite-records-v1";
     const TOPIC_STORAGE_KEY = "trainer-invite-board-topics-v2";
-    const TENCENT_FORM_URL = "";
+    const INVITE_EMAIL_TO = "fz_px@xdf.cn";
+    const INVITE_EMAIL_CC = "chenliyun@xdf.cn";
     const SNAPSHOT_INVITE_STATE = null;
     const readonlyMode = (() => {
       const loc = window.location || { search: "", hash: "", hostname: "" };
@@ -788,7 +925,7 @@
     const boards = {
       teaching: {
         title: "教学培训师展示与邀约",
-        desc: "按教学培训师展示姓名、部门、科目和可讲课题。选中培训师后可查看课题详情并发起邀约。",
+        desc: "按教学培训师展示姓名、部门、科目和可讲课题。选中培训师后可查看课题详情，并按流程发起邀约。",
         art: "assets/hero-wave.png",
         subjectLabel: "科目",
         trainers: [
@@ -850,7 +987,7 @@
       },
       operations: {
         title: "运营培训师展示与邀约",
-        desc: "运营培训师按部门和培训方向展示，后续可继续补充照片、简介、课题和联系方式。",
+        desc: "按运营培训师展示姓名、部门、方向和可讲课题。选中培训师后可查看课题详情，并按流程发起邀约。",
         art: "assets/hero-clipboard.png",
         subjectLabel: "方向",
         trainers: [
@@ -879,6 +1016,7 @@
     let filters = { keyword: "", dept: "", subject: "" };
     let inviteRecords = loadRecords();
     let latestInviteText = "";
+    let openTopicGroups = new Set();
 
     const $ = id => document.getElementById(id);
 
@@ -950,7 +1088,6 @@
       $("heroTitle").textContent = board.title;
       $("heroDesc").textContent = board.desc;
       $("heroArt").src = board.art;
-      $("trainerCountBadge").textContent = `${board.trainers.length} 位培训师`;
       document.querySelectorAll("#boardSwitch button").forEach(button => {
         button.classList.toggle("active", button.dataset.board === activeBoard);
       });
@@ -992,6 +1129,60 @@
       return currentBoard().trainers.find(item => item.id === selectedTrainerId) || currentBoard().trainers[0];
     }
 
+    function topicAudience(topic) {
+      return String(topic && topic.audience ? topic.audience : "未分类").trim() || "未分类";
+    }
+
+    function groupedTopics(trainer) {
+      const groups = new Map();
+      (trainer.topics || []).forEach((topic, index) => {
+        const audience = topicAudience(topic);
+        if (!groups.has(audience)) groups.set(audience, []);
+        groups.get(audience).push({ topic, index });
+      });
+      return Array.from(groups.entries()).map(([audience, items]) => ({ audience, items }));
+    }
+
+    function topicCard(item) {
+      const topic = item.topic;
+      return `
+        <div class="topic">
+          <strong>${escapeHtml(topic.title)}</strong>
+          <span>${escapeHtml(topic.duration)} · ${escapeHtml(topic.audience)}</span>
+          <span>${escapeHtml(topic.desc)}</span>
+          <div class="topic-toolbar edit-only">
+            <button class="small-btn" type="button" data-action="edit-topic" data-index="${item.index}">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+              编辑
+            </button>
+            <button class="small-btn" type="button" data-action="delete-topic" data-index="${item.index}">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+              删除
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTopicGroups(trainer) {
+      if (!trainer.topics.length) return '<div class="empty"><img src="assets/hero-graduate.png" alt="">暂无课题，后续可在本地新增维护</div>';
+      return groupedTopics(trainer).map(group => {
+        const groupKey = `${trainer.id}::${group.audience}`;
+        const open = openTopicGroups.has(groupKey);
+        return `
+          <div class="topic-group ${open ? "open" : ""}">
+            <button class="topic-group-toggle" type="button" data-action="toggle-topic-group" data-group="${escapeHtml(groupKey)}">
+              ${escapeHtml(group.audience)}
+              <span>${group.items.length} 个课题 · ${open ? "收起" : "展开"}</span>
+            </button>
+            <div class="topic-group-body">
+              ${group.items.map(topicCard).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
     function renderProfile() {
       const trainer = selectedTrainer();
       if (!trainer) {
@@ -1013,18 +1204,44 @@
           </div>
         </div>
         <p>${escapeHtml(trainer.intro)}</p>
-        <div class="topic-list">
-          ${trainer.topics.length ? trainer.topics.map(topic => `
-            <div class="topic">
-              <strong>${escapeHtml(topic.title)}</strong>
-              <span>${escapeHtml(topic.duration)} · ${escapeHtml(topic.audience)}</span>
-              <span>${escapeHtml(topic.desc)}</span>
-              <button class="small-btn edit-only" type="button" data-topic="${escapeHtml(topic.title)}">
-                <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-                选为需求课题
-              </button>
+        <div class="topic-actions edit-only">
+          <button class="small-btn" type="button" data-action="toggle-trainer-form">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+            维护培训师信息
+          </button>
+        </div>
+        <form class="maintenance-form edit-only" id="trainerEditForm" hidden>
+          <div class="form-row">
+            <div class="field">
+              <label for="trainerEditName">姓名</label>
+              <input id="trainerEditName" name="name" required value="${escapeHtml(trainer.name)}">
             </div>
-          `).join("") : '<div class="empty"><img src="assets/hero-graduate.png" alt="">暂无课题，后续可在本地新增维护</div>'}
+            <div class="field">
+              <label for="trainerEditDept">部门</label>
+              <input id="trainerEditDept" name="dept" required value="${escapeHtml(trainer.dept)}">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="trainerEditSubject">${activeBoard === "teaching" ? "科目" : "方向"}</label>
+              <input id="trainerEditSubject" name="subject" required value="${escapeHtml(trainer.subject)}">
+            </div>
+            <div class="field">
+              <label for="trainerEditPhoto">照片路径</label>
+              <input id="trainerEditPhoto" name="photo" required value="${escapeHtml(trainer.photo)}" placeholder="例如 assets/trainers/姓名.jpg">
+            </div>
+          </div>
+          <div class="field">
+            <label for="trainerEditIntro">简介</label>
+            <textarea id="trainerEditIntro" name="intro" required>${escapeHtml(trainer.intro)}</textarea>
+          </div>
+          <button class="small-btn primary-btn" type="submit">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path></svg>
+            保存培训师信息
+          </button>
+        </form>
+        <div class="topic-list">
+          ${renderTopicGroups(trainer)}
         </div>
         <div class="topic-actions edit-only">
           <button class="small-btn primary-btn" type="button" data-action="toggle-topic-form">
@@ -1033,6 +1250,7 @@
           </button>
         </div>
         <form class="topic-form edit-only" id="topicForm" hidden>
+          <input type="hidden" name="index" value="">
           <div class="field">
             <label for="topicTitleInput">课题名称</label>
             <input id="topicTitleInput" name="title" required placeholder="请输入课题名称">
@@ -1120,6 +1338,7 @@
       if (readonlyMode) return;
       const trainer = selectedTrainer();
       if (!trainer) return;
+      const indexValue = form.elements.index ? form.elements.index.value : "";
       const topic = {
         title: form.elements.title.value.trim(),
         audience: form.elements.audience.value.trim(),
@@ -1130,13 +1349,68 @@
         showToast("请完整填写课题名称、适合对象、时长和简介。");
         return;
       }
-      trainer.topics.push(topic);
+      if (indexValue !== "") {
+        trainer.topics[Number(indexValue)] = topic;
+      } else {
+        trainer.topics.push(topic);
+      }
       saveBoards();
       form.reset();
+      if (form.elements.index) form.elements.index.value = "";
       form.hidden = true;
       renderTrainerGrid();
       renderProfile();
-      showToast("课题已新增，导出分享页后可对外展示。");
+      showToast(indexValue !== "" ? "课题已更新，导出分享页后可对外展示。" : "课题已新增，导出分享页后可对外展示。");
+    }
+
+    function fillTopicForm(index) {
+      if (readonlyMode) return;
+      const trainer = selectedTrainer();
+      const topic = trainer && trainer.topics[Number(index)];
+      const form = $("topicForm");
+      if (!topic || !form) return;
+      form.hidden = false;
+      form.elements.index.value = String(index);
+      form.elements.title.value = topic.title || "";
+      form.elements.audience.value = topic.audience || "";
+      form.elements.duration.value = topic.duration || "";
+      form.elements.desc.value = topic.desc || "";
+      form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function deleteTopic(index) {
+      if (readonlyMode) return;
+      const trainer = selectedTrainer();
+      if (!trainer || !trainer.topics[Number(index)]) return;
+      if (!confirm(`确定删除课题“${trainer.topics[Number(index)].title}”吗？`)) return;
+      trainer.topics.splice(Number(index), 1);
+      saveBoards();
+      renderTrainerGrid();
+      renderProfile();
+      showToast("课题已删除，导出分享页后可对外展示。");
+    }
+
+    function updateTrainerFromForm(form) {
+      if (readonlyMode) return;
+      const trainer = selectedTrainer();
+      if (!trainer) return;
+      const next = {
+        name: form.elements.name.value.trim(),
+        dept: form.elements.dept.value.trim(),
+        subject: form.elements.subject.value.trim(),
+        photo: form.elements.photo.value.trim(),
+        intro: form.elements.intro.value.trim()
+      };
+      if (!next.name || !next.dept || !next.subject || !next.photo || !next.intro) {
+        showToast("请完整填写培训师姓名、部门、科目/方向、照片路径和简介。");
+        return;
+      }
+      Object.assign(trainer, next);
+      saveBoards();
+      renderFilters();
+      renderTrainerGrid();
+      renderProfile();
+      showToast("培训师信息已更新，导出分享页后可对外展示。");
     }
 
     function loadRecords() {
@@ -1204,33 +1478,62 @@
       showToast("展示邀约分享页已导出。请和 assets 文件夹放在一起分享。");
     }
 
-    async function copyInviteText() {
-      if (!latestInviteText) latestInviteText = generateInviteText();
-      if (!latestInviteText) return;
-      try {
-        await navigator.clipboard.writeText(latestInviteText);
-        showToast("邀约文本已复制。");
-      } catch (error) {
-        $("inviteOutput").style.display = "block";
-        $("inviteOutput").textContent = latestInviteText;
-        showToast("复制受浏览器限制，已显示文本，可手动复制。");
-      }
+    function inviteMailSubject() {
+      const trainer = selectedTrainer();
+      const trainerName = trainer ? trainer.name : "意向培训师";
+      return `校培邀约需求-${trainerName}-请确认`;
     }
 
-    function openTencentForm() {
-      if (!TENCENT_FORM_URL) {
-        showToast("请先配置腾讯表单链接。");
-        return;
-      }
-      if (!readonlyMode) {
-        if (!latestInviteText) latestInviteText = generateInviteText();
-        if (!latestInviteText) return;
-        $("inviteOutput").style.display = "block";
-        $("inviteOutput").textContent = latestInviteText;
-        saveInviteRecord(latestInviteText);
-      }
-      window.open(TENCENT_FORM_URL, "_blank", "noopener");
-      showToast("已打开腾讯表单，请粘贴邀约信息并提交。");
+    function inviteMailBody() {
+      const trainer = selectedTrainer();
+      const topicHint = trainer && trainer.topics.length
+        ? trainer.topics.slice(0, 5).map(topic => `- ${topic.title}`).join("\n")
+        : "- 请填写需求课题";
+      return [
+        "校培邀约需求",
+        "",
+        "一、意向培训师",
+        `培训师姓名：${trainer ? trainer.name : "请填写"}`,
+        `培训师部门：${trainer ? trainer.dept : "请填写"}`,
+        `科目/方向：${trainer ? trainer.subject : "请填写"}`,
+        "",
+        "二、需求信息",
+        "需求部门：",
+        "需求课题：",
+        "期望时间：",
+        "培训形式：线上 / 线下 / 均可",
+        "培训对象：",
+        "预计人数：",
+        "培训背景：",
+        "希望解决的问题：",
+        "特殊培训需求：",
+        "",
+        "三、可参考课题",
+        topicHint,
+        "",
+        "*提醒",
+        "需求方可先行与意向培训师初步确认档期和需求；如有特定培训需求，请在邮件中注明。"
+      ].join("\n");
+    }
+
+    function mailtoLink() {
+      const params = new URLSearchParams({
+        cc: INVITE_EMAIL_CC,
+        subject: inviteMailSubject(),
+        body: inviteMailBody()
+      });
+      return `mailto:${INVITE_EMAIL_TO}?${params.toString()}`;
+    }
+
+    function openInviteEmail() {
+      window.location.href = mailtoLink();
+      showToast("已打开邮件模板，请补充需求信息后发送。");
+    }
+
+    function jumpToFlow() {
+      const flow = $("inviteFlow");
+      if (!flow) return;
+      flow.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function showToast(message) {
@@ -1247,9 +1550,8 @@
         selectedTrainerId = currentBoard().trainers[0].id;
         filters = { keyword: "", dept: "", subject: "" };
         latestInviteText = "";
-      $("topicInput").value = "";
-      $("inviteOutput").style.display = "none";
-      render();
+        openTopicGroups = new Set();
+        render();
       });
     });
 
@@ -1258,6 +1560,7 @@
       if (!card) return;
       selectedTrainerId = card.dataset.id;
       latestInviteText = "";
+      openTopicGroups = new Set();
       renderTrainerGrid();
       renderProfile();
       syncTrainerInviteFields();
@@ -1267,20 +1570,45 @@
       const toggleButton = event.target.closest("button[data-action='toggle-topic-form']");
       if (toggleButton) {
         const form = $("topicForm");
+        if (form) {
+          form.hidden = !form.hidden;
+          if (!form.hidden) {
+            form.reset();
+            if (form.elements.index) form.elements.index.value = "";
+          }
+        }
+        return;
+      }
+      const trainerButton = event.target.closest("button[data-action='toggle-trainer-form']");
+      if (trainerButton) {
+        const form = $("trainerEditForm");
         if (form) form.hidden = !form.hidden;
         return;
       }
-      const button = event.target.closest("button[data-topic]");
-      if (!button) return;
-      $("topicInput").value = button.dataset.topic;
-      latestInviteText = "";
-      showToast("已带入需求课题。");
+      const groupButton = event.target.closest("button[data-action='toggle-topic-group']");
+      if (groupButton) {
+        const group = groupButton.dataset.group;
+        if (openTopicGroups.has(group)) openTopicGroups.delete(group);
+        else openTopicGroups.add(group);
+        renderProfile();
+        return;
+      }
+      const editButton = event.target.closest("button[data-action='edit-topic']");
+      if (editButton) {
+        fillTopicForm(editButton.dataset.index);
+        return;
+      }
+      const deleteButton = event.target.closest("button[data-action='delete-topic']");
+      if (deleteButton) {
+        deleteTopic(deleteButton.dataset.index);
+      }
     });
 
     $("profilePanel").addEventListener("submit", event => {
-      if (event.target.id !== "topicForm") return;
+      if (event.target.id !== "topicForm" && event.target.id !== "trainerEditForm") return;
       event.preventDefault();
-      addTopicFromForm(event.target);
+      if (event.target.id === "topicForm") addTopicFromForm(event.target);
+      if (event.target.id === "trainerEditForm") updateTrainerFromForm(event.target);
     });
 
     $("keywordInput").addEventListener("input", event => {
@@ -1306,21 +1634,10 @@
       render();
     });
 
-    $("inviteForm").addEventListener("submit", event => {
-      event.preventDefault();
-      latestInviteText = generateInviteText();
-      if (!latestInviteText) return;
-      $("inviteOutput").style.display = "block";
-      $("inviteOutput").textContent = latestInviteText;
-      saveInviteRecord(latestInviteText);
-      showToast("邀约已生成并保存到本地记录。");
-    });
-
-    $("copyInviteBtn").addEventListener("click", copyInviteText);
-    $("submitTencentBtn").addEventListener("click", openTencentForm);
-    $("readonlyTencentBtn").addEventListener("click", openTencentForm);
+    $("jumpFlowBtn").addEventListener("click", jumpToFlow);
+    $("mailInviteBtn").addEventListener("click", openInviteEmail);
+    $("flowMailBtn").addEventListener("click", openInviteEmail);
     $("exportInvitePreviewBtn").addEventListener("click", exportInvitePreview);
-    $("exportInviteBtn").addEventListener("click", exportInvites);
 
     render();
   </script>
