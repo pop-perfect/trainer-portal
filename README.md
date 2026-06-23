@@ -42,7 +42,7 @@
 
 ## 第二阶段：Supabase 云端后台
 
-展示邀约页已预留 Supabase 云端后台能力。未配置时仍按本地静态版运行；配置后，公网访客只读查看，管理员登录后可在线维护培训师资料、课题和照片。
+展示邀约页和积分看板已预留 Supabase 云端后台能力。未配置时仍按本地静态版运行；配置后，公网访客只读查看，管理员登录后可在线维护培训师资料、课题、照片和积分明细。
 
 配置步骤：
 
@@ -60,7 +60,8 @@ window.TRAINER_PORTAL_SUPABASE = {
 };
 ```
 
-6. 上传 `trainer-invite.html`、`supabase-config.js`、`supabase-schema.sql` 和 `assets/` 到 GitHub。
+6. 上传 `index.html`、`trainer-invite.html`、`supabase-config.js`、`supabase-schema.sql` 和 `assets/` 到 GitHub。
 7. 打开展示邀约页，点击“管理员登录”，登录后可维护资料；点击“同步云端”可把当前页面资料写入 Supabase。
+8. 打开本地积分看板，确认本机旧积分数据仍在；管理员登录后点击“同步云端”，再刷新公网积分页查看云端数据。
 
 说明：`anon public key` 可以放在前端页面中，真正的编辑权限由 Supabase 登录和 RLS 策略控制。

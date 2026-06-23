@@ -42,9 +42,16 @@ create table if not exists public.invite_requests (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.score_states (
+  id text primary key,
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 alter table public.trainers enable row level security;
 alter table public.topics enable row level security;
 alter table public.invite_requests enable row level security;
+alter table public.score_states enable row level security;
 
 drop policy if exists "public can read active trainers" on public.trainers;
 create policy "public can read active trainers"
@@ -91,6 +98,18 @@ using (true);
 drop policy if exists "authenticated can update invite requests" on public.invite_requests;
 create policy "authenticated can update invite requests"
 on public.invite_requests for update
+to authenticated
+using (true)
+with check (true);
+
+drop policy if exists "public can read score states" on public.score_states;
+create policy "public can read score states"
+on public.score_states for select
+using (true);
+
+drop policy if exists "authenticated can manage score states" on public.score_states;
+create policy "authenticated can manage score states"
+on public.score_states for all
 to authenticated
 using (true)
 with check (true);

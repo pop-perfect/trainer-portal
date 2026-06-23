@@ -255,12 +255,35 @@
       display: none;
     }
 
+    .cloud-only,
+    .admin-only {
+      display: none !important;
+    }
+
+    body.cloud-configured .cloud-only {
+      display: inline-flex !important;
+    }
+
+    body.admin-mode .admin-only {
+      display: inline-flex !important;
+    }
+
+    .cloud-status {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
     body.readonly .edit-only {
       display: none !important;
     }
 
     body.readonly .readonly-only {
       display: inline-flex;
+    }
+
+    body.readonly .readonly-only[hidden] {
+      display: none !important;
     }
 
     body.readonly input,
@@ -1112,6 +1135,48 @@
       transform: translateY(0);
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(63, 34, 18, 0.42);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .login-modal {
+      width: min(420px, 100%);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .login-modal h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .login-modal p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .login-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     @media (max-width: 1100px) {
       .topbar {
         align-items: flex-start;
@@ -1219,6 +1284,22 @@
         </div>
       </div>
       <div class="toolbar" aria-label="工具栏">
+        <span class="text-btn cloud-status admin-only" id="cloudStatus" title="当前资料来源">
+          <svg viewBox="0 0 24 24"><path d="M17.5 19H9a6 6 0 1 1 5.7-7.8A4.5 4.5 0 1 1 17.5 19Z"></path></svg>
+          本地资料
+        </span>
+        <button class="text-btn cloud-only" id="adminLoginBtn" title="管理员登录后可维护积分数据">
+          <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path></svg>
+          管理员登录
+        </button>
+        <button class="text-btn admin-only" id="syncCloudBtn" title="把当前积分数据同步到云端">
+          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path><path d="M21 21v-5h-5"></path></svg>
+          同步云端
+        </button>
+        <button class="text-btn admin-only" id="adminLogoutBtn" title="退出管理员维护模式">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+          退出后台
+        </button>
         <button class="text-btn edit-only" id="addDetailBtn" title="新增明细">
           <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
           新增明细
@@ -1235,14 +1316,11 @@
           <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
           回收站
         </button>
-        <span class="text-btn readonly-only" title="当前为只读分享页">
-          <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          只读查看
-        </span>
-        <button class="icon-btn" id="exportGroupedBtn" title="导出 Excel 可打开的分组明细 CSV">
+        <span class="text-btn readonly-only" title="当前为只读分享页" hidden></span>
+        <button class="icon-btn edit-only" id="exportGroupedBtn" title="导出 Excel 可打开的分组明细 CSV">
           <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
         </button>
-        <button class="icon-btn" id="exportExcelBtn" title="导出 Excel 可打开的原表格式 CSV">
+        <button class="icon-btn edit-only" id="exportExcelBtn" title="导出 Excel 可打开的原表格式 CSV">
           <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M4 10h16"></path><path d="M10 4v16"></path></svg>
         </button>
         <button class="icon-btn edit-only" id="exportJsonBtn" title="导出 JSON 备份">
@@ -1254,7 +1332,7 @@
         <button class="icon-btn edit-only" id="importBtn" title="导入 JSON 备份">
           <svg viewBox="0 0 24 24"><path d="M12 21V9"></path><path d="m17 14-5-5-5 5"></path><path d="M5 3h14"></path></svg>
         </button>
-        <button class="icon-btn" id="printBtn" title="打印">
+        <button class="icon-btn edit-only" id="printBtn" title="打印">
           <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
         </button>
         <button class="icon-btn danger-btn edit-only" id="clearBtn" title="清空全部数据">
@@ -1446,8 +1524,29 @@
     </main>
   </div>
 
+  <div class="modal-backdrop" id="adminLoginModal" hidden>
+    <form class="login-modal" id="adminLoginForm">
+      <h2>管理员登录</h2>
+      <p>登录后可在公网维护积分明细，并将本机旧数据同步到云端。</p>
+      <div class="field">
+        <label for="adminEmailInput">邮箱</label>
+        <input id="adminEmailInput" name="email" type="email" required placeholder="请输入管理员邮箱">
+      </div>
+      <div class="field">
+        <label for="adminPasswordInput">密码</label>
+        <input id="adminPasswordInput" name="password" type="password" required placeholder="请输入密码">
+      </div>
+      <div class="login-actions">
+        <button class="small-btn" type="button" id="adminCancelBtn">取消</button>
+        <button class="small-btn primary-btn" type="submit">登录</button>
+      </div>
+    </form>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const STORAGE_KEY = "trainer-score-manager-v2";
     const LEGACY_KEY = "trainer-score-manager-v1";
@@ -2531,10 +2630,17 @@
       const STORAGE_KEY_V2 = "trainer-score-manager-v2";
       const LEGACY_KEY_V1 = "trainer-score-manager-v1";
       const SNAPSHOT_STATE_V3 = null;
+      const SCORE_CLOUD_STATE_ID = "score-dashboard-main";
+      const SUPABASE_SETTINGS = window.TRAINER_PORTAL_SUPABASE || {};
       const readonlyMode = (() => {
         const loc = window.location || { search: "", hash: "", hostname: "" };
         return Boolean(SNAPSHOT_STATE_V3) || loc.search.includes("readonly=1") || loc.hash.includes("readonly") || loc.hostname.endsWith("github.io");
       })();
+      const cloudConfigured = Boolean(SUPABASE_SETTINGS.url && SUPABASE_SETTINGS.anonKey);
+      let supabaseClient = null;
+      let currentUser = null;
+      let cloudDataLoaded = false;
+      let cloudSaveTimer = null;
 
       const PERIOD = { start: "2026-06-01", end: "2027-05-31", label: "2026-06-01 至 2027-05-31" };
       const QUARTERS = [
@@ -2653,7 +2759,12 @@
         fileInput: fresh("fileInput"),
         saveTrainerBtn: fresh("saveTrainerBtn"),
         cancelTrainerBtn: fresh("cancelTrainerBtn"),
-        globalNotes: fresh("globalNotes")
+        globalNotes: fresh("globalNotes"),
+        adminLoginBtn: fresh("adminLoginBtn"),
+        adminLogoutBtn: fresh("adminLogoutBtn"),
+        syncCloudBtn: fresh("syncCloudBtn"),
+        adminLoginForm: fresh("adminLoginForm"),
+        adminCancelBtn: fresh("adminCancelBtn")
       };
 
       const el = id => document.getElementById(id);
@@ -2667,6 +2778,26 @@
         filters: { dept: "", keyword: "", startDate: "", endDate: "", status: "" },
         lastDeleted: null
       };
+
+      function canEdit() {
+        return !readonlyMode || Boolean(currentUser);
+      }
+
+      function localScoreDataExists() {
+        try {
+          return Boolean(localStorage.getItem(STORAGE_KEY_V3) || localStorage.getItem(STORAGE_KEY_V2) || localStorage.getItem(LEGACY_KEY_V1));
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function initSupabaseClient() {
+        if (!cloudConfigured || !window.supabase || !window.supabase.createClient) return null;
+        if (!supabaseClient) {
+          supabaseClient = window.supabase.createClient(SUPABASE_SETTINGS.url, SUPABASE_SETTINGS.anonKey);
+        }
+        return supabaseClient;
+      }
 
       function emptyBoard(key) {
         return {
@@ -3039,7 +3170,7 @@
       function inputControl(detail, key, type = "text", options = {}) {
         const value = detail[key] ?? "";
         const common = `data-id="${detail.id}" data-key="${key}"`;
-        if (readonlyMode) {
+        if (!canEdit()) {
           if (type === "checkbox") return `<span class="fixed-field">${value ? "是" : "否"}</span>`;
         }
         if (type === "select") {
@@ -3160,9 +3291,12 @@
 
       function render() {
         const key = activeKey();
-        document.body.classList.toggle("readonly", readonlyMode);
+        document.body.classList.toggle("readonly", !canEdit());
+        document.body.classList.toggle("cloud-configured", cloudConfigured);
+        document.body.classList.toggle("admin-mode", Boolean(currentUser));
         document.body.classList.toggle("operations-board", key === "operations");
         document.body.classList.toggle("teaching-board", key === "teaching");
+        renderCloudStatus();
         renderHero();
         renderHeaders();
         renderDepartmentFilter();
@@ -3175,6 +3309,20 @@
         renderRows(groups);
         renderTrash();
         saveStatus();
+      }
+
+      function renderCloudStatus() {
+        const status = el("cloudStatus");
+        if (!status) return;
+        if (!cloudConfigured) {
+          status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> 本地资料';
+          return;
+        }
+        if (currentUser) {
+          status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg> 云端后台';
+          return;
+        }
+        status.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17.5 19H9a6 6 0 1 1 5.7-7.8A4.5 4.5 0 1 1 17.5 19Z"></path></svg> 云端展示';
       }
 
       function renderHero() {
@@ -3359,7 +3507,7 @@
 
       function renderTrash() {
         const current = board();
-        controls.undoDeleteBtn.hidden = !ui.lastDeleted || readonlyMode;
+        controls.undoDeleteBtn.hidden = !ui.lastDeleted || !canEdit();
         if (!trashPanel || trashPanel.hidden) return;
         if (!current.trash.length) {
           el("trashBody").innerHTML = '<div class="empty-chart">回收站为空。</div>';
@@ -3382,19 +3530,123 @@
       }
 
       function saveStatus() {
-        el("saveStatus").textContent = state.updatedAt ? `已保存：${state.updatedAt}` : "等待录入";
+        const prefix = supabaseClient && currentUser ? "云端已保存" : "已保存";
+        el("saveStatus").textContent = state.updatedAt ? `${prefix}：${state.updatedAt}` : "等待录入";
       }
 
       function save() {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         state.version = 3;
         state.updatedAt = nowStamp();
+        if (supabaseClient && currentUser) {
+          window.clearTimeout(cloudSaveTimer);
+          cloudSaveTimer = window.setTimeout(() => {
+            saveScoreStateToCloud(false).catch(error => showToast(`云端保存失败：${error.message || error}`));
+          }, 150);
+          saveStatus();
+          return;
+        }
         try {
           localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(state));
         } catch (error) {
           showToast("浏览器限制了本地保存，请导出 JSON 备份。");
         }
         saveStatus();
+      }
+
+      async function loadScoreStateFromCloud() {
+        const client = initSupabaseClient();
+        if (!client) return false;
+        const result = await client.from("score_states").select("payload").eq("id", SCORE_CLOUD_STATE_ID).maybeSingle();
+        if (result.error) throw result.error;
+        if (!result.data || !result.data.payload) {
+          cloudDataLoaded = true;
+          return false;
+        }
+        state = normalizeState(result.data.payload);
+        cloudDataLoaded = true;
+        return true;
+      }
+
+      async function saveScoreStateToCloud(showSuccess) {
+        const client = initSupabaseClient();
+        if (!client || !currentUser) {
+          showToast("请先登录管理员账号。");
+          return;
+        }
+        state.version = 3;
+        state.updatedAt = nowStamp();
+        const result = await client.from("score_states").upsert({
+          id: SCORE_CLOUD_STATE_ID,
+          payload: state,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "id" });
+        if (result.error) throw result.error;
+        saveStatus();
+        if (showSuccess) showToast("积分看板数据已同步到云端。");
+      }
+
+      async function openAdminLogin() {
+        if (!initSupabaseClient()) {
+          showToast("请先配置 supabase-config.js。");
+          return;
+        }
+        el("adminLoginModal").hidden = false;
+        el("adminEmailInput").focus();
+      }
+
+      async function submitAdminLogin(form) {
+        const client = initSupabaseClient();
+        if (!client) return;
+        const email = form.elements.email.value.trim();
+        const password = form.elements.password.value;
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) {
+          showToast(`登录失败：${error.message}`);
+          return;
+        }
+        currentUser = data.user;
+        el("adminLoginModal").hidden = true;
+        form.reset();
+        if (readonlyMode || !localScoreDataExists()) {
+          try {
+            await loadScoreStateFromCloud();
+          } catch (cloudError) {
+            showToast(`云端数据读取失败：${cloudError.message || cloudError}`);
+          }
+        } else {
+          showToast("已进入后台。本机旧数据已保留，可点击“同步云端”。");
+        }
+        render();
+      }
+
+      async function adminLogout() {
+        if (supabaseClient) await supabaseClient.auth.signOut();
+        currentUser = null;
+        render();
+        showToast("已退出后台维护模式。");
+      }
+
+      async function initCloud() {
+        const client = initSupabaseClient();
+        if (!client) {
+          render();
+          return;
+        }
+        try {
+          const sessionResult = await client.auth.getSession();
+          currentUser = sessionResult.data && sessionResult.data.session ? sessionResult.data.session.user : null;
+          client.auth.onAuthStateChange((event, session) => {
+            currentUser = session && session.user ? session.user : null;
+            render();
+          });
+          if (readonlyMode || !localScoreDataExists()) {
+            await loadScoreStateFromCloud();
+          }
+        } catch (error) {
+          showToast(`云端数据读取失败：${error.message || error}`);
+        }
+        render();
       }
 
       function showToast(message) {
@@ -3413,7 +3665,7 @@
       }
 
       function addDetail(seed = {}) {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         const key = activeKey();
         const trainer = seed.trainerId ? getTrainer(seed.trainerId, key) : board(key).trainers[0];
         if (!trainer) {
@@ -3433,7 +3685,7 @@
       }
 
       function duplicateDetail(id) {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         const current = board();
         const detail = current.details.find(item => item.id === id);
         if (!detail) return;
@@ -3448,7 +3700,7 @@
       }
 
       function deleteDetail(id) {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         const current = board();
         const index = current.details.findIndex(item => item.id === id);
         if (index < 0) return;
@@ -3474,7 +3726,7 @@
       }
 
       function undoLastDelete() {
-        if (!ui.lastDeleted || readonlyMode) return;
+        if (!ui.lastDeleted || !canEdit()) return;
         state.activeBoard = ui.lastDeleted.boardKey;
         if (restoreDeleted(ui.lastDeleted.id, ui.lastDeleted.boardKey)) {
           ui.lastDeleted = null;
@@ -3485,7 +3737,7 @@
       }
 
       function updateValue(target) {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         const id = target.dataset.id;
         const key = target.dataset.key;
         if (!id || !key) return;
@@ -3512,7 +3764,7 @@
       }
 
       function addTrainerFromForm() {
-        if (readonlyMode) return;
+        if (!canEdit()) return;
         const key = activeKey();
         const trainer = normalizeTrainer({
           id: createId(`${key}-trainer`),
@@ -3546,7 +3798,7 @@
         trashPanel.hidden = true;
         ui.filters = { dept: "", keyword: "", startDate: "", endDate: "", status: "" };
         syncFilterInputs();
-        if (!readonlyMode) save();
+        if (canEdit()) save();
         render();
       }
 
@@ -3752,13 +4004,13 @@
         document.querySelectorAll("#boardSwitch button").forEach(button => button.addEventListener("click", () => switchBoard(button.dataset.board)));
         controls.addDetailBtn.addEventListener("click", () => addDetail());
         controls.toggleTrainerFormBtn.addEventListener("click", () => {
-          if (readonlyMode) return;
+          if (!canEdit()) return;
           trainerForm.hidden = !trainerForm.hidden;
           if (!trainerForm.hidden) resetTrainerForm();
         });
         controls.undoDeleteBtn.addEventListener("click", undoLastDelete);
         controls.toggleTrashBtn.addEventListener("click", () => {
-          if (readonlyMode) return;
+          if (!canEdit()) return;
           trashPanel.hidden = !trashPanel.hidden;
           renderTrash();
         });
@@ -3771,7 +4023,7 @@
         controls.importBtn.addEventListener("click", () => controls.fileInput.click());
         controls.printBtn.addEventListener("click", () => window.print());
         controls.clearBtn.addEventListener("click", () => {
-          if (readonlyMode) return;
+          if (!canEdit()) return;
           if (!confirm("确定清空当前看板的明细、备注和回收站吗？名单会保留。建议先导出 JSON 备份。")) return;
           board().details = [];
           board().trash = [];
@@ -3782,7 +4034,7 @@
           showToast("已清空当前看板数据。");
         });
         controls.fileInput.addEventListener("change", event => {
-          if (readonlyMode) return;
+          if (!canEdit()) return;
           const [file] = event.target.files;
           if (file) importJson(file);
         });
@@ -3825,16 +4077,29 @@
           render();
         });
         controls.globalNotes.addEventListener("input", () => {
-          if (readonlyMode) return;
+          if (!canEdit()) return;
           board().notes = controls.globalNotes.value;
           save();
+        });
+        controls.adminLoginBtn.addEventListener("click", openAdminLogin);
+        controls.adminLogoutBtn.addEventListener("click", adminLogout);
+        controls.syncCloudBtn.addEventListener("click", () => saveScoreStateToCloud(true).catch(error => showToast(`同步失败：${error.message || error}`)));
+        controls.adminCancelBtn.addEventListener("click", () => {
+          el("adminLoginModal").hidden = true;
+        });
+        el("adminLoginModal").addEventListener("click", event => {
+          if (event.target.id === "adminLoginModal") el("adminLoginModal").hidden = true;
+        });
+        controls.adminLoginForm.addEventListener("submit", async event => {
+          event.preventDefault();
+          await submitAdminLogin(event.target);
         });
       }
 
       load();
       bindEvents();
       resetTrainerForm();
-      render();
+      initCloud();
     })();
   </script>
 </body>
