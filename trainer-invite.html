@@ -126,6 +126,10 @@
       display: inline-flex;
     }
 
+    body.readonly .readonly-only[hidden] {
+      display: none !important;
+    }
+
     body.readonly .readonly-panel {
       display: block;
     }
@@ -857,7 +861,7 @@
       </div>
     </div>
     <div class="toolbar">
-      <span class="text-btn cloud-status" id="cloudStatus" title="当前资料来源">
+      <span class="text-btn cloud-status admin-only" id="cloudStatus" title="当前资料来源">
         <svg viewBox="0 0 24 24"><path d="M17.5 19H9a6 6 0 1 1 5.7-7.8A4.5 4.5 0 1 1 17.5 19Z"></path></svg>
         本地资料
       </span>
@@ -873,10 +877,7 @@
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
         退出后台
       </button>
-      <span class="text-btn readonly-only" title="当前为只读分享页">
-        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        只读查看
-      </span>
+      <span class="text-btn readonly-only" title="当前为只读分享页" hidden></span>
       <button class="text-btn edit-only" id="exportInvitePreviewBtn" title="导出展示邀约分享页">
         <svg viewBox="0 0 24 24"><path d="M12 3v4"></path><path d="M12 17v4"></path><path d="M5.6 5.6 8.4 8.4"></path><path d="m15.6 15.6 2.8 2.8"></path><path d="M3 12h4"></path><path d="M17 12h4"></path><circle cx="12" cy="12" r="3"></circle></svg>
         导出分享页
@@ -1067,7 +1068,7 @@
             { title: "如何做好家校沟通", duration: "待定", audience: "教学教师 / 服务相关岗位", desc: "围绕家校沟通场景，拆解沟通目标、话术结构与跟进动作。" },
             { title: "决胜窗口期", duration: "待定", audience: "教学教师 / 续费相关岗位", desc: "围绕续费关键窗口期，梳理教学服务动作与沟通重点。" }
           ] },
-          { id: "teach-10", name: "林烨婷", dept: "智慧学习部", subject: "语文", photo: "assets/hero-graduate.png", intro: "校级教学培训师，聚焦语文学科培训、通识教学能力和导师培训支持。", topics: [
+          { id: "teach-10", name: "林烨婷", dept: "智慧学习部", subject: "语文", photo: "assets/trainers/林烨婷.jpg", intro: "校级教学培训师，聚焦语文学科培训、通识教学能力和导师培训支持。", topics: [
             { title: "诗歌鉴赏/文言教学/可视化写作/有效阅读课", duration: "具体情况而定", audience: "所有教师", desc: "根据具体培训需求，围绕语文学科教学主题进行定制化设计。" },
             { title: "板书设计", duration: "1小时", audience: "所有教师", desc: "解决新教师板书设计问题，偏向文科课堂应用。" },
             { title: "如何迅速搭好课件框架", duration: "1小时", audience: "所有教师", desc: "帮助新教师减少课件制作耗时，快速搭建清晰的课件框架。" },
@@ -1605,12 +1606,16 @@
     }
 
     function trainerRowToLocal(row, topics) {
+      let photo = row.photo_url || "assets/hero-graduate.png";
+      if (row.name === "林烨婷" && (!row.photo_url || row.photo_url === "assets/hero-graduate.png")) {
+        photo = "assets/trainers/林烨婷.jpg";
+      }
       return {
         id: row.id,
         name: row.name || "",
         dept: row.dept || "",
         subject: row.subject || "",
-        photo: row.photo_url || "assets/hero-graduate.png",
+        photo,
         intro: row.intro || "",
         topics: topics.map(topicRowToLocal)
       };
