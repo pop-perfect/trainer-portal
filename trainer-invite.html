@@ -147,6 +147,10 @@
       display: inline-flex !important;
     }
 
+    body.admin-mode .ledger-panel.admin-only {
+      display: block !important;
+    }
+
     body.cloud-configured.admin-mode .field.cloud-only.admin-only {
       display: grid !important;
     }
@@ -611,6 +615,93 @@
       display: none;
     }
 
+    .request-panel {
+      margin-top: 14px;
+    }
+
+    .request-form {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .form-row.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .ledger-panel {
+      margin-top: 14px;
+    }
+
+    .ledger-list {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .ledger-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #dbe5de;
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .ledger-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ledger-top strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .ledger-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ledger-controls {
+      display: grid;
+      grid-template-columns: minmax(150px, 190px) minmax(180px, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: #2f6d27;
+      background: #edf8e8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-pill.blocked {
+      color: #7b2d12;
+      background: #fff1e8;
+    }
+
     .flow-card {
       padding: 12px;
     }
@@ -834,6 +925,10 @@
       margin-top: 12px;
     }
 
+    .score-modal {
+      width: min(540px, 100%);
+    }
+
     @media (max-width: 1100px) {
       .topbar {
         align-items: flex-start;
@@ -846,7 +941,9 @@
 
       .hero,
       .layout,
-      .filters {
+      .filters,
+      .form-row.three,
+      .ledger-controls {
         grid-template-columns: 1fr;
       }
 
@@ -962,6 +1059,14 @@
       </aside>
     </section>
 
+    <section class="panel ledger-panel admin-only" id="ledgerPanel">
+      <div class="panel-head">
+        <strong>邀约台账</strong>
+        <small id="ledgerHint">管理员可更新状态、备注并生成积分明细</small>
+      </div>
+      <div class="ledger-list" id="ledgerList"></div>
+    </section>
+
     <section class="panel flow-panel" id="inviteFlow">
       <div class="panel-head">
         <strong>校培邀约流程</strong>
@@ -973,8 +1078,8 @@
           <li><div><strong>初步沟通</strong><span>需求方可先行和意向培训师初步确认档期和需求。</span></div></li>
           <li>
             <div>
-              <strong>发送需求邮件</strong>
-              <span>填写需求表，发送至福州学校人力资源部培训邮箱 fz_px@xdf.cn，抄送部门总监邮箱、人力总监邮箱 chenliyun@xdf.cn 及其他相关人员。</span>
+              <strong>发送需求报批</strong>
+              <span>邮件发送至福州学校人力资源部培训邮箱 fz_px@xdf.cn，抄送部门总监邮箱、人力总监陈丽云老师邮箱 chenliyun@xdf.cn 及其他相关人员。</span>
               <div class="flow-form-actions" aria-label="教学内训师需求表">
                 <a class="small-btn primary-btn" href="assets/forms/附件1-【教学】内训师-需求表.html" target="_blank" rel="noopener">
                   <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
@@ -1035,6 +1140,107 @@
     </form>
   </div>
 
+  <div class="modal-backdrop" id="mailRequestModal" hidden>
+    <form class="login-modal score-modal" id="inviteRequestForm">
+      <h2>发起培训邀约</h2>
+      <p>请补充邀约信息。确认后系统会生成一条人力台账记录，并打开邮件模板。</p>
+      <div class="form-row three">
+        <div class="field">
+          <label for="trainerNameInput">邀约讲师姓名</label>
+          <input id="trainerNameInput" name="trainerName" readonly>
+        </div>
+        <div class="field">
+          <label for="trainerDeptInput">邀约讲师部门</label>
+          <input id="trainerDeptInput" name="trainerDept" readonly>
+        </div>
+        <div class="field">
+          <label for="topicInput">需求课题</label>
+          <input id="topicInput" name="topic" required placeholder="可填写课题名称或自定义需求">
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="field">
+          <label for="inviterInput">报备人/邀约人</label>
+          <input id="inviterInput" name="requester" required placeholder="请输入姓名">
+        </div>
+        <div class="field">
+          <label for="needDeptInput">需求部门</label>
+          <input id="needDeptInput" name="requesterDept" required placeholder="请输入部门">
+        </div>
+        <div class="field">
+          <label for="dateInput">期望时间</label>
+          <input id="dateInput" name="expectedTime" placeholder="例如：2026-07-15 上午">
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="field">
+          <label for="formatInput">培训形式</label>
+          <select id="formatInput" name="trainingFormat">
+            <option>线下</option>
+            <option>线上</option>
+            <option>均可</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="audienceInput">培训对象</label>
+          <input id="audienceInput" name="trainingAudience" placeholder="例如：新教师 / 项目组">
+        </div>
+        <div class="field">
+          <label for="countInput">预计人数</label>
+          <input id="countInput" name="expectedCount" placeholder="例如：20人">
+        </div>
+      </div>
+      <div class="field">
+        <label for="noteInput">需求说明</label>
+        <textarea id="noteInput" name="note" placeholder="请说明培训背景、希望解决的问题、特殊培训需求等"></textarea>
+      </div>
+      <div class="login-actions">
+        <button class="small-btn" type="button" id="mailRequestCancelBtn">取消</button>
+        <button class="small-btn" type="button" id="fillTopicBtn">
+          <svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+          带入当前课题
+        </button>
+        <button class="small-btn primary-btn" type="submit">确认并打开邮件</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-backdrop" id="scoreModal" hidden>
+    <form class="login-modal score-modal" id="scoreForm">
+      <h2>生成积分明细</h2>
+      <p>请确认本次培训的实际信息，系统会把它写入积分看板云端数据。</p>
+      <input type="hidden" name="requestId" value="">
+      <div class="form-row three">
+        <div class="field">
+          <label for="scoreDateInput">实施日期</label>
+          <input id="scoreDateInput" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="scoreHoursInput">实际课时</label>
+          <input id="scoreHoursInput" name="hours" type="number" min="0" step="0.5" required placeholder="例如 2">
+        </div>
+        <div class="field">
+          <label for="scoreSatisfactionInput">满意度</label>
+          <select id="scoreSatisfactionInput" name="satisfaction">
+            <option value="">暂不填写</option>
+            <option value="4.8">4.8及以上</option>
+            <option value="4.5">4.5-4.8</option>
+            <option value="4.0">4.0-4.5</option>
+            <option value="below">4.0以下</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="scoreRemarkInput">备注</label>
+        <textarea id="scoreRemarkInput" name="remark"></textarea>
+      </div>
+      <div class="login-actions">
+        <button class="small-btn" type="button" id="scoreCancelBtn">取消</button>
+        <button class="small-btn primary-btn" type="submit">确认生成</button>
+      </div>
+    </form>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="supabase-config.js"></script>
@@ -1044,6 +1250,9 @@
     const TOPIC_STORAGE_KEY = "trainer-invite-board-topics-v2";
     const INVITE_EMAIL_TO = "fz_px@xdf.cn";
     const INVITE_EMAIL_CC = "chenliyun@xdf.cn";
+    const SCORE_CLOUD_STATE_ID = "score-dashboard-main";
+    const INVITE_STATUSES = ["待人力确认", "已发起公司审批", "审批通过", "审批未通过", "培训完成", "问卷已回收", "课酬已发起"];
+    const SCORE_READY_STATUSES = new Set(["培训完成", "问卷已回收"]);
     const SNAPSHOT_INVITE_STATE = null;
     const SUPABASE_SETTINGS = window.TRAINER_PORTAL_SUPABASE || {};
     const CLOUD_PHOTO_BUCKET = SUPABASE_SETTINGS.photoBucket || "trainer-photos";
@@ -1152,6 +1361,8 @@
     let filters = { keyword: "", dept: "", subject: "" };
     let inviteRecords = loadRecords();
     let latestInviteText = "";
+    let latestInvitePayload = null;
+    let ledgerRequests = [];
     let openTopicGroups = new Set();
 
     const $ = id => document.getElementById(id);
@@ -1248,6 +1459,7 @@
       renderFilters();
       renderTrainerGrid();
       renderProfile();
+      renderLedger();
       syncTrainerInviteFields();
     }
 
@@ -1332,6 +1544,12 @@
           <strong>${escapeHtml(topic.title)}</strong>
           <span>${escapeHtml(topic.duration)} · ${escapeHtml(topic.audience)}</span>
           <span>${escapeHtml(topic.desc)}</span>
+          <div class="topic-toolbar">
+            <button class="small-btn" type="button" data-action="select-topic" data-title="${escapeHtml(topic.title)}">
+              <svg viewBox="0 0 24 24"><path d="m9 11 3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              选为需求课题
+            </button>
+          </div>
           <div class="topic-toolbar edit-only">
             <button class="small-btn" type="button" data-action="edit-topic" data-index="${item.index}">
               <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
@@ -1472,52 +1690,135 @@
       deptInput.value = trainer ? trainer.dept : "";
     }
 
-    function generateInviteText() {
+    function firstTopicTitle(trainer = selectedTrainer()) {
+      return trainer && trainer.topics && trainer.topics[0] ? trainer.topics[0].title : "";
+    }
+
+    function fillCurrentTopic() {
+      const input = $("topicInput");
+      if (!input) return;
+      const title = firstTopicTitle();
+      if (!title) {
+        showToast("当前培训师暂无可带入课题，请手动填写。");
+        return;
+      }
+      input.value = title;
+      input.focus();
+    }
+
+    function openMailRequestModal() {
+      const form = $("inviteRequestForm");
+      latestInvitePayload = null;
+      latestInviteText = "";
+      syncTrainerInviteFields();
+      if (form && !form.elements.topic.value.trim()) {
+        form.elements.topic.value = firstTopicTitle();
+      }
+      $("mailRequestModal").hidden = false;
+      const firstEmpty = form && (form.elements.requester.value.trim() ? form.elements.requesterDept : form.elements.requester);
+      if (firstEmpty) firstEmpty.focus();
+    }
+
+    function requestPayloadFromForm(form = $("inviteRequestForm")) {
       const trainer = selectedTrainer();
-      const inviter = $("inviterInput").value.trim();
-      const needDept = $("needDeptInput").value.trim();
-      const topic = $("topicInput").value.trim();
-      if (!trainer || !inviter || !needDept || !topic) {
-        showToast("请先填写邀约人、需求部门和需求课题。");
+      if (!trainer || !form) return null;
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : `invite-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        board: activeBoard,
+        trainer_id: trainer.id,
+        trainer_name: trainer.name,
+        trainer_dept: trainer.dept,
+        trainer_subject: trainer.subject,
+        topic_title: form.elements.topic.value.trim(),
+        requester: form.elements.requester.value.trim(),
+        requester_dept: form.elements.requesterDept.value.trim(),
+        expected_time: form.elements.expectedTime.value.trim(),
+        training_format: form.elements.trainingFormat.value,
+        training_audience: form.elements.trainingAudience.value.trim(),
+        expected_count: form.elements.expectedCount.value.trim(),
+        note: form.elements.note.value.trim(),
+        status: "待人力确认",
+        status_updated_at: new Date().toISOString(),
+        hr_note: ""
+      };
+    }
+
+    function validateRequestPayload(payload) {
+      if (!payload || !payload.trainer_name || !payload.topic_title || !payload.requester || !payload.requester_dept) {
+        showToast("请完整填写报备人、需求部门和需求课题。");
+        return false;
+      }
+      return true;
+    }
+
+    function generateInviteText() {
+      const payload = latestInvitePayload || requestPayloadFromForm();
+      if (!validateRequestPayload(payload)) {
         return "";
       }
-      const date = $("dateInput").value || "待定";
-      const format = $("formatInput").value;
-      const note = $("noteInput").value.trim() || "无";
       return [
-        "培训师邀约信息",
-        `看板类型：${activeBoard === "teaching" ? "教学培训师" : "运营培训师"}`,
-        `邀约讲师姓名：${trainer.name}`,
-        `邀约讲师部门：${trainer.dept}`,
-        `讲师科目/方向：${trainer.subject}`,
-        `邀约人：${inviter}`,
-        `需求部门：${needDept}`,
-        `需求课题：${topic}`,
-        `期望时间：${date}`,
-        `培训形式：${format}`,
-        `需求说明：${note}`
+        `邀约讲师姓名：${payload.trainer_name}`,
+        `邀约讲师部门：${payload.trainer_dept}`,
+        `讲师科目/方向：${payload.trainer_subject || ""}`,
+        `报备人/邀约人：${payload.requester}`,
+        `需求部门：${payload.requester_dept}`,
+        `需求课题：${payload.topic_title}`,
+        `期望时间：${payload.expected_time || "待定"}`,
+        `培训形式：${payload.training_format || "待定"}`,
+        `培训对象：${payload.training_audience || "待补充"}`,
+        `预计人数：${payload.expected_count || "待补充"}`,
+        `需求说明：${payload.note || "无"}`
       ].join("\n");
     }
 
-    function saveInviteRecord(text) {
+    function saveInviteRecord(text, payload = latestInvitePayload || requestPayloadFromForm()) {
       const trainer = selectedTrainer();
       inviteRecords.unshift({
-        board: activeBoard,
-        inviteTrainerName: trainer.name,
-        inviteTrainerDept: trainer.dept,
-        trainerName: trainer.name,
-        trainerDept: trainer.dept,
-        trainerSubject: trainer.subject,
-        inviter: $("inviterInput").value.trim(),
-        needDept: $("needDeptInput").value.trim(),
-        topic: $("topicInput").value.trim(),
-        expectedDate: $("dateInput").value || "",
-        format: $("formatInput").value,
-        note: $("noteInput").value.trim(),
+        board: payload.board,
+        inviteTrainerName: payload.trainer_name,
+        inviteTrainerDept: payload.trainer_dept,
+        trainerName: payload.trainer_name,
+        trainerDept: payload.trainer_dept,
+        trainerSubject: payload.trainer_subject,
+        inviter: payload.requester,
+        needDept: payload.requester_dept,
+        topic: payload.topic_title,
+        expectedDate: payload.expected_time || "",
+        format: payload.training_format,
+        note: payload.note,
         createdAt: nowStamp(),
         text
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(inviteRecords));
+    }
+
+    async function submitInviteRequest(form) {
+      const payload = requestPayloadFromForm(form);
+      if (!validateRequestPayload(payload)) return;
+      latestInvitePayload = payload;
+      latestInviteText = generateInviteText();
+      saveInviteRecord(latestInviteText, payload);
+      const client = initSupabaseClient();
+      if (!client) {
+        $("mailRequestModal").hidden = true;
+        openInviteEmail();
+        showToast("已生成邮件。本地未配置云端，台账不会同步。");
+        return;
+      }
+      const result = await client.from("invite_requests").insert(payload);
+      if (result.error) {
+        $("mailRequestModal").hidden = true;
+        openInviteEmail();
+        showToast("邮件已打开，但台账记录失败，请联系人力确认是否已留痕。");
+        return;
+      }
+      if (currentUser) {
+        await loadInviteRequests();
+        renderLedger();
+      }
+      $("mailRequestModal").hidden = true;
+      openInviteEmail();
+      showToast("已记录到人力台账，并打开邮件模板。");
     }
 
     function addTopicFromForm(form) {
@@ -1762,6 +2063,7 @@
       $("adminLoginModal").hidden = true;
       form.reset();
       await loadBoardsFromCloud();
+      await loadInviteRequests();
       render();
       showToast("已进入云端后台维护模式。");
     }
@@ -1769,6 +2071,7 @@
     async function adminLogout() {
       if (supabaseClient) await supabaseClient.auth.signOut();
       currentUser = null;
+      ledgerRequests = [];
       render();
       showToast("已退出后台维护模式。");
     }
@@ -1788,10 +2091,286 @@
       });
       try {
         await loadBoardsFromCloud();
+        if (currentUser) await loadInviteRequests();
       } catch (error) {
         showToast(`云端资料读取失败：${error.message || error}`);
       }
       render();
+    }
+
+    function statusOptions(selected) {
+      return INVITE_STATUSES.map(status => `<option value="${escapeHtml(status)}" ${status === selected ? "selected" : ""}>${escapeHtml(status)}</option>`).join("");
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString("zh-CN", { hour12: false });
+    }
+
+    function renderLedger() {
+      const list = $("ledgerList");
+      if (!list) return;
+      if (!currentUser) {
+        list.innerHTML = "";
+        return;
+      }
+      $("ledgerHint").textContent = `共 ${ledgerRequests.length} 条记录`;
+      if (!ledgerRequests.length) {
+        list.innerHTML = '<div class="empty"><img src="assets/hero-clipboard.png" alt="">暂无邀约/报备记录</div>';
+        return;
+      }
+      list.innerHTML = ledgerRequests.map(item => {
+        const blocked = item.status === "审批未通过";
+        const canGenerate = SCORE_READY_STATUSES.has(item.status) && !item.score_generated_at && !item.score_detail_id;
+        const generated = item.score_generated_at || item.score_detail_id;
+        return `
+          <article class="ledger-card" data-id="${escapeHtml(item.id)}">
+            <div class="ledger-top">
+              <strong>${escapeHtml(item.trainer_name)} · ${escapeHtml(item.topic_title)}</strong>
+              <span class="status-pill ${blocked ? "blocked" : ""}">${escapeHtml(item.status || "待人力确认")}</span>
+            </div>
+            <div class="ledger-meta">
+              <span>${item.board === "operations" ? "运营培训师" : "教学培训师"}</span>
+              <span>讲师部门：${escapeHtml(item.trainer_dept || "-")}</span>
+              <span>需求部门：${escapeHtml(item.requester_dept || "-")}</span>
+              <span>报备人：${escapeHtml(item.requester || "-")}</span>
+              <span>期望时间：${escapeHtml(item.expected_time || "-")}</span>
+              <span>提交：${formatDateTime(item.created_at)}</span>
+              <span>最近更新：${formatDateTime(item.status_updated_at || item.created_at)}</span>
+              ${generated ? `<span>已生成积分：${formatDateTime(item.score_generated_at)}</span>` : ""}
+            </div>
+            <div class="ledger-controls">
+              <div class="field">
+                <label>当前状态</label>
+                <select data-action="status">${statusOptions(item.status || "待人力确认")}</select>
+              </div>
+              <div class="field">
+                <label>人力备注</label>
+                <input data-action="hr-note" value="${escapeHtml(item.hr_note || "")}" placeholder="可选，例如：已沟通档期 / 问卷待回收">
+              </div>
+              <button class="small-btn primary-btn" type="button" data-action="generate-score" ${canGenerate ? "" : "disabled"}>
+                <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                ${generated ? "已生成积分" : "生成积分明细"}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadInviteRequests() {
+      const client = initSupabaseClient();
+      if (!client || !currentUser) {
+        ledgerRequests = [];
+        return;
+      }
+      const result = await client.from("invite_requests").select("*").order("created_at", { ascending: false });
+      if (result.error) throw result.error;
+      ledgerRequests = result.data || [];
+    }
+
+    async function updateInviteRequest(id, patch) {
+      const client = initSupabaseClient();
+      if (!client || !currentUser) return;
+      const nextPatch = { ...patch, status_updated_at: new Date().toISOString() };
+      const result = await client.from("invite_requests").update(nextPatch).eq("id", id);
+      if (result.error) {
+        showToast(`台账保存失败：${result.error.message}`);
+        return;
+      }
+      const item = ledgerRequests.find(row => row.id === id);
+      if (item) Object.assign(item, nextPatch);
+      renderLedger();
+      showToast("台账已更新。");
+    }
+
+    function scoreTrainerFromInvite(item, index, boardKey) {
+      return {
+        id: item.trainer_id || `${boardKey}-trainer-${Date.now()}-${index}`,
+        seq: index + 1,
+        name: item.trainer_name || "",
+        dept: item.trainer_dept || "",
+        subject: item.trainer_subject || "",
+        level: "校级培训师",
+        appointedAt: ""
+      };
+    }
+
+    function emptyScoreStateFromInvite() {
+      const teachingTrainers = (boards.teaching.trainers || []).map((trainer, index) => ({
+        id: trainer.id,
+        seq: index + 1,
+        name: trainer.name,
+        dept: trainer.dept,
+        subject: trainer.subject,
+        level: "校级培训师",
+        appointedAt: ""
+      }));
+      const operationsTrainers = (boards.operations.trainers || []).map((trainer, index) => ({
+        id: trainer.id,
+        seq: index + 1,
+        name: trainer.name,
+        dept: trainer.dept,
+        subject: trainer.subject,
+        level: "校级培训师",
+        appointedAt: ""
+      }));
+      return {
+        version: 3,
+        activeBoard: "teaching",
+        updatedAt: nowStamp(),
+        boards: {
+          teaching: { notes: "", trainers: teachingTrainers, details: [], trash: [] },
+          operations: { notes: "", trainers: operationsTrainers, details: [], trash: [] }
+        }
+      };
+    }
+
+    async function loadScoreStateForWrite() {
+      const client = initSupabaseClient();
+      const result = await client.from("score_states").select("payload").eq("id", SCORE_CLOUD_STATE_ID).maybeSingle();
+      if (result.error) throw result.error;
+      const payload = result.data && result.data.payload ? result.data.payload : emptyScoreStateFromInvite();
+      if (!payload.boards) payload.boards = {};
+      ["teaching", "operations"].forEach(key => {
+        if (!payload.boards[key]) payload.boards[key] = { notes: "", trainers: [], details: [], trash: [] };
+        if (!Array.isArray(payload.boards[key].trainers)) payload.boards[key].trainers = [];
+        if (!Array.isArray(payload.boards[key].details)) payload.boards[key].details = [];
+        if (!Array.isArray(payload.boards[key].trash)) payload.boards[key].trash = [];
+      });
+      return payload;
+    }
+
+    function findOrCreateScoreTrainer(scoreState, item) {
+      const key = item.board === "operations" ? "operations" : "teaching";
+      const scoreBoard = scoreState.boards[key];
+      let trainer = scoreBoard.trainers.find(row => row.id === item.trainer_id)
+        || scoreBoard.trainers.find(row => row.name === item.trainer_name && row.dept === item.trainer_dept);
+      if (!trainer) {
+        trainer = scoreTrainerFromInvite(item, scoreBoard.trainers.length, key);
+        scoreBoard.trainers.push(trainer);
+      }
+      return { key, scoreBoard, trainer };
+    }
+
+    function scoreDetailFromInvite(item, form, trainer) {
+      const stamp = nowStamp();
+      const date = form.elements.date.value || today();
+      const hours = Number(form.elements.hours.value) || 0;
+      const satisfaction = form.elements.satisfaction.value;
+      const sourceRemark = [`来源：邀约台账`, `记录ID：${item.id}`, form.elements.remark.value.trim()].filter(Boolean).join("；");
+      if (item.board === "operations") {
+        return {
+          id: `invite-${item.id}`,
+          trainerId: trainer.id,
+          dept: trainer.dept,
+          name: trainer.name,
+          level: trainer.level || "",
+          createdAt: stamp,
+          updatedAt: stamp,
+          date,
+          description: item.topic_title || "运营培训",
+          coursewareSubmitted: "已提交",
+          photoSubmitted: "已提交",
+          otherAttachmentSubmitted: "已提交",
+          actualHours: hours,
+          opsSatisfaction: satisfaction === "below" ? "" : satisfaction,
+          confirmed: "未确认",
+          remark: sourceRemark
+        };
+      }
+      return {
+        id: `invite-${item.id}`,
+        trainerId: trainer.id,
+        dept: trainer.dept,
+        name: trainer.name,
+        level: trainer.level || "",
+        createdAt: stamp,
+        updatedAt: stamp,
+        date,
+        type: "培训",
+        description: item.topic_title || "培训",
+        offlineHours: hours,
+        volunteerHours: 0,
+        trainingSatisfaction: satisfaction === "below" ? "" : satisfaction,
+        qualityHours: 0,
+        qualityReport: false,
+        reviewHours: 0,
+        reviewReport: false,
+        demandFeedback: "",
+        shortCourses: 0,
+        longCourses: 0,
+        articles: 0,
+        mentoringHours: 0,
+        competitionStatus: "",
+        performance: "其他",
+        confirmed: "未确认",
+        remark: sourceRemark
+      };
+    }
+
+    function openScoreModal(id) {
+      const item = ledgerRequests.find(row => row.id === id);
+      if (!item) return;
+      if (item.score_generated_at || item.score_detail_id) {
+        showToast("这条记录已生成过积分明细。");
+        return;
+      }
+      const form = $("scoreForm");
+      form.elements.requestId.value = id;
+      form.elements.date.value = today();
+      form.elements.hours.value = "";
+      form.elements.satisfaction.value = "";
+      form.elements.remark.value = `${item.trainer_name} - ${item.topic_title}`;
+      $("scoreModal").hidden = false;
+      $("scoreDateInput").focus();
+    }
+
+    async function generateScoreDetail(form) {
+      const client = initSupabaseClient();
+      if (!client || !currentUser) return;
+      const id = form.elements.requestId.value;
+      const item = ledgerRequests.find(row => row.id === id);
+      if (!item) {
+        showToast("未找到对应台账记录。");
+        return;
+      }
+      if (!SCORE_READY_STATUSES.has(item.status)) {
+        showToast("状态到达“培训完成”或“问卷已回收”后才能生成积分明细。");
+        return;
+      }
+      if (item.score_generated_at || item.score_detail_id) {
+        showToast("这条记录已生成过积分明细。");
+        return;
+      }
+      const scoreState = await loadScoreStateForWrite();
+      const { scoreBoard, trainer } = findOrCreateScoreTrainer(scoreState, item);
+      const detail = scoreDetailFromInvite(item, form, trainer);
+      if (scoreBoard.details.some(row => row.id === detail.id)) {
+        showToast("积分明细已存在，无需重复生成。");
+        return;
+      }
+      scoreBoard.details.unshift(detail);
+      scoreState.updatedAt = nowStamp();
+      const saveResult = await client.from("score_states").upsert({
+        id: SCORE_CLOUD_STATE_ID,
+        payload: scoreState,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "id" });
+      if (saveResult.error) throw saveResult.error;
+      const generatedAt = new Date().toISOString();
+      const updateResult = await client.from("invite_requests").update({
+        score_generated_at: generatedAt,
+        score_detail_id: detail.id,
+        status_updated_at: generatedAt
+      }).eq("id", item.id);
+      if (updateResult.error) throw updateResult.error;
+      Object.assign(item, { score_generated_at: generatedAt, score_detail_id: detail.id, status_updated_at: generatedAt });
+      $("scoreModal").hidden = true;
+      renderLedger();
+      showToast("已生成积分明细，刷新积分看板即可查看。");
     }
 
     function loadRecords() {
@@ -1867,6 +2446,17 @@
 
     function inviteMailBody() {
       const trainer = selectedTrainer();
+      if (latestInvitePayload) {
+        const text = generateInviteText();
+        if (text) {
+          return [
+            text,
+            "",
+            "*提醒",
+            "需求方可先行与意向培训师初步确认档期和需求；如有特定培训需求，请在邮件中注明。"
+          ].join("\n");
+        }
+      }
       const topicHint = trainer && trainer.topics.length
         ? trainer.topics.slice(0, 5).map(topic => `- ${topic.title}`).join("\n")
         : "- 请填写需求课题";
@@ -1907,6 +2497,8 @@
     }
 
     function openInviteEmail() {
+      latestInviteText = inviteMailBody();
+      if (!latestInviteText) return;
       window.location.href = mailtoLink();
       showToast("已打开邮件模板，请补充需求信息后发送。");
     }
@@ -1974,6 +2566,13 @@
         renderProfile();
         return;
       }
+      const selectTopicButton = event.target.closest("button[data-action='select-topic']");
+      if (selectTopicButton) {
+        openMailRequestModal();
+        const input = $("topicInput");
+        if (input) input.value = selectTopicButton.dataset.title || "";
+        return;
+      }
       const editButton = event.target.closest("button[data-action='edit-topic']");
       if (editButton) {
         fillTopicForm(editButton.dataset.index);
@@ -2015,9 +2614,32 @@
       render();
     });
 
+    $("fillTopicBtn").addEventListener("click", fillCurrentTopic);
+    $("inviteRequestForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      await submitInviteRequest(event.target);
+    });
+    $("ledgerList").addEventListener("change", event => {
+      const card = event.target.closest(".ledger-card");
+      if (!card || event.target.dataset.action !== "status") return;
+      updateInviteRequest(card.dataset.id, { status: event.target.value });
+    });
+    $("ledgerList").addEventListener("focusout", event => {
+      const card = event.target.closest(".ledger-card");
+      if (!card || event.target.dataset.action !== "hr-note") return;
+      const item = ledgerRequests.find(row => row.id === card.dataset.id);
+      if (item && (item.hr_note || "") === event.target.value.trim()) return;
+      updateInviteRequest(card.dataset.id, { hr_note: event.target.value.trim() });
+    });
+    $("ledgerList").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action='generate-score']");
+      if (!button || button.disabled) return;
+      const card = button.closest(".ledger-card");
+      if (card) openScoreModal(card.dataset.id);
+    });
     $("jumpFlowBtn").addEventListener("click", jumpToFlow);
-    $("mailInviteBtn").addEventListener("click", openInviteEmail);
-    $("flowMailBtn").addEventListener("click", openInviteEmail);
+    $("mailInviteBtn").addEventListener("click", openMailRequestModal);
+    $("flowMailBtn").addEventListener("click", openMailRequestModal);
     $("exportInvitePreviewBtn").addEventListener("click", exportInvitePreview);
     $("adminLoginBtn").addEventListener("click", openAdminLogin);
     $("adminLogoutBtn").addEventListener("click", adminLogout);
@@ -2031,6 +2653,26 @@
     $("adminLoginForm").addEventListener("submit", async event => {
       event.preventDefault();
       await submitAdminLogin(event.target);
+    });
+    $("mailRequestCancelBtn").addEventListener("click", () => {
+      $("mailRequestModal").hidden = true;
+    });
+    $("mailRequestModal").addEventListener("click", event => {
+      if (event.target.id === "mailRequestModal") $("mailRequestModal").hidden = true;
+    });
+    $("scoreCancelBtn").addEventListener("click", () => {
+      $("scoreModal").hidden = true;
+    });
+    $("scoreModal").addEventListener("click", event => {
+      if (event.target.id === "scoreModal") $("scoreModal").hidden = true;
+    });
+    $("scoreForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      try {
+        await generateScoreDetail(event.target);
+      } catch (error) {
+        showToast(`生成失败：${error.message || error}`);
+      }
     });
 
     initCloud();
