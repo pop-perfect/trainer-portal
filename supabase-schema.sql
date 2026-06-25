@@ -121,6 +121,12 @@ to authenticated
 using (true)
 with check (true);
 
+drop policy if exists "authenticated can delete invite requests" on public.invite_requests;
+create policy "authenticated can delete invite requests"
+on public.invite_requests for delete
+to authenticated
+using (true);
+
 drop policy if exists "public can read score states" on public.score_states;
 create policy "public can read score states"
 on public.score_states for select

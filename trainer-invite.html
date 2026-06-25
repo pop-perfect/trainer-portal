@@ -641,6 +641,19 @@
       margin-top: 14px;
     }
 
+    .ledger-toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(160px, 220px) auto auto;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid #e2ece5;
+      background: #f8fff5;
+    }
+
+    .ledger-body[hidden] {
+      display: none;
+    }
+
     .ledger-list {
       display: grid;
       gap: 10px;
@@ -680,7 +693,7 @@
 
     .ledger-controls {
       display: grid;
-      grid-template-columns: minmax(150px, 190px) minmax(180px, 1fr) auto;
+      grid-template-columns: minmax(150px, 190px) minmax(180px, 1fr) auto auto;
       gap: 8px;
       align-items: end;
     }
@@ -943,6 +956,7 @@
       .layout,
       .filters,
       .form-row.three,
+      .ledger-toolbar,
       .ledger-controls {
         grid-template-columns: 1fr;
       }
@@ -1063,8 +1077,34 @@
       <div class="panel-head">
         <strong>邀约台账</strong>
         <small id="ledgerHint">管理员可更新状态、备注并生成积分明细</small>
+        <button class="small-btn" type="button" id="ledgerToggleBtn">
+          <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+          展开台账
+        </button>
       </div>
-      <div class="ledger-list" id="ledgerList"></div>
+      <div class="ledger-body" id="ledgerBody" hidden>
+        <div class="ledger-toolbar">
+          <div class="field">
+            <label for="ledgerKeywordFilter">搜索</label>
+            <input id="ledgerKeywordFilter" placeholder="搜索培训师、课题、部门、报备人">
+          </div>
+          <div class="field">
+            <label for="ledgerStatusFilter">状态</label>
+            <select id="ledgerStatusFilter">
+              <option value="">全部状态</option>
+            </select>
+          </div>
+          <button class="small-btn" type="button" id="ledgerResetBtn">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+            重置
+          </button>
+          <button class="small-btn primary-btn" type="button" id="ledgerAddBtn">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            新增记录
+          </button>
+        </div>
+        <div class="ledger-list" id="ledgerList"></div>
+      </div>
     </section>
 
     <section class="panel flow-panel" id="inviteFlow">
@@ -1142,8 +1182,8 @@
 
   <div class="modal-backdrop" id="mailRequestModal" hidden>
     <form class="login-modal score-modal" id="inviteRequestForm">
-      <h2>发起培训邀约</h2>
-      <p>请补充邀约信息。确认后系统会生成一条人力台账记录，并打开邮件模板。</p>
+      <h2 id="mailRequestTitle">发起培训邀约</h2>
+      <p id="mailRequestHelp">请补充邀约信息。确认后系统会生成一条人力台账记录，并打开邮件模板。</p>
       <div class="form-row three">
         <div class="field">
           <label for="trainerNameInput">邀约讲师姓名</label>
@@ -1200,7 +1240,7 @@
           <svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
           带入当前课题
         </button>
-        <button class="small-btn primary-btn" type="submit">确认并打开邮件</button>
+        <button class="small-btn primary-btn" type="submit" id="mailRequestSubmitBtn">确认并打开邮件</button>
       </div>
     </form>
   </div>
@@ -1363,6 +1403,9 @@
     let latestInviteText = "";
     let latestInvitePayload = null;
     let ledgerRequests = [];
+    let ledgerExpanded = false;
+    let ledgerFilters = { keyword: "", status: "" };
+    let mailRequestMode = "mail";
     let openTopicGroups = new Set();
 
     const $ = id => document.getElementById(id);
@@ -1706,11 +1749,18 @@
       input.focus();
     }
 
-    function openMailRequestModal() {
+    function openMailRequestModal(mode = "mail") {
       const form = $("inviteRequestForm");
+      mailRequestMode = mode;
       latestInvitePayload = null;
       latestInviteText = "";
+      if (form && mode === "ledger") form.reset();
       syncTrainerInviteFields();
+      $("mailRequestTitle").textContent = mode === "ledger" ? "新增邀约台账记录" : "发起培训邀约";
+      $("mailRequestHelp").textContent = mode === "ledger"
+        ? "请补充记录信息。保存后仅进入人力台账，不会打开邮件。"
+        : "请补充邀约信息。确认后系统会生成一条人力台账记录，并打开邮件模板。";
+      $("mailRequestSubmitBtn").textContent = mode === "ledger" ? "保存记录" : "确认并打开邮件";
       if (form && !form.elements.topic.value.trim()) {
         form.elements.topic.value = firstTopicTitle();
       }
@@ -1797,19 +1847,27 @@
       if (!validateRequestPayload(payload)) return;
       latestInvitePayload = payload;
       latestInviteText = generateInviteText();
-      saveInviteRecord(latestInviteText, payload);
+      if (mailRequestMode === "mail") saveInviteRecord(latestInviteText, payload);
       const client = initSupabaseClient();
       if (!client) {
         $("mailRequestModal").hidden = true;
-        openInviteEmail();
-        showToast("已生成邮件。本地未配置云端，台账不会同步。");
+        if (mailRequestMode === "mail") {
+          openInviteEmail();
+          showToast("已生成邮件。本地未配置云端，台账不会同步。");
+        } else {
+          showToast("本地未配置云端，无法新增台账记录。");
+        }
         return;
       }
       const result = await client.from("invite_requests").insert(payload);
       if (result.error) {
         $("mailRequestModal").hidden = true;
-        openInviteEmail();
-        showToast("邮件已打开，但台账记录失败，请联系人力确认是否已留痕。");
+        if (mailRequestMode === "mail") {
+          openInviteEmail();
+          showToast("邮件已打开，但台账记录失败，请联系人力确认是否已留痕。");
+        } else {
+          showToast(`台账记录新增失败：${result.error.message}`);
+        }
         return;
       }
       if (currentUser) {
@@ -1817,8 +1875,13 @@
         renderLedger();
       }
       $("mailRequestModal").hidden = true;
-      openInviteEmail();
-      showToast("已记录到人力台账，并打开邮件模板。");
+      if (mailRequestMode === "mail") {
+        openInviteEmail();
+        showToast("已记录到人力台账，并打开邮件模板。");
+      } else {
+        form.reset();
+        showToast("邀约台账记录已新增。");
+      }
     }
 
     function addTopicFromForm(form) {
@@ -2112,16 +2175,48 @@
     function renderLedger() {
       const list = $("ledgerList");
       if (!list) return;
+      const body = $("ledgerBody");
+      const toggle = $("ledgerToggleBtn");
       if (!currentUser) {
         list.innerHTML = "";
         return;
       }
-      $("ledgerHint").textContent = `共 ${ledgerRequests.length} 条记录`;
-      if (!ledgerRequests.length) {
+      const boardRequests = ledgerRequests.filter(item => (item.board || "teaching") === activeBoard);
+      const keyword = ledgerFilters.keyword.trim().toLowerCase();
+      const filteredRequests = boardRequests.filter(item => {
+        if (ledgerFilters.status && item.status !== ledgerFilters.status) return false;
+        if (!keyword) return true;
+        return [
+          item.trainer_name,
+          item.trainer_dept,
+          item.trainer_subject,
+          item.topic_title,
+          item.requester,
+          item.requester_dept,
+          item.expected_time,
+          item.training_audience,
+          item.note,
+          item.hr_note
+        ].join(" ").toLowerCase().includes(keyword);
+      });
+      $("ledgerHint").textContent = `${activeBoard === "operations" ? "运营" : "教学"}台账：${boardRequests.length} 条`;
+      if (body) body.hidden = !ledgerExpanded;
+      if (toggle) {
+        toggle.innerHTML = `${ledgerExpanded ? '<svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"></path></svg>收起台账' : '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>展开台账'}`;
+      }
+      if (!ledgerExpanded) {
+        list.innerHTML = "";
+        return;
+      }
+      if (!boardRequests.length) {
         list.innerHTML = '<div class="empty"><img src="assets/hero-clipboard.png" alt="">暂无邀约/报备记录</div>';
         return;
       }
-      list.innerHTML = ledgerRequests.map(item => {
+      if (!filteredRequests.length) {
+        list.innerHTML = '<div class="empty"><img src="assets/hero-clipboard.png" alt="">没有符合筛选条件的台账记录</div>';
+        return;
+      }
+      list.innerHTML = filteredRequests.map(item => {
         const blocked = item.status === "审批未通过";
         const canGenerate = SCORE_READY_STATUSES.has(item.status) && !item.score_generated_at && !item.score_detail_id;
         const generated = item.score_generated_at || item.score_detail_id;
@@ -2154,6 +2249,10 @@
                 <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
                 ${generated ? "已生成积分" : "生成积分明细"}
               </button>
+              <button class="small-btn" type="button" data-action="delete-request">
+                <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+                删除
+              </button>
             </div>
           </article>
         `;
@@ -2184,6 +2283,24 @@
       if (item) Object.assign(item, nextPatch);
       renderLedger();
       showToast("台账已更新。");
+    }
+
+    async function deleteInviteRequest(id) {
+      const item = ledgerRequests.find(row => row.id === id);
+      if (!item) return;
+      const generatedText = item.score_generated_at || item.score_detail_id ? "这条记录已生成过积分明细，删除台账不会删除积分看板里的明细。" : "";
+      const ok = window.confirm(`${generatedText}\n确认删除这条邀约台账记录吗？`);
+      if (!ok) return;
+      const client = initSupabaseClient();
+      if (!client || !currentUser) return;
+      const result = await client.from("invite_requests").delete().eq("id", id);
+      if (result.error) {
+        showToast(`删除失败：${result.error.message}`);
+        return;
+      }
+      ledgerRequests = ledgerRequests.filter(row => row.id !== id);
+      renderLedger();
+      showToast("邀约台账记录已删除。");
     }
 
     function scoreTrainerFromInvite(item, index, boardKey) {
@@ -2619,6 +2736,30 @@
       event.preventDefault();
       await submitInviteRequest(event.target);
     });
+    $("ledgerStatusFilter").innerHTML = `<option value="">全部状态</option>${INVITE_STATUSES.map(status => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join("")}`;
+    $("ledgerToggleBtn").addEventListener("click", () => {
+      ledgerExpanded = !ledgerExpanded;
+      renderLedger();
+    });
+    $("ledgerAddBtn").addEventListener("click", () => {
+      ledgerExpanded = true;
+      openMailRequestModal("ledger");
+      renderLedger();
+    });
+    $("ledgerKeywordFilter").addEventListener("input", event => {
+      ledgerFilters.keyword = event.target.value;
+      renderLedger();
+    });
+    $("ledgerStatusFilter").addEventListener("change", event => {
+      ledgerFilters.status = event.target.value;
+      renderLedger();
+    });
+    $("ledgerResetBtn").addEventListener("click", () => {
+      ledgerFilters = { keyword: "", status: "" };
+      $("ledgerKeywordFilter").value = "";
+      $("ledgerStatusFilter").value = "";
+      renderLedger();
+    });
     $("ledgerList").addEventListener("change", event => {
       const card = event.target.closest(".ledger-card");
       if (!card || event.target.dataset.action !== "status") return;
@@ -2632,10 +2773,18 @@
       updateInviteRequest(card.dataset.id, { hr_note: event.target.value.trim() });
     });
     $("ledgerList").addEventListener("click", event => {
-      const button = event.target.closest("button[data-action='generate-score']");
-      if (!button || button.disabled) return;
-      const card = button.closest(".ledger-card");
-      if (card) openScoreModal(card.dataset.id);
+      const generateButton = event.target.closest("button[data-action='generate-score']");
+      if (generateButton) {
+        if (generateButton.disabled) return;
+        const card = generateButton.closest(".ledger-card");
+        if (card) openScoreModal(card.dataset.id);
+        return;
+      }
+      const deleteButton = event.target.closest("button[data-action='delete-request']");
+      if (deleteButton) {
+        const card = deleteButton.closest(".ledger-card");
+        if (card) deleteInviteRequest(card.dataset.id);
+      }
     });
     $("jumpFlowBtn").addEventListener("click", jumpToFlow);
     $("mailInviteBtn").addEventListener("click", openMailRequestModal);
