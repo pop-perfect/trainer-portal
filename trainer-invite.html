@@ -420,6 +420,14 @@
     .panel-head strong { font-size: 15px; }
     .panel-head small { color: var(--muted); }
 
+    .panel-head-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .trainer-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -1124,7 +1132,13 @@
       <div class="panel">
         <div class="panel-head">
           <strong>培训师列表</strong>
-          <small id="listHint">点击卡片查看详情</small>
+          <div class="panel-head-tools">
+            <small id="listHint">点击卡片查看详情</small>
+            <button class="small-btn edit-only" id="addTrainerBtn" type="button" title="在当前板块新增一位培训师">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M16 11h6"></path></svg>
+              新增培训师
+            </button>
+          </div>
         </div>
         <div class="trainer-grid" id="trainerGrid"></div>
       </div>
@@ -1244,6 +1258,52 @@
       <div class="login-actions">
         <button class="small-btn" type="button" id="adminCancelBtn">取消</button>
         <button class="small-btn primary-btn" type="submit">登录</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-backdrop" id="trainerAddModal" hidden>
+    <form class="login-modal" id="trainerAddForm">
+      <h2>新增培训师</h2>
+      <p>填写培训师资料后保存，会立即上架到对应板块并同步云端。课题可在保存后进入详情页补充。</p>
+      <div class="form-row three">
+        <div class="field">
+          <label for="trainerAddBoard">所属板块</label>
+          <select id="trainerAddBoard" name="board">
+            <option value="teaching">教学培训师</option>
+            <option value="operations">运营培训师</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="trainerAddName">姓名</label>
+          <input id="trainerAddName" name="name" required placeholder="请输入培训师姓名">
+        </div>
+        <div class="field">
+          <label for="trainerAddDept">部门</label>
+          <input id="trainerAddDept" name="dept" required placeholder="例如：素养智学部">
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="field">
+          <label for="trainerAddSubject" id="trainerAddSubjectLabel">科目</label>
+          <input id="trainerAddSubject" name="subject" required placeholder="例如：口才">
+        </div>
+        <div class="field">
+          <label for="trainerAddPhoto">照片路径</label>
+          <input id="trainerAddPhoto" name="photo" placeholder="可选，例如 assets/trainers/姓名.jpg">
+        </div>
+        <div class="field cloud-only admin-only">
+          <label for="trainerAddPhotoFile">上传新照片</label>
+          <input id="trainerAddPhotoFile" name="photoFile" type="file" accept="image/*">
+        </div>
+      </div>
+      <div class="field">
+        <label for="trainerAddIntro">简介</label>
+        <textarea id="trainerAddIntro" name="intro" required placeholder="简要介绍培训师的擅长方向和授课特点"></textarea>
+      </div>
+      <div class="login-actions">
+        <button class="small-btn" type="button" id="trainerAddCancelBtn">取消</button>
+        <button class="small-btn primary-btn" type="submit">保存并上架</button>
       </div>
     </form>
   </div>
@@ -1720,6 +1780,10 @@
             <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
             维护培训师信息
           </button>
+          <button class="small-btn" type="button" data-action="delete-trainer" title="删除该培训师及其全部课题">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+            删除培训师
+          </button>
         </div>
         <form class="maintenance-form edit-only" id="trainerEditForm" hidden>
           <div class="form-row">
@@ -2043,6 +2107,33 @@
       showToast(saveDoneMessage("培训师信息已更新"));
     }
 
+    async function deleteTrainer() {
+      if (!canEdit()) return;
+      const trainer = selectedTrainer();
+      if (!trainer) return;
+      if (!confirm(`确定删除培训师“${trainer.name}”吗？\n其名下 ${trainer.topics.length} 个课题将一并删除，删除后不可恢复。`)) return;
+      const board = currentBoard();
+      const index = board.trainers.findIndex(item => item.id === trainer.id);
+      if (index === -1) return;
+      board.trainers.splice(index, 1);
+      if (selectedTrainerId === trainer.id) selectedTrainerId = currentInitialTrainerId();
+      if (supabaseClient && currentUser) {
+        try {
+          const result = await supabaseClient.from("trainers").delete().eq("id", trainer.id);
+          if (result.error) throw result.error;
+        } catch (error) {
+          board.trainers.splice(index, 0, trainer);
+          if (!board.trainers.some(item => item.id === selectedTrainerId)) selectedTrainerId = trainer.id;
+          showToast(`云端删除失败：${error.message || error}`);
+          return;
+        }
+      } else {
+        saveBoards();
+      }
+      render();
+      showToast(saveDoneMessage(`已删除培训师「${trainer.name}」`));
+    }
+
     function saveDoneMessage(prefix) {
       return supabaseClient && currentUser ? `${prefix}，已保存到云端。` : `${prefix}，导出分享页后可对外展示。`;
     }
@@ -2205,6 +2296,57 @@
       ledgerRequests = [];
       render();
       showToast("已退出后台维护模式。");
+    }
+
+    function updateTrainerAddLabels() {
+      const form = $("trainerAddForm");
+      if (!form) return;
+      const board = form.elements.board.value;
+      $("trainerAddSubjectLabel").textContent = board === "teaching" ? "科目" : "方向";
+    }
+
+    function openTrainerAddModal() {
+      if (!canEdit()) return;
+      const form = $("trainerAddForm");
+      if (!form) return;
+      form.reset();
+      form.elements.board.value = activeBoard;
+      updateTrainerAddLabels();
+      $("trainerAddModal").hidden = false;
+      $("trainerAddName").focus();
+    }
+
+    async function submitTrainerAdd(form) {
+      if (!canEdit()) return;
+      const boardKey = form.elements.board.value;
+      const name = form.elements.name.value.trim();
+      const dept = form.elements.dept.value.trim();
+      const subject = form.elements.subject.value.trim();
+      const intro = form.elements.intro.value.trim();
+      if (!name || !dept || !subject || !intro) {
+        showToast("请完整填写培训师姓名、部门、科目/方向和简介。");
+        return;
+      }
+      const trainerId = `${boardKey === "teaching" ? "teach" : "ops"}-${Date.now()}`;
+      let photo = form.elements.photo.value.trim();
+      const file = form.elements.photoFile && form.elements.photoFile.files ? form.elements.photoFile.files[0] : null;
+      if (file) {
+        try {
+          photo = await uploadTrainerPhoto(file, { id: trainerId });
+        } catch (error) {
+          showToast(`照片上传失败：${error.message || error}`);
+          return;
+        }
+      }
+      if (!photo) photo = "assets/hero-graduate.png";
+      const trainer = { id: trainerId, name, dept, subject, photo, intro, topics: [] };
+      boards[boardKey].trainers.push(trainer);
+      if (boardKey === activeBoard) selectedTrainerId = trainerId;
+      saveBoards();
+      $("trainerAddModal").hidden = true;
+      form.reset();
+      render();
+      showToast(saveDoneMessage(`已新增培训师「${name}」`));
     }
 
     async function initCloud() {
@@ -2724,7 +2866,7 @@
       syncTrainerInviteFields();
     });
 
-    $("profilePanel").addEventListener("click", event => {
+    $("profilePanel").addEventListener("click", async event => {
       const toggleButton = event.target.closest("button[data-action='toggle-topic-form']");
       if (toggleButton) {
         const form = $("topicForm");
@@ -2741,6 +2883,11 @@
       if (trainerButton) {
         const form = $("trainerEditForm");
         if (form) form.hidden = !form.hidden;
+        return;
+      }
+      const deleteTrainerButton = event.target.closest("button[data-action='delete-trainer']");
+      if (deleteTrainerButton) {
+        await deleteTrainer();
         return;
       }
       const groupButton = event.target.closest("button[data-action='toggle-topic-group']");
@@ -2860,6 +3007,18 @@
     $("exportInvitePreviewBtn").addEventListener("click", exportInvitePreview);
     $("adminLoginBtn").addEventListener("click", openAdminLogin);
     $("adminLogoutBtn").addEventListener("click", adminLogout);
+    $("addTrainerBtn").addEventListener("click", openTrainerAddModal);
+    $("trainerAddCancelBtn").addEventListener("click", () => {
+      $("trainerAddModal").hidden = true;
+    });
+    $("trainerAddModal").addEventListener("click", event => {
+      if (event.target.id === "trainerAddModal") $("trainerAddModal").hidden = true;
+    });
+    $("trainerAddForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      await submitTrainerAdd(event.target);
+    });
+    $("trainerAddBoard").addEventListener("change", updateTrainerAddLabels);
     $("syncCloudBtn").addEventListener("click", () => saveBoardsToCloud(true).catch(error => showToast(`同步失败：${error.message || error}`)));
     $("adminCancelBtn").addEventListener("click", () => {
       $("adminLoginModal").hidden = true;
