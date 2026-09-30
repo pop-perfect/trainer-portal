@@ -317,6 +317,17 @@
       appearance: none;
     }
 
+    /* 筛选区对所有人开放：非管理员也可筛选，不受只读禁用影响 */
+    body.readonly .filters input,
+    body.readonly .filters select {
+      pointer-events: auto;
+      border-color: rgba(34, 48, 63, 0.14);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: none;
+      -webkit-appearance: auto;
+      appearance: auto;
+    }
+
     .main {
       width: min(100%, 1680px);
       margin: 0 auto;
@@ -726,6 +737,14 @@
     .col-level { left: 398px; width: 76px; }
     .col-appointed { left: 474px; width: 112px; }
     .col-action { left: 586px; width: 122px; }
+
+    .appointed-input {
+      width: 100%;
+      min-height: 30px;
+      padding: 3px 6px;
+      font-size: inherit;
+      border-radius: 8px;
+    }
 
     tbody tr:nth-child(even) td {
       background: #f7fafc;
@@ -2092,7 +2111,7 @@
           <td class="sticky-col col-dept">${escapeHtml(group.dept)}</td>
           <td class="sticky-col col-subject">${escapeHtml(group.subject || "-")}</td>
           <td class="sticky-col col-level">${escapeHtml(group.level || "-")}</td>
-          <td class="sticky-col col-appointed">${escapeHtml(group.appointedAt || "-")}</td>
+          <td class="sticky-col col-appointed">${canEdit() ? `<input type="date" class="appointed-input" data-trainer-id="${escapeHtml(group.trainerId || "")}" value="${escapeHtml(group.appointedAt || "")}" title="点击修改任用日期">` : escapeHtml(group.appointedAt || "-")}</td>
           <td class="sticky-col col-action">
             <button class="front-action edit-only" data-action="add-under-trainer" data-key="${escapeHtml(group.key)}" data-trainer-id="${escapeHtml(group.trainerId || "")}">${icon("plus")}新增</button>
           </td>
@@ -3623,6 +3642,42 @@
         return true;
       }
 
+      // 把邀约页维护的 trainers 花名册合并进积分看板名单：新人追加，已有的人（部门+姓名一致）不重复
+      async function mergeRosterIntoState() {
+        const client = initSupabaseClient();
+        if (!client) return false;
+        const result = await client.from("trainers").select("board,name,dept,subject").eq("active", true);
+        if (result.error) throw result.error;
+        const rows = result.data || [];
+        let added = 0;
+        ["teaching", "operations"].forEach(key => {
+          const current = state.boards[key].trainers;
+          const map = new Map(current.map(item => [trainerIdentity(item), item]));
+          rows.filter(row => row.board === key).forEach((row, index) => {
+            const identity = `${(row.dept || "").trim()}||${(row.name || "").trim()}`;
+            if (identity === "||") return;
+            if (map.has(identity)) {
+              const existing = map.get(identity);
+              if (key === "teaching" && row.subject && !existing.subject) existing.subject = row.subject;
+              return;
+            }
+            const trainer = normalizeTrainer({ name: row.name, dept: row.dept, subject: row.subject, level: "初级", seq: 10000 + index }, current.length + index, key);
+            map.set(identity, trainer);
+            added += 1;
+          });
+          state.boards[key].trainers = Array.from(map.values()).sort(sortTrainers);
+        });
+        return added > 0;
+      }
+
+      async function mergeRosterIntoStateSafe() {
+        try {
+          await mergeRosterIntoState();
+        } catch (error) {
+          // 花名册合并是增强能力，失败时静默降级，不影响看板本身
+        }
+      }
+
       async function saveScoreStateToCloud(showSuccess) {
         const client = initSupabaseClient();
         if (!client || !currentUser) {
@@ -3666,10 +3721,12 @@
         if (readonlyMode || !localScoreDataExists()) {
           try {
             await loadScoreStateFromCloud();
+            await mergeRosterIntoStateSafe();
           } catch (cloudError) {
             showToast(`云端数据读取失败：${cloudError.message || cloudError}`);
           }
         } else {
+          await mergeRosterIntoStateSafe();
           showToast("已进入后台。本机旧数据已保留，可点击“同步云端”。");
         }
         render();
@@ -3698,6 +3755,7 @@
           if (readonlyMode || !localScoreDataExists()) {
             await loadScoreStateFromCloud();
           }
+          await mergeRosterIntoStateSafe();
         } catch (error) {
           showToast(`云端数据读取失败：${error.message || error}`);
         }
@@ -3803,6 +3861,16 @@
         else detail[key] = target.value;
         detail.updatedAt = nowStamp();
         save();
+      }
+
+      function updateAppointedDate(input) {
+        if (!canEdit()) return;
+        const trainer = getTrainer(input.dataset.trainerId, activeKey());
+        if (!trainer) return;
+        trainer.appointedAt = input.value || "";
+        save();
+        render();
+        showToast(trainer.appointedAt ? `任用日期已更新，培训师时长已重新计算。` : "任用日期已清空。");
       }
 
       function nextTrainerSeq() {
@@ -4095,6 +4163,10 @@
         });
         controls.groupsBody.addEventListener("input", event => updateValue(event.target));
         controls.groupsBody.addEventListener("change", event => {
+          if (event.target.classList && event.target.classList.contains("appointed-input")) {
+            updateAppointedDate(event.target);
+            return;
+          }
           updateValue(event.target);
           render();
         });
