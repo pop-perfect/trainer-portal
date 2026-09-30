@@ -2111,7 +2111,7 @@
           <td class="sticky-col col-dept">${escapeHtml(group.dept)}</td>
           <td class="sticky-col col-subject">${escapeHtml(group.subject || "-")}</td>
           <td class="sticky-col col-level">${escapeHtml(group.level || "-")}</td>
-          <td class="sticky-col col-appointed">${canEdit() ? `<input type="date" class="appointed-input" data-trainer-id="${escapeHtml(group.trainerId || "")}" value="${escapeHtml(group.appointedAt || "")}" title="点击修改任用日期">` : escapeHtml(group.appointedAt || "-")}</td>
+          <td class="sticky-col col-appointed">${escapeHtml(group.appointedAt || "-")}</td>
           <td class="sticky-col col-action">
             <button class="front-action edit-only" data-action="add-under-trainer" data-key="${escapeHtml(group.key)}" data-trainer-id="${escapeHtml(group.trainerId || "")}">${icon("plus")}新增</button>
           </td>
@@ -2715,6 +2715,7 @@
       let currentUser = null;
       let cloudDataLoaded = false;
       let cloudSaveTimer = null;
+      let cloudStateUpdatedAt = null;
 
       const PERIOD = { start: "2026-06-01", end: "2027-05-31", label: "2026-06-01 至 2027-05-31" };
       const QUARTERS = [
@@ -3515,7 +3516,7 @@
               <td class="sticky-col col-dept">${escapeHtml(group.dept)}</td>
               <td class="sticky-col col-subject">${escapeHtml(group.subject || "")}</td>
               <td class="sticky-col col-level">${escapeHtml(group.level || "")}</td>
-              <td class="sticky-col col-appointed">${escapeHtml(group.appointedAt || "")}</td>
+              <td class="sticky-col col-appointed">${canEdit() ? `<input type="date" class="appointed-input" data-trainer-id="${escapeHtml(group.trainerId || "")}" value="${escapeHtml(group.appointedAt || "")}" title="点击修改任用日期">` : escapeHtml(group.appointedAt || "-")}</td>
               <td class="sticky-col col-action"><button class="front-action edit-only" data-action="add-under-trainer" data-trainer-id="${escapeHtml(group.trainerId)}" data-key="${escapeHtml(group.key)}">${icon("plus")}新增</button></td>
               <td class="rank-cell">${ranks.get(group.key) || "-"}</td>
               <td>${escapeHtml(tenureText(group.appointedAt))}</td>
@@ -3631,8 +3632,9 @@
       async function loadScoreStateFromCloud() {
         const client = initSupabaseClient();
         if (!client) return false;
-        const result = await client.from("score_states").select("payload").eq("id", SCORE_CLOUD_STATE_ID).maybeSingle();
+        const result = await client.from("score_states").select("payload,updated_at").eq("id", SCORE_CLOUD_STATE_ID).maybeSingle();
         if (result.error) throw result.error;
+        cloudStateUpdatedAt = result.data && result.data.updated_at ? result.data.updated_at : null;
         if (!result.data || !result.data.payload) {
           cloudDataLoaded = true;
           return false;
@@ -3640,6 +3642,29 @@
         state = normalizeState(result.data.payload);
         cloudDataLoaded = true;
         return true;
+      }
+
+      // 检查云端是否有更新版本，有则自动拉取刷新（多人多设备协同）
+      async function refreshFromCloudIfStale() {
+        const client = initSupabaseClient();
+        if (!client) return;
+        // 管理员正在输入时跳过本轮，避免打断编辑（编辑均为即时保存，不会丢数据）
+        const active = document.activeElement;
+        if (active && /^(INPUT|SELECT|TEXTAREA)$/.test(active.tagName)) return;
+        try {
+          const result = await client.from("score_states").select("updated_at").eq("id", SCORE_CLOUD_STATE_ID).maybeSingle();
+          if (result.error) throw result.error;
+          const remoteStamp = result.data ? result.data.updated_at || null : null;
+          if (remoteStamp === cloudStateUpdatedAt) return;
+          const loaded = await loadScoreStateFromCloud();
+          if (loaded) {
+            await mergeRosterIntoStateSafe();
+            render();
+            showToast("检测到云端更新，已刷新为最新数据。");
+          }
+        } catch (error) {
+          // 静默降级：切回页面时的后台刷新失败不打扰用户
+        }
       }
 
       // 把邀约页维护的 trainers 花名册合并进积分看板名单：新人追加，已有的人（部门+姓名一致）不重复
@@ -3686,12 +3711,14 @@
         }
         state.version = 3;
         state.updatedAt = nowStamp();
+        const stamp = new Date().toISOString();
         const result = await client.from("score_states").upsert({
           id: SCORE_CLOUD_STATE_ID,
           payload: state,
-          updated_at: new Date().toISOString()
+          updated_at: stamp
         }, { onConflict: "id" });
         if (result.error) throw result.error;
+        cloudStateUpdatedAt = stamp;
         saveStatus();
         if (showSuccess) showToast("积分看板数据已同步到云端。");
       }
@@ -3718,16 +3745,12 @@
         currentUser = data.user;
         el("adminLoginModal").hidden = true;
         form.reset();
-        if (readonlyMode || !localScoreDataExists()) {
-          try {
-            await loadScoreStateFromCloud();
-            await mergeRosterIntoStateSafe();
-          } catch (cloudError) {
-            showToast(`云端数据读取失败：${cloudError.message || cloudError}`);
-          }
-        } else {
+        try {
+          const loaded = await loadScoreStateFromCloud();
           await mergeRosterIntoStateSafe();
-          showToast("已进入后台。本机旧数据已保留，可点击“同步云端”。");
+          showToast(loaded ? "已进入后台，已加载云端最新数据。" : "已进入后台。云端暂无数据，沿用当前数据。");
+        } catch (cloudError) {
+          showToast(`云端数据读取失败：${cloudError.message || cloudError}`);
         }
         render();
       }
@@ -3752,10 +3775,18 @@
             currentUser = session && session.user ? session.user : null;
             render();
           });
-          if (readonlyMode || !localScoreDataExists()) {
+          // 云端优先：任何人打开页面都先取云端最新；云端无数据或读取失败时才沿用本机/默认数据
+          try {
             await loadScoreStateFromCloud();
+          } catch (error) {
+            if (localScoreDataExists()) showToast("云端暂时不可达，已沿用本机数据。");
           }
           await mergeRosterIntoStateSafe();
+          // 多人多设备协同：切回页面 / 每 60 秒检查云端是否被他人更新过，有则自动刷新
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") refreshFromCloudIfStale();
+          });
+          window.setInterval(() => refreshFromCloudIfStale(), 60000);
         } catch (error) {
           showToast(`云端数据读取失败：${error.message || error}`);
         }
